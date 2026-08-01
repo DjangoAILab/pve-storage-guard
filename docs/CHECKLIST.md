@@ -194,7 +194,8 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   both the quality gate (4m35s) and dependent linux/amd64 image build (4m57s)
   successful for the earlier importer commit while the PR remained Draft.
   Internal run 154 then validated `51cc834`: quality gates passed in 4m31s and
-  the image build in 4m47s. CI for follow-up `e7e7997` is pending.
+  the image build in 4m47s. Final run 155 validated follow-up `e7e7997`: quality
+  gates passed in 4m34s and the image build in 4m45s. PR #37 remains Draft.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite

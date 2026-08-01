@@ -299,7 +299,8 @@ and deterministic reconciliation tests. TypeScript build/lint and the
 dependency-boundary check also pass locally, as do all 101 frontend tests plus
 build/lint. Internal CI run 154 validated capability commit `51cc834`: its Node
 22 quality gate passed in 4m31s and dependent linux/amd64 image build passed in
-4m47s. CI for the smaller existing-review-group refinement `e7e7997` is pending. Production
+4m47s. Final run 155 validated the smaller existing-review-group refinement
+`e7e7997`: quality gates passed in 4m34s and the image build in 4m45s. Production
 probe installation, capability registration/runtime invocation, trace export,
 notification delivery, and alert enablement remain explicit approval gates.
 

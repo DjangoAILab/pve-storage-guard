@@ -105,6 +105,7 @@ probe installation, alert enablement, or production deployment. The public
 batch reader is local, digest-bound, and persistence-free. All 1,266 backend
 tests across 151 files and all 101 frontend tests pass locally; build, lint, and
 dependency boundaries are also clean. Internal CI run 154 validated capability
-commit `51cc834` with a 4m31s quality gate and 4m47s image build; CI for the
-smaller existing-review-group refinement `e7e7997` is pending while PR #37
-stays Draft. Production rollout remains an explicit approval gate.
+commit `51cc834` with a 4m31s quality gate and 4m47s image build. Final run 155
+validated the existing-review-group refinement `e7e7997` with a 4m34s quality
+gate and 4m45s image build while PR #37 stays Draft. Production rollout remains
+an explicit approval gate.
