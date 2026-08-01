@@ -193,7 +193,8 @@ As of 2026-08-02, the integration remains an internal draft PR and has not been
 merged or deployed. Verification covers all 1,232 backend tests across 144
 files, including 16 focused PVE/runtime tests, 11 restricted-probe tests, and
 15 focused threshold-evaluator tests. TypeScript build/lint and the
-dependency-boundary check also pass. Production probe installation,
+dependency-boundary check also pass; the internal Draft PR's quality-gate and
+linux/amd64 image-build jobs are successful. Production probe installation,
 notification delivery, and alert enablement remain explicit approval gates.
 
 The draft also adds a PVE-only storage-pressure dashboard that combines PSI,
