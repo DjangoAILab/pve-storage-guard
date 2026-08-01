@@ -47,6 +47,21 @@ Only explicitly enrolled, non-critical resources can appear in an allocation.
 Unknown fields, unsupported schemas, and mismatched storage domains are
 rejected; stale observations cannot increase a budget.
 
+## Optional private decision journal
+
+Add `--journal FILE` to the shadow command to append a versioned JSONL decision
+event before each proposal is written to stdout. New files are `0600`; symlinks,
+non-regular targets, and existing files accessible by group or other are
+rejected. Every event is synced, and a journal error suppresses the matching
+proposal. A non-blocking exclusive lock enforces one writer. The command stops
+before the journal reaches 256 MiB and remains fail-closed until the operator
+rotates the file.
+
+The journal is disabled by default and has no built-in rotation, network export, ITOps
+callback, or actuator. It contains absolute event times and operator-provided
+opaque keys, so do not publish it as a replay trace without the separate
+sanitization and export review.
+
 ## Container
 
 The local image runs as a non-root user:

@@ -62,6 +62,14 @@ printf '{"schemaVersion":"guard.storage-slo.io/v1alpha1","id":"quickstart-1","ob
       --enrollment configs/examples/reference-enrollment.json
 ```
 
+Decision journaling is explicit and remains local. Add `--journal FILE` to
+append a versioned JSONL event before each corresponding proposal reaches
+stdout. A new journal is created as `0600`; symlinks, non-regular targets, and
+existing files accessible by group or other are rejected. Every successful
+append is synced; a non-blocking exclusive lock enforces one writer, and a
+256 MiB hard cap stops output until the operator rotates the file. There is no
+default journal, built-in rotation, network export, or ITOps delivery.
+
 Host service installation instructions will be published only after their
 safety gates pass. Until then, see [the goal](docs/GOAL.md),
 [architecture](docs/ARCHITECTURE.md), [policy design](docs/POLICY-DESIGN.md),
@@ -79,8 +87,9 @@ flowchart LR
     Actuator -->|effective-state read-back| Safety
 ```
 
-The current binary exposes `version` and a non-actuating `shadow` command.
-Agent, replay, validation, and approved enforcement modes remain roadmap work.
+The current binary exposes `version` and a non-actuating `shadow` command with
+an optional private decision journal. Agent, replay, validation, and approved
+enforcement modes remain roadmap work.
 Container images will be published at `ghcr.io/djangoailab/pve-storage-guard`
 after release validation.
 

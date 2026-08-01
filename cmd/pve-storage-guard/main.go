@@ -16,6 +16,7 @@ import (
 	"github.com/DjangoAILab/pve-storage-guard/internal/allocator"
 	"github.com/DjangoAILab/pve-storage-guard/internal/config"
 	"github.com/DjangoAILab/pve-storage-guard/internal/controller"
+	"github.com/DjangoAILab/pve-storage-guard/internal/telemetry"
 )
 
 var version = "dev"
@@ -43,10 +44,11 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	return 2
 }
 
-func runShadow(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
+func runShadow(args []string, stdin io.Reader, stdout, stderr io.Writer) (resultErr error) {
 	flags := flag.NewFlagSet("shadow", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 	policyPath := flags.String("policy", "", "storage-domain policy JSON")
+	journalPath := flags.String("journal", "", "optional private append-only decision journal JSONL")
 	var enrollmentPaths stringList
 	flags.Var(&enrollmentPaths, "enrollment", "disk enrollment JSON; repeat for each resource")
 	if err := flags.Parse(args); err != nil {
@@ -88,6 +90,18 @@ func runShadow(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	if err != nil {
 		return err
 	}
+	var journal *telemetry.Journal
+	if *journalPath != "" {
+		journal, err = telemetry.OpenJournal(*journalPath)
+		if err != nil {
+			return fmt.Errorf("open journal: %w", err)
+		}
+		defer func() {
+			if closeErr := journal.Close(); resultErr == nil && closeErr != nil {
+				resultErr = fmt.Errorf("close journal: %w", closeErr)
+			}
+		}()
+	}
 
 	scanner := bufio.NewScanner(stdin)
 	scanner.Buffer(make([]byte, 64*1024), 1024*1024)
@@ -109,6 +123,15 @@ func runShadow(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 		if err != nil {
 			return fmt.Errorf("process observation on line %d: %w", line, err)
 		}
+		if journal != nil {
+			event, eventErr := telemetry.NewShadowDecisionEvent(observation, proposal)
+			if eventErr != nil {
+				return fmt.Errorf("build decision event on line %d: %w", line, eventErr)
+			}
+			if eventErr := journal.Append(event); eventErr != nil {
+				return fmt.Errorf("append decision event on line %d: %w", line, eventErr)
+			}
+		}
 		if err := encoder.Encode(proposal); err != nil {
 			return fmt.Errorf("write proposal: %w", err)
 		}
@@ -126,10 +149,12 @@ Status: pre-release; observer/shadow only
 
 Usage:
   pve-storage-guard version
-  pve-storage-guard shadow --policy POLICY.json --enrollment RESOURCE.json [--enrollment ...]
+  pve-storage-guard shadow --policy POLICY.json --enrollment RESOURCE.json [--enrollment ...] [--journal DECISIONS.jsonl]
 
 The shadow command reads newline-delimited observations from stdin and writes
-newline-delimited proposals to stdout. It never invokes an actuator.
+newline-delimited proposals to stdout. An explicit --journal appends and syncs
+private decision events before their proposals are emitted. No journal is
+created by default, and the command never invokes an actuator.
 `)
 	return err
 }
