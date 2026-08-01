@@ -6,7 +6,9 @@ description: Historical evidence, counterfactual models, strategy results, and l
 ## Evidence lanes
 
 **Observed shadow replay** consumes the exact retained write-wait series and
-records controller decisions without changing history.
+records controller decisions without changing history. The incident series is
+ZFS write total-wait; taking p95 across its samples does not turn it into a true
+I/O latency p95. It is pressure-proxy evidence, not production p95 calibration.
 
 **Counterfactual sensitivity replay** caps derived demand by each proposed
 budget and evaluates conservative, nominal, and optimistic monotonic pool
@@ -29,5 +31,8 @@ safety constraint.
 The historical store did not retain one-second PSI, queue, IOPS, or SSH/API
 probes. The twelve write-wait samples are an incident window, not a baseline.
 One incident cannot establish defaults for SSD, HDD, Ceph, or network storage.
+Two other local windows survive only as same-episode aggregate summaries, so
+they cannot be replayed or counted as an independent trace. The replay trace
+contract keeps source kind, statistic, completeness, and independence explicit.
 
 The recommendation is **shadow-only**. Fixed 20 MiB/s remains the fallback.

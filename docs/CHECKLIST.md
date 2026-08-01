@@ -29,17 +29,22 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [x] Define conservative, nominal, and optimistic storage models.
 - [x] Define a safety-first selection gate and bounded parameter search.
 - [x] Migrate the replay code and anonymized fixtures into this repository.
-- [x] Re-run all 11 unit tests and reproduce Markdown/JSON reports locally.
+- [x] Run all 19 offline Python tests and reproduce Markdown/JSON reports locally.
   Evidence: `poc/results/report.md` and `poc/results/report.json`.
 - [x] Add estimated job completion time and hourly decision churn to the report.
 - [x] Record unavailable historical IOPS, PSI, queue, and management-plane
   samples as evidence gaps; do not synthesize them as observations.
-- [ ] Add at least one independent trace before considering active control.
+- [ ] Add at least one independent trace before considering active control. A
+  strict replay-trace schema and dependency-free assessor now reject synthetic,
+  same-group, incomplete, unknown-class, and non-p95 evidence; the local audit
+  found only same-episode aggregates without replayable samples.
 - [x] Run one-at-a-time parameter-neighborhood sensitivity analysis. Evidence:
   `poc/results/report.md`; 16/18 neighbors pass, while faster additive increase
   and shorter healthy confirmation fail the safety gate.
 - [ ] Add independent storage-class and workload-shape traces; do not relabel
   the three counterfactual capacity models as observed storage classes.
+  ADR-0003 now makes metric statistic, provenance, and independence group
+  mandatory trace fields.
 - [!] Promote an adaptive policy beyond shadow mode only after PoC and live
   evidence gates pass.
 
@@ -95,8 +100,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [x] Persist required project documents and ADRs locally.
 - [x] Add Apache-2.0 license, DCO, contributing guide, security policy, code of
   conduct, support/governance policy, Dependabot, and issue/PR templates.
-- [~] Add unit, shadow CLI, and replay tests; integration and performance
-  coverage remain.
+- [~] Add unit, shadow CLI, replay, trace-qualification, and performance smoke
+  tests. Repeated local benchmarks cover policy evaluation, 100-disk allocation,
+  and the verified safety gate; end-to-end adapter/storage performance and
+  controlled-load coverage remain.
 - [x] Add pinned GitHub Actions for lint, test/race, replay golden, CodeQL,
   govulncheck, secret scan, OCI build/Trivy, docs build, and Pages.
 - [x] Add multi-architecture release workflow with pinned actions, binary/image

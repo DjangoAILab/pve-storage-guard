@@ -25,6 +25,8 @@ jobs:
         run: go vet ./...
       - name: Test with race detector
         run: go test -race -coverprofile=coverage.out ./...
+      - name: Performance smoke benchmarks
+        run: go test -run '^$' -bench . -benchtime=100ms -benchmem ./internal/policy ./internal/allocator ./internal/safety
       - name: Install staticcheck
         run: go install honnef.co/go/tools/cmd/staticcheck@v0.8.0-rc.1
       - name: Staticcheck
@@ -43,7 +45,7 @@ jobs:
           diff -u poc/results/report.json /tmp/report.json
       - name: Validate JSON documents
         run: |
-          for document in api/v1/schema/*.json configs/examples/*.json; do
+          for document in api/v1/schema/*.json configs/examples/*.json poc/schema/*.json; do
             python3 -m json.tool "$document" >/dev/null
           done
       - name: Upload coverage
