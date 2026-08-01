@@ -38,6 +38,12 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   strict replay-trace schema and dependency-free assessor now reject synthetic,
   same-group, incomplete, unknown-class, and non-p95 evidence; the local audit
   found only same-episode aggregates without replayable samples.
+- [x] Capture and sanitize a synchronized read-only live window without a host
+  install. The 30-second result records ZFS interval-mean `total_wait`, pool
+  IOPS/throughput, member-disk average wait/queue/utilization, PSI, and four
+  successful management probes. It is explicitly not replay-qualified because
+  it is short, uncontrolled, lacks exact workload binding, and contains no true
+  I/O p95. Evidence: [PoC live baseline](POC.md#read-only-live-baseline-not-replay-qualified).
 - [x] Run one-at-a-time parameter-neighborhood sensitivity analysis. Evidence:
   `poc/results/report.md`; 16/18 neighbors pass, while faster additive increase
   and shorter healthy confirmation fail the safety gate.
@@ -168,7 +174,12 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   health, and controller state. Internal draft PR #37 now has a
   read-only `pve.storage-pressure` probe and mappings for PSI, in-flight I/O,
   disk counters, derived IOPS/throughput/average wait/queue/utilization, and
-  management-probe health. A pure sanitized replay-trace builder now preserves
+  management-probe health. The draft now also parses one complete fixed-argv
+  `zpool iostat -lpH 1 2` interval into separately typed ZFS pool
+  `total_wait`/`disk_wait`, IOPS, and throughput gauges. ZFS values are labeled
+  as one-second interval means, remain outside detector v1, and cannot be
+  relabeled as disk average wait or I/O p95. A live stdin-only probe check
+  succeeded without installation or remote writes. A pure sanitized replay-trace builder now preserves
   fixed `average`/`derived` diskstats semantics, relative offsets, declared
   gaps, and excludes internal selection identifiers; it has no route, writer,
   or deployment path. Merge, deployment, true p95 telemetry, trace review,
@@ -212,7 +223,9 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   real notification delivery, and explicit enablement remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Draft PR #37 now includes a tested PVE-only storage-pressure dashboard for
-  PSI, management health, per-disk pressure evidence, and alert gates. The
+  PSI, management health, separately typed ZFS-pool and per-disk pressure
+  evidence, and alert gates. The pool table states that its one-second means do
+  not participate in detector v1. The
   controller now has a private append/sync journal, an identity-free sealed
   verifier, and a bounded digest-matched reader; the internal draft has a tested
   but uninvoked persistence adapter.
@@ -228,6 +241,9 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   one-second storage latency, PSI, or queue history.
 - The twelve one-second wait samples are an incident window, not a long-running
   baseline.
+- The 2026-08-02 live window is only 30 seconds of natural load. Its ZFS
+  `total_wait` percentile is across interval means, while diskstats wait is a
+  derived device average; neither is a true I/O latency percentile.
 - Counterfactual outcomes depend on explicit monotonic pool models and are not
   causal proof.
 - One incident cannot justify a universal default across SSD, HDD, ZFS special

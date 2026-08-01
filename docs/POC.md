@@ -143,6 +143,40 @@ episode and was rolled back. This does not invalidate its use as a deterministic
 counterfactual comparator; it does block using it as a universal fallback or
 promotion gate by itself.
 
+### Read-only live baseline (not replay-qualified)
+
+A synchronized 30-second natural-load window was collected on 2026-08-02 by
+executing the proposed probe in memory over SSH stdin. Nothing was installed,
+registered, limited, or changed on the host. Raw host, pool, and workload
+identifiers were kept out of the repository and the temporary capture was
+moved to the system Trash after the aggregate was checked.
+
+| Signal | Sanitized result |
+| --- | ---: |
+| ZFS write `total_wait`, median of 30 one-second interval means | 12.784 ms |
+| ZFS write `total_wait`, p95 / maximum across interval means | 136.069 / 153.569 ms |
+| Interval means above 25 ms / at least 100 ms | 10 / 3 |
+| ZFS write IOPS, mean / maximum | 115.6 / 320 |
+| ZFS write throughput, mean / maximum | 4.151 / 19.948 MiB/s |
+| Member-disk average write wait, maximum across 3 derived intervals | 20.100 ms |
+| Member-disk queue depth / utilization, maximum | 1.121 / 33.691% |
+| PSI `some` avg10 range / `full` avg10 range | 4.84–6.08% / 3.27–4.57% |
+| Management probe | 4/4 succeeded; 1.586 s median, 1.728 s maximum |
+| Existing detector v1 | level 0 for both anonymous member disks in all 3 intervals |
+
+The ZFS p95 above is a percentile across one-second interval means, not a p95 of
+individual I/O operations. The diskstats value is an interval average derived
+from cumulative device counters. Their divergence is therefore a semantic and
+layering observation, not proof that detector v1 missed an incident. It does
+show that diskstats-only monitoring cannot represent the ZFS-layer signature
+used by the incident replay.
+
+This window is deliberately ineligible as a promotion trace: it is short,
+contains no controlled event, has no exact storage-domain-to-workload binding,
+and does not provide true I/O p95. The management duration also includes local
+`pvesh` process startup and is a baseline value, not evidence of management-plane
+degradation.
+
 ### Parameter sensitivity
 
 The reproducible report also varies six parameters one at a time around the
