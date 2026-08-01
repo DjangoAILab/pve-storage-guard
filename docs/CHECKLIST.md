@@ -126,7 +126,8 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   `v0.1.0-rc.1` release successfully built, signed, attested, and uploaded the
   `linux/amd64` and `linux/arm64` image, but GitHub still reports the package as
   private. Changing package visibility requires an authenticated owner browser
-  session and is irreversible; anonymous pull verification remains pending.
+  session and is irreversible; an isolated no-credential manifest check still
+  returned `unauthorized` on 2026-08-02.
 
 ## 6. Local practice and ITOps
 
@@ -143,7 +144,8 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   management-probe health; merge, deployment, p95 telemetry, and controller
   events remain. Evidence: ITOps commits `90b04b0` and `44df889`; all 1,232
   backend tests, 16 focused PVE/runtime tests, 11 restricted-probe tests,
-  build/lint, and dependency checks passed on 2026-08-02.
+  build/lint, and dependency checks passed on 2026-08-02. The internal Draft
+  PR's quality-gate and linux/amd64 image-build jobs also pass.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
