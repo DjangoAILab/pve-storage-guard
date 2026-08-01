@@ -206,15 +206,18 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   has network delivery, runtime registration, alert processing, or production
   deployment. Evidence: public ADR 0005 and public content-addressed batch tests;
   ITOps commits `90b04b0`, `44df889`, `242a7ff`, `c236d06`, `4fe5b97`,
-  `40e7d0a`, `51cc834`, and `e7e7997`; all 1,266 backend tests across 151 files passed
+  `40e7d0a`, `51cc834`, `e7e7997`, and `ccbbabd`; all 1,266 backend tests across 151 files passed
   locally on 2026-08-02, including the SQLite approval-to-import handoff,
   exact-argv reader, and registry-absence tests. Backend build/lint/dependency checks and
   all 101 frontend tests plus build/lint passed. Internal CI run 153 confirmed
   both the quality gate (4m35s) and dependent linux/amd64 image build (4m57s)
   successful for the earlier importer commit while the PR remained Draft.
   Internal run 154 then validated `51cc834`: quality gates passed in 4m31s and
-  the image build in 4m47s. Final run 155 validated follow-up `e7e7997`: quality
-  gates passed in 4m34s and the image build in 4m45s. PR #37 remains Draft.
+  the image build in 4m47s. Run 155 validated follow-up `e7e7997`: quality
+  gates passed in 4m34s and the image build in 4m45s. Final internal
+  [run 156](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/156)
+  validated typed ZFS shadow telemetry `ccbbabd`: quality gates passed in 4m33s
+  and the linux/amd64 image build in 5m10s. PR #37 remains Draft.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
