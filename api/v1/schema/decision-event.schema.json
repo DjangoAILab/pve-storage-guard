@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/decision-event.json",
+  "title": "PVE Storage Guard shadow decision event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "eventId", "eventType", "recordedAt", "domainKey", "mode", "policyVersion", "observation", "decision", "safety", "outcome"],
+  "properties": {
+    "schemaVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "eventId": { "type": "string", "pattern": "^event-[0-9a-f]{24}$" },
+    "eventType": { "const": "storage_guard.decision" },
+    "recordedAt": { "type": "string", "format": "date-time" },
+    "domainKey": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "mode": { "const": "shadow" },
+    "policyVersion": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "observedAt", "ageSeconds", "writeWaitP95Milliseconds", "waitValid", "emergency", "managementPlaneHealthy"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "observedAt": { "type": "string", "format": "date-time" },
+        "ageSeconds": { "type": "number" },
+        "writeWaitP95Milliseconds": { "type": "number", "minimum": 0 },
+        "waitValid": { "type": "boolean" },
+        "emergency": { "type": "boolean" },
+        "managementPlaneHealthy": { "type": "boolean" }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["proposalId", "reason", "previousBudgetMiBps", "desiredBudgetMiBps", "changed", "allocations", "allocationFeasible"],
+      "properties": {
+        "proposalId": { "type": "string", "pattern": "^proposal-[0-9a-f]{24}$" },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "previousBudgetMiBps": { "type": "number", "minimum": 0 },
+        "desiredBudgetMiBps": { "type": "number", "minimum": 0 },
+        "changed": { "type": "boolean" },
+        "allocations": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "minLength": 1, "maxLength": 256 },
+          "additionalProperties": { "type": "number", "minimum": 0 }
+        },
+        "allocationFeasible": { "type": "boolean" }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allocationFeasible", "actuationAllowed", "leaseStatus", "approvalStatus", "effectiveStateStatus"],
+      "properties": {
+        "allocationFeasible": { "type": "boolean" },
+        "actuationAllowed": { "const": false },
+        "leaseStatus": { "const": "not_evaluated" },
+        "approvalStatus": { "const": "not_evaluated" },
+        "effectiveStateStatus": { "const": "not_evaluated" }
+      }
+    },
+    "outcome": { "const": "shadow_evaluated" }
+  }
+}
