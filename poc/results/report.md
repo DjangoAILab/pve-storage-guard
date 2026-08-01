@@ -9,6 +9,20 @@ This report is generated from read-only historical evidence. Counterfactual valu
 - Eligible adaptive strategies: aimd_poc_tuned
 - Rejected adaptive strategies: aimd_balanced, aimd_conservative, aimd_responsive
 
+## Retained incident detection coverage
+
+- Write-wait sampling began 53s after the retained management-failure marker.
+- Two consecutive samples above 25 ms detected pressure 1s after sampling began (54s after the failure marker).
+- The first sample at or above 100 ms appeared at offset 2s.
+- Advance warning: **not proven**; the retained telemetry begins after failure.
+- Missing historical corroboration: io_psi, management_probe_series, queue_depth.
+
+## Observed fixed-cap field check
+
+- A 20 MiB/s cap natural-load baseline had 22/60 samples (36.67%) above 25 ms; p99 was 234.065464 ms.
+- Controlled load was not started; the cap was rejected and rolled back.
+- This aggregate same-episode result is non-replayable and not independent. Fixed 20 remains a model comparator, not a validated production fallback.
+
 ## Counterfactual comparison
 
 ### conservative
@@ -75,5 +89,7 @@ One-at-a-time neighbors around the selected candidate; values remain model-assis
 ## Limitations
 
 - Observed replay says what the controller would decide; it does not alter captured wait values.
+- Retained write-wait telemetry starts after the management failure marker, so advance warning is not proven.
+- The fixed-20 field check is aggregate, same-episode, and non-replayable; it rejects a production fallback claim but is not an independent trace.
 - Counterfactual wait values come from explicit monotonic models, not causal production measurements.
 - One incident cannot establish a globally optimal policy; the recommendation is shadow-only.

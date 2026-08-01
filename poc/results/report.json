@@ -1404,10 +1404,52 @@
   },
   "limitations": [
     "Observed replay says what the controller would decide; it does not alter captured wait values.",
+    "Retained write-wait telemetry starts after the management failure marker, so advance warning is not proven.",
+    "The fixed-20 field check is aggregate, same-episode, and non-replayable; it rejects a production fallback claim but is not an independent trace.",
     "Counterfactual wait values come from explicit monotonic models, not causal production measurements.",
     "One incident cannot establish a globally optimal policy; the recommendation is shadow-only."
   ],
   "mode": "offline-read-only-poc",
+  "observedIncidentAssessment": {
+    "corroboration": {
+      "missingSignals": [
+        "io_psi",
+        "management_probe_series",
+        "queue_depth"
+      ],
+      "status": "not_measurable_missing_series"
+    },
+    "detection": {
+      "advanceWarningLeadSeconds": null,
+      "advanceWarningProven": false,
+      "advanceWarningStatus": "not_proven_telemetry_started_after_failure",
+      "criticalDetectedAt": "2026-07-31T15:07:44Z",
+      "criticalDetectionOffsetSeconds": 2,
+      "criticalThresholdMilliseconds": 100,
+      "pressureConsecutiveSamples": 2,
+      "pressureDetectedAt": "2026-07-31T15:07:43Z",
+      "pressureDetectionAfterFailureSeconds": 54,
+      "pressureDetectionOffsetSeconds": 1,
+      "pressureThresholdMilliseconds": 25,
+      "samplingStartedAfterFailureSeconds": 53
+    },
+    "fieldValidation": {
+      "capMiBps": 20,
+      "controlledLoadStarted": false,
+      "independentTrace": false,
+      "kind": "fixed_cap_natural_load",
+      "outcome": "rejected_and_rolled_back",
+      "p99WriteWaitMilliseconds": 234.065464,
+      "productionFallbackStatus": "rejected_by_observed_field_check",
+      "replayEligible": false,
+      "sampleCount": 60,
+      "unsafeSampleCount": 22,
+      "unsafeSamplePercent": 36.67,
+      "unsafeThresholdMilliseconds": 25
+    },
+    "kind": "observed-incident-evidence-assessment",
+    "productionPromotionBlocked": true
+  },
   "observedShadowReplay": {
     "decisions": [
       {
@@ -1881,11 +1923,13 @@
     "eligibleAdaptiveStrategies": [
       "aimd_poc_tuned"
     ],
+    "fixed20Role": "model_comparator_only",
     "fixed20UnsafeSeconds": {
       "conservative": 1,
       "nominal": 0,
       "optimistic": 0
     },
+    "productionPromotionBlocked": true,
     "recommendedShadowCandidate": "aimd_poc_tuned",
     "rejectedAdaptiveStrategies": [
       "aimd_balanced",
