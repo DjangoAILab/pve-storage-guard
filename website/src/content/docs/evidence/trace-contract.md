@@ -31,3 +31,10 @@ The schema and validator live in the public repository. No qualifying second
 trace is claimed yet. Passing the machine gate is necessary but cannot prove a
 self-declared provenance; source hashing, redaction review, and human evidence
 approval remain required.
+
+The internal ITOps draft now has a pure builder for reviewed metric windows. It
+preserves the declared window and gaps, removes absolute times and internal
+selection identifiers, and fixes diskstats evidence to `average`, `none`, and
+`derived`. It has no route, writer, scheduler, or publication side effect. A
+separate telemetry mapping is still required before true p95 evidence can be
+exported or qualify for the independent-trace gate.

@@ -148,11 +148,14 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   health, and controller state. Internal draft PR #37 now has a
   read-only `pve.storage-pressure` probe and mappings for PSI, in-flight I/O,
   disk counters, derived IOPS/throughput/average wait/queue/utilization, and
-  management-probe health; merge, deployment, p95 telemetry, and controller
-  events remain. Evidence: ITOps commits `90b04b0` and `44df889`; all 1,232
-  backend tests, 16 focused PVE/runtime tests, 11 restricted-probe tests,
-  build/lint, and dependency checks passed on 2026-08-02. The internal Draft
-  PR's quality-gate and linux/amd64 image-build jobs also pass.
+  management-probe health. A pure sanitized replay-trace builder now preserves
+  fixed `average`/`derived` diskstats semantics, relative offsets, declared
+  gaps, and excludes internal selection identifiers; it has no route, writer,
+  or deployment path. Merge, deployment, true p95 telemetry, trace review, and
+  controller events remain. Evidence: ITOps commits `90b04b0`, `44df889`, and
+  `242a7ff`; all 1,236 backend tests across 145 files, 16 focused PVE/runtime
+  tests, 11 restricted-probe tests, four replay-export tests, build/lint, and
+  dependency checks passed locally on 2026-08-02. Latest internal CI is pending.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
