@@ -7,6 +7,7 @@
   "required": [
     "schemaVersion",
     "kind",
+    "contentDigest",
     "eventCount",
     "changedCount",
     "policyVersionCount",
@@ -16,6 +17,7 @@
   "properties": {
     "schemaVersion": { "const": "guard.storage-slo.io/v1alpha1" },
     "kind": { "const": "DecisionJournalVerification" },
+    "contentDigest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
     "eventCount": { "type": "integer", "minimum": 0 },
     "changedCount": { "type": "integer", "minimum": 0 },
     "policyVersionCount": { "type": "integer", "minimum": 0 },

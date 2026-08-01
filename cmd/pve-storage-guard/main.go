@@ -38,12 +38,22 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 0
 	}
 	if len(args) > 0 && args[0] == "journal" {
-		if len(args) < 2 || args[1] != "verify" {
+		if len(args) < 2 {
 			_ = writeUsage(stderr)
 			return 2
 		}
-		if err := runJournalVerify(args[2:], stdout, stderr); err != nil {
-			_, _ = fmt.Fprintf(stderr, "journal verify: %v\n", err)
+		var err error
+		switch args[1] {
+		case "verify":
+			err = runJournalVerify(args[2:], stdout, stderr)
+		case "batch":
+			err = runJournalBatch(args[2:], stdout, stderr)
+		default:
+			_ = writeUsage(stderr)
+			return 2
+		}
+		if err != nil {
+			_, _ = fmt.Fprintf(stderr, "journal %s: %v\n", args[1], err)
 			return 1
 		}
 		return 0
@@ -76,6 +86,37 @@ func runJournalVerify(args []string, stdout, stderr io.Writer) error {
 	encoder.SetEscapeHTML(false)
 	if err := encoder.Encode(summary); err != nil {
 		return fmt.Errorf("write verification summary: %w", err)
+	}
+	return nil
+}
+
+func runJournalBatch(args []string, stdout, stderr io.Writer) error {
+	flags := flag.NewFlagSet("journal batch", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	journalPath := flags.String("journal", "", "sealed private decision journal JSONL")
+	expectedDigest := flags.String("expected-digest", "", "approved canonical sha256 content digest")
+	offset := flags.Uint64("offset", 0, "zero-based event offset")
+	limit := flags.Uint64("limit", 64, "maximum events to emit (1-64)")
+	if err := flags.Parse(args); err != nil {
+		return err
+	}
+	if flags.NArg() != 0 {
+		return errors.New("unexpected positional arguments")
+	}
+	if *journalPath == "" {
+		return errors.New("--journal is required")
+	}
+	if *expectedDigest == "" {
+		return errors.New("--expected-digest is required")
+	}
+	batch, err := telemetry.ReadVerifiedJournalBatch(*journalPath, *expectedDigest, *offset, *limit)
+	if err != nil {
+		return err
+	}
+	encoder := json.NewEncoder(stdout)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(batch); err != nil {
+		return fmt.Errorf("write private journal batch: %w", err)
 	}
 	return nil
 }
@@ -187,6 +228,7 @@ Usage:
   pve-storage-guard version
   pve-storage-guard shadow --policy POLICY.json --enrollment RESOURCE.json [--enrollment ...] [--journal DECISIONS.jsonl]
   pve-storage-guard journal verify --journal SEALED-DECISIONS.jsonl
+  pve-storage-guard journal batch --journal SEALED-DECISIONS.jsonl --expected-digest sha256:... [--offset N] [--limit 64]
 
 The shadow command reads newline-delimited observations from stdin and writes
 newline-delimited proposals to stdout. An explicit --journal appends and syncs
@@ -196,6 +238,11 @@ created by default, and the command never invokes an actuator.
 The journal verify command takes a shared non-blocking lock and emits one
 identity-free structural summary. It refuses an active writer and performs no
 rotation, import, network delivery, or mutation.
+
+The journal batch command revalidates the entire sealed file and its approved
+content digest before emitting a bounded page of private events. Its stdout is
+private data: pipe it only to an explicitly authorized local consumer. The
+command performs no network delivery or mutation.
 `)
 	return err
 }

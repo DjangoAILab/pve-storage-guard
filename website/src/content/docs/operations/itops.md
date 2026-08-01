@@ -45,20 +45,27 @@ For audit handoff, first stop or detach the writer, rotate the file under the
 site's approved procedure, and run `pve-storage-guard journal verify --journal
 SEALED.jsonl`. The read-only verifier refuses an active writer, unsafe file,
 oversized or malformed event, forged linkage, inconsistent age, and journals
-containing multiple storage domains. Its versioned output contains counts and
-time bounds but no resource identities.
+containing multiple storage domains. Its versioned output contains the exact
+raw-file SHA-256 digest, counts, and time bounds but no resource identities.
 
-Verification is structural only. It is not a signature, sanitization result,
-publication approval, or permission to ingest. The public code performs no
-rotation or import; the internal persistence service described below remains
-uninvoked and approval-gated.
+Approval must bind that digest and expected summary, target, domain, policy
+version, expiry, and exact resource mappings. An authorized local consumer may
+then invoke `journal batch` with the approved digest, offset, and a limit of at
+most 64. The command revalidates the entire file before emitting the requested
+private page. A mutable path is never authority, and batch stdout must never be
+captured in general task logs.
+
+Verification identifies structurally valid exact bytes. It is not a signature,
+sanitization result, publication approval, or permission to ingest. The public
+code performs no rotation, transport, or import; the internal persistence
+service described below remains runtime-uninvoked and approval-gated.
 
 This is a local single-writer handoff only. It has no network exporter, ITOps
 callback, rotation manager, actuator, or public-trace sanitization. An approved
 transport, runtime invocation, and incident-linking adapter remain future work.
 
-The internal ITOps draft now contains the matching pure event mapper and an
-uninvoked persistence service. It requires an already-authorized target plus
+The internal ITOps draft now contains the matching pure event mapper and a
+runtime-uninvoked persistence service. It requires an already-authorized target plus
 reviewed domain, policy revision, and storage/disk resource bindings. The
 repository rechecks target ownership and kind, then atomically persists the
 private audit row and `estimated`, low-cardinality metrics. Deterministic IDs
@@ -66,9 +73,24 @@ make identical retries no-ops; a canonical SHA-256 metric-projection digest
 rejects altered retries. One call is bounded to 64 events, 10,000 metrics, and
 1 MiB of private audit details per event.
 
-This does not create a live ingestion path. There is no journal reader,
-transport authentication, route, scheduler, runtime registration, alert
-evaluation, incident creation, notification, or actuation side effect.
+The draft also contains an unregistered, idempotent-write handoff capability
+and exact-argv reader. The immutable approval binds the digest and summary,
+target, domain/policy expectation, storage and disk resources, optional review
+group, and batch size. Persistence rechecks the current running proposal,
+envelope hash, approval, and expiry in the audit/metric transaction. Only
+digest/count reconciliation reaches task evidence.
+An optional review group must already exist; historical import never creates or
+changes an alert, group, or incident.
+
+A cross-repository local PoC built the public binary and passed one synthetic
+private event through the compiled ITOps exact-argv reader. The identity-free
+result confirmed digest match, one event, and complete pagination; event content
+was not printed.
+
+This does not create a live ingestion path. The public reader has no transport
+or persistence, and the internal importer has no approved runtime registration,
+route, scheduler, alert evaluation, incident creation, notification, or
+actuation side effect.
 
 ## Current draft boundary
 
@@ -78,10 +100,12 @@ builder. The builder accepts only already-authorized metric samples and emits
 relative offsets, numeric evidence, and coarse classes. Its diskstats semantics
 are fixed to `average` / `derived`; callers cannot label them `p95`.
 
-There is no export route, file writer, journal reader, transport, importer
-runtime registration, actuator, probe installation, alert enablement, or
-production deployment. All 1,252 backend tests across 148 files pass locally,
-including four export tests and 16 focused mapper/importer/repository tests.
-Internal CI run 153 completed both its quality gate in 4m35s and dependent
-linux/amd64 image build in 4m57s for the importer commit while the PR stayed
-Draft. Production rollout remains an explicit approval gate.
+There is no export route, transport, importer runtime registration, actuator,
+probe installation, alert enablement, or production deployment. The public
+batch reader is local, digest-bound, and persistence-free. All 1,266 backend
+tests across 151 files and all 101 frontend tests pass locally; build, lint, and
+dependency boundaries are also clean. Internal CI run 154 validated capability
+commit `51cc834` with a 4m31s quality gate and 4m47s image build. Final run 155
+validated the existing-review-group refinement `e7e7997` with a 4m34s quality
+gate and 4m45s image build while PR #37 stays Draft. Production rollout remains
+an explicit approval gate.

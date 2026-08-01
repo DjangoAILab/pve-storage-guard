@@ -2,7 +2,9 @@ package telemetry
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,6 +30,14 @@ func TestVerifyJournalSummarizesWithoutIdentifiers(t *testing.T) {
 	if summary.EventCount != 2 || summary.ChangedCount != 1 || summary.PolicyVersionCount != 2 || summary.DuplicateEventCount != 0 || summary.TimestampRegressionCount != 0 {
 		t.Fatalf("unexpected summary: %+v", summary)
 	}
+	payloadBytes, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read journal: %v", err)
+	}
+	expectedDigest := fmt.Sprintf("sha256:%x", sha256.Sum256(payloadBytes))
+	if summary.ContentDigest != expectedDigest {
+		t.Fatalf("content digest=%q want %q", summary.ContentDigest, expectedDigest)
+	}
 	if summary.EarliestRecordedAt == nil || !summary.EarliestRecordedAt.Equal(first.RecordedAt) || summary.LatestRecordedAt == nil || !summary.LatestRecordedAt.Equal(second.RecordedAt) {
 		t.Fatalf("unexpected time bounds: %+v", summary)
 	}
@@ -39,6 +49,84 @@ func TestVerifyJournalSummarizesWithoutIdentifiers(t *testing.T) {
 		if bytes.Contains(payload, []byte(privateValue)) {
 			t.Fatalf("summary leaked private value %q: %s", privateValue, payload)
 		}
+	}
+}
+
+func TestReadVerifiedJournalBatchReturnsOnlyTheRequestedPage(t *testing.T) {
+	first := testDecisionEvent("proposal-0123456789abcdef01234567")
+	second := testDecisionEvent("proposal-abcdef0123456789abcdef01")
+	third := testDecisionEvent("proposal-111111111111111111111111")
+	second.RecordedAt = second.RecordedAt.Add(time.Second)
+	second.Observation.ObservedAt = second.Observation.ObservedAt.Add(time.Second)
+	third.RecordedAt = third.RecordedAt.Add(2 * time.Second)
+	third.Observation.ObservedAt = third.Observation.ObservedAt.Add(2 * time.Second)
+	path := writePrivateJournal(t, first, second, third)
+	summary, err := VerifyJournal(path)
+	if err != nil {
+		t.Fatalf("verify journal: %v", err)
+	}
+
+	page, err := ReadVerifiedJournalBatch(path, summary.ContentDigest, 0, 2)
+	if err != nil {
+		t.Fatalf("read first page: %v", err)
+	}
+	if page.Offset != 0 || page.Complete || page.NextOffset == nil || *page.NextOffset != 2 {
+		t.Fatalf("unexpected first page cursor: %+v", page)
+	}
+	if len(page.Events) != 2 || page.Events[0].EventID != first.EventID || page.Events[1].EventID != second.EventID {
+		t.Fatalf("unexpected first page events: %+v", page.Events)
+	}
+	if page.Verification.ContentDigest != summary.ContentDigest || page.Verification.EventCount != 3 {
+		t.Fatalf("unexpected verification: %+v", page.Verification)
+	}
+
+	last, err := ReadVerifiedJournalBatch(path, summary.ContentDigest, 2, 2)
+	if err != nil {
+		t.Fatalf("read last page: %v", err)
+	}
+	if !last.Complete || last.NextOffset != nil || len(last.Events) != 1 || last.Events[0].EventID != third.EventID {
+		t.Fatalf("unexpected last page: %+v", last)
+	}
+}
+
+func TestReadVerifiedJournalBatchRejectsDigestAndCursorMismatch(t *testing.T) {
+	path := writePrivateJournal(t, testDecisionEvent("proposal-0123456789abcdef01234567"))
+	summary, err := VerifyJournal(path)
+	if err != nil {
+		t.Fatalf("verify journal: %v", err)
+	}
+	for _, test := range []struct {
+		name   string
+		digest string
+		offset uint64
+		limit  uint64
+	}{
+		{name: "empty digest", digest: "", limit: 1},
+		{name: "wrong digest", digest: "sha256:" + strings.Repeat("0", 64), limit: 1},
+		{name: "offset beyond end", digest: summary.ContentDigest, offset: 2, limit: 1},
+		{name: "zero limit", digest: summary.ContentDigest, limit: 0},
+		{name: "oversized limit", digest: summary.ContentDigest, limit: 65},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if _, err := ReadVerifiedJournalBatch(path, test.digest, test.offset, test.limit); err == nil {
+				t.Fatal("expected batch read to fail")
+			}
+		})
+	}
+}
+
+func TestReadVerifiedJournalBatchAcceptsAnEmptySealedJournal(t *testing.T) {
+	path := writePrivateJournal(t)
+	summary, err := VerifyJournal(path)
+	if err != nil {
+		t.Fatalf("verify journal: %v", err)
+	}
+	batch, err := ReadVerifiedJournalBatch(path, summary.ContentDigest, 0, 64)
+	if err != nil {
+		t.Fatalf("read empty batch: %v", err)
+	}
+	if !batch.Complete || batch.NextOffset != nil || len(batch.Events) != 0 {
+		t.Fatalf("unexpected empty batch: %+v", batch)
 	}
 }
 
@@ -88,6 +176,9 @@ func TestVerifyJournalRejectsActiveWriter(t *testing.T) {
 	defer func() { _ = journal.Close() }()
 	if _, err := VerifyJournal(path); err == nil || !strings.Contains(err.Error(), "lock") {
 		t.Fatalf("expected active writer rejection, got %v", err)
+	}
+	if _, err := ReadVerifiedJournalBatch(path, "sha256:"+strings.Repeat("0", 64), 0, 1); err == nil || !strings.Contains(err.Error(), "lock") {
+		t.Fatalf("expected active writer batch rejection, got %v", err)
 	}
 }
 

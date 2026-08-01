@@ -15,6 +15,8 @@ const (
 	SafetyNotEvaluated = "not_evaluated"
 	// DecisionJournalVerificationKind identifies an identity-free verification summary.
 	DecisionJournalVerificationKind = "DecisionJournalVerification"
+	// DecisionJournalBatchKind identifies one private, content-addressed journal page.
+	DecisionJournalBatchKind = "DecisionJournalBatch"
 )
 
 // Observation is a normalized, read-only storage-domain sample.
@@ -98,6 +100,7 @@ type DecisionEventSafety struct {
 type DecisionJournalVerification struct {
 	SchemaVersion            string     `json:"schemaVersion"`
 	Kind                     string     `json:"kind"`
+	ContentDigest            string     `json:"contentDigest"`
 	EventCount               uint64     `json:"eventCount"`
 	ChangedCount             uint64     `json:"changedCount"`
 	PolicyVersionCount       uint64     `json:"policyVersionCount"`
@@ -105,6 +108,18 @@ type DecisionJournalVerification struct {
 	TimestampRegressionCount uint64     `json:"timestampRegressionCount"`
 	EarliestRecordedAt       *time.Time `json:"earliestRecordedAt,omitempty"`
 	LatestRecordedAt         *time.Time `json:"latestRecordedAt,omitempty"`
+}
+
+// DecisionJournalBatch contains one bounded private page from an exact sealed
+// journal. Unlike DecisionJournalVerification, it is not safe to publish.
+type DecisionJournalBatch struct {
+	SchemaVersion string                      `json:"schemaVersion"`
+	Kind          string                      `json:"kind"`
+	Verification  DecisionJournalVerification `json:"verification"`
+	Offset        uint64                      `json:"offset"`
+	NextOffset    *uint64                     `json:"nextOffset,omitempty"`
+	Complete      bool                        `json:"complete"`
+	Events        []DecisionEvent             `json:"events"`
 }
 
 // ApplyRequest is the only shape accepted by a future constrained actuator.

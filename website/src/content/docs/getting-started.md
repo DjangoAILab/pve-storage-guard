@@ -71,8 +71,20 @@ go run ./cmd/pve-storage-guard journal verify \
 ```
 
 The verifier takes a shared non-blocking lock, rejects an active writer and
-unsafe or malformed content, and outputs only a versioned identity-free summary.
-It does not rotate, sanitize, sign, publish, import, or deliver the journal.
+unsafe or malformed content, and outputs a versioned identity-free summary with
+the exact raw-file `sha256:` digest. After that digest and summary have been
+reviewed and approved, an authorized local consumer can request a bounded page:
+
+```sh
+go run ./cmd/pve-storage-guard journal batch \
+  --journal /path/to/sealed-decisions.jsonl \
+  --expected-digest sha256:APPROVED_DIGEST \
+  --offset 0 --limit 64
+```
+
+The command revalidates the full file before emitting anything. Batch stdout is
+private; pipe it only to the approved consumer and never to general logs. These
+commands do not rotate, sanitize, sign, publish, import, or deliver the journal.
 
 ## Container
 

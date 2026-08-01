@@ -123,20 +123,25 @@ The audit handoff is intentionally separate from real-time metrics and alerts:
    limits, and rejects unsafe files, malformed/unknown fields, forged linkage,
    inconsistent age, and multiple domains.
 4. Review the identity-free event, changed, policy-version, duplicate, timestamp
-   regression, and time-bound summary. Non-zero anomaly counts are retained for
-   review; the verifier never silently deduplicates or sorts.
-5. Pass the sealed artifact to a separately approved importer only after its
-   authorization, persistence, retention, and incident-linking behavior is
-   reviewed. The internal ITOps draft contains a persistence service, but no
-   journal reader, transport, route, scheduler, or runtime registration invokes
-   it; the public project still contains no importer.
+   regression, time-bound, and exact raw-file `sha256:` summary. Non-zero
+   anomaly counts are retained for review; the verifier never silently
+   deduplicates or sorts.
+5. Bind approval to the digest and expected summary, collector target, storage
+   domain, policy version, expiry, and exact resource mappings. A file path is
+   not an approval identity.
+6. Only an approved local consumer may invoke `journal batch` with that digest.
+   Each call revalidates the complete sealed file and emits at most 64 private
+   events. Never capture its stdout in general task logs.
+7. Persist through an idempotent, atomic importer and link its sanitized result
+   to the approved task. The public CLI deliberately has no ITOps credentials,
+   database access, or network delivery.
 
-Successful verification proves structural consistency only. It is not a
-signature, tamper-proof provenance, sanitization result, publication approval,
-or permission to ingest the private journal.
+Successful verification proves structural consistency and identifies exact
+bytes. It is not a signature, tamper-proof provenance, sanitization result,
+publication approval, or permission to ingest the private journal.
 
-The internal ITOps draft now implements the matching pure mapper and an
-uninvoked persistence boundary. Given an already-authorized collector target,
+The internal ITOps draft now implements the matching pure mapper and a
+runtime-uninvoked persistence boundary. Given an already-authorized collector target,
 expected storage domain, and expected policy revision, the mapper strictly
 validates the complete v1alpha1 event, deterministic event/proposal linkage,
 timestamp-derived age, non-actuating safety state, stable reason vocabulary,
@@ -150,9 +155,28 @@ Calls are bounded to 64 events, 10,000 metrics, and 1 MiB of private audit
 details per event. The mapper does not promote the event's p95 field into
 durable monitoring evidence.
 
-This is storage plumbing, not a live ingestion path. It does not read a journal,
-authenticate a transport, expose a route, register a scheduler, evaluate alerts,
-create incidents, send notifications, or actuate storage.
+The draft also implements, but does not register, the idempotent-write handoff
+capability `storage_guard.journal.import.v1`. Its exact-argv reader uses no
+shell, credentials, network client, logger, or database. The approved envelope
+binds the journal digest and identity-free summary, collector target,
+domain/policy expectation, storage and every disk resource, optional review
+group, and batch size. Before each audit/metric transaction the repository
+rechecks the current proposal, envelope hash, running state, approval, and both
+expiry bounds. Task evidence receives only digest/count reconciliation.
+If an optional alert correlation group is present, the same transaction also
+requires that the reviewed group already exists. Historical import never
+creates or mutates an alert, correlation group, or incident.
+
+A local cross-repository PoC built this Go binary, wrote one synthetic private
+shadow event, verified its digest, and passed the exact file/digest to the
+compiled ITOps reader. The identity-free result confirmed digest match, one
+event, and complete pagination; event content was not printed and the temporary
+artifacts were moved to the system Trash.
+
+This remains storage plumbing, not a live ingestion path. The public batch
+reader has no transport or persistence. The internal persistence boundary has
+no approved capability registration, route, scheduler, alert evaluation,
+incident creation, notification, or actuation side effect.
 
 ## Alert model
 
@@ -269,15 +293,16 @@ recovery, with the detector evidence retained. Real notification delivery is
 still intentionally disabled.
 
 As of 2026-08-02, the integration remains an internal draft PR and has not been
-merged or deployed. Verification covers all 1,252 backend tests across 148
-files, including 16 focused PVE/runtime tests, 11 restricted-probe tests, 15
-focused threshold-evaluator tests, four replay-export tests, and 16 focused
-mapper/importer/repository tests. TypeScript build/lint and the
-dependency-boundary check also pass locally. Internal CI run 153 completed its
-quality gate in 4m35s and its dependent linux/amd64 image build in 4m57s for
-the importer commit while the PR stayed Draft. Production probe installation,
-journal transport/runtime invocation, trace export, notification delivery, and
-alert enablement remain explicit approval gates.
+merged or deployed. Verification covers all 1,266 backend tests across 151
+files, including the approval-to-persistence SQLite handoff, exact-argv reader,
+and deterministic reconciliation tests. TypeScript build/lint and the
+dependency-boundary check also pass locally, as do all 101 frontend tests plus
+build/lint. Internal CI run 154 validated capability commit `51cc834`: its Node
+22 quality gate passed in 4m31s and dependent linux/amd64 image build passed in
+4m47s. Final run 155 validated the smaller existing-review-group refinement
+`e7e7997`: quality gates passed in 4m34s and the image build in 4m45s. Production
+probe installation, capability registration/runtime invocation, trace export,
+notification delivery, and alert enablement remain explicit approval gates.
 
 The draft also adds a PVE-only storage-pressure dashboard that combines PSI,
 management-probe health, per-disk average wait, queue depth, utilization,
