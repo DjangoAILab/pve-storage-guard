@@ -20,7 +20,8 @@ could be described as independent validation.
 ## Decision
 
 - Every replay trace declares source kind, independence group, storage/workload
-  class, sampling interval, wait statistic, window aggregation, and provenance.
+  class, sampling interval, full window duration, wait statistic, window
+  aggregation, and provenance. Completeness includes leading/trailing gaps.
 - The current controller observation remains a true p95 contract. Only matching
   p95 traces are eligible to validate its thresholds.
 - Average and total-wait signals may support detection and proxy replay, but

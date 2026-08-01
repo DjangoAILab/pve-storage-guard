@@ -18,7 +18,7 @@ Every trace declares:
 - an opaque name and independence group;
 - `observed`, `synthetic`, or `modeled` provenance;
 - storage and workload classes;
-- sample interval and sanitized status;
+- sample interval, full window duration, and sanitized status;
 - whether write-wait is a real p95, an average, or ZFS total-wait;
 - whether another p95 aggregation is applied across the control window;
 - monotonically increasing relative offsets, not host timestamps or identities.
@@ -34,7 +34,8 @@ The current automated gate requires all of the following:
 
 - source kind is `observed` and sanitization is affirmed;
 - independence group differs from the reference incident;
-- at least 600 seconds with at least 95% sample completeness;
+- at least 600 declared window seconds with at least 95% sample completeness,
+  including leading and trailing gaps;
 - a known storage class and workload class;
 - a policy-compatible p95 signal;
 - no structural validation error.
@@ -57,6 +58,8 @@ ITOps may export a reviewed window into this contract after collection. It must
 preserve the original statistic and provenance. Diskstats-derived average wait
 maps to `average`; a real histogram/telemetry percentile maps to `p95`. Missing
 samples remain gaps and affect completeness rather than being forward-filled.
+Offsets are relative to the declared window start; completeness is never
+recomputed from only the first and last surviving samples.
 
 Validate a candidate with:
 

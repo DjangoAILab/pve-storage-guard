@@ -58,7 +58,7 @@ def assess_trace(document: Dict[str, object], reference_group: Optional[str] = N
 
     allowed_metadata = {
         "name", "sourceKind", "independenceGroup", "storageClass",
-        "workloadClass", "sampleIntervalSeconds", "sanitized",
+        "workloadClass", "sampleIntervalSeconds", "windowDurationSeconds", "sanitized",
     }
     if metadata and set(metadata) != allowed_metadata:
         errors.append("metadata fields do not match the strict contract")
@@ -70,6 +70,12 @@ def assess_trace(document: Dict[str, object], reference_group: Optional[str] = N
     if type(interval) is not int or interval < 1 or interval > 60:
         errors.append("sampleIntervalSeconds must be an integer from 1 to 60")
         interval = 1
+    window_duration = metadata.get("windowDurationSeconds")
+    if type(window_duration) is not int or window_duration < interval or window_duration > 2_678_400:
+        errors.append("windowDurationSeconds must cover 1 interval to 31 days")
+        window_duration = 0
+    elif window_duration % interval:
+        errors.append("windowDurationSeconds must be divisible by sampleIntervalSeconds")
     if metadata.get("sourceKind") not in {"observed", "synthetic", "modeled"}:
         errors.append("sourceKind is invalid")
     if metadata.get("sanitized") is not True:
@@ -130,12 +136,14 @@ def assess_trace(document: Dict[str, object], reference_group: Optional[str] = N
 
     if len(offsets) != len(set(offsets)) or offsets != sorted(offsets):
         errors.append("sample offsets must be unique and strictly increasing")
-    if offsets and any((offset - offsets[0]) % interval for offset in offsets):
-        errors.append("sample offsets must align to sampleIntervalSeconds")
+    if offsets and any(offset % interval for offset in offsets):
+        errors.append("sample offsets must align to the declared window start")
+    if offsets and any(offset >= window_duration for offset in offsets):
+        errors.append("sample offset is outside windowDurationSeconds")
     if len(samples) < 2:
         errors.append("at least two samples are required")
 
-    duration = offsets[-1] - offsets[0] + interval if len(offsets) >= 2 else 0
+    duration = window_duration
     expected = duration // interval if duration and duration % interval == 0 else 0
     completeness = len(offsets) / expected if expected else 0.0
     if completeness > 1:
