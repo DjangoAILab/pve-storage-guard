@@ -38,5 +38,5 @@ are fixed to `average` / `derived`; callers cannot label them `p95`.
 There is no export route, file writer, actuator, probe installation, alert
 enablement, or production deployment. All 1,236 backend tests across 145 files,
 including four export tests, pass locally. The latest internal CI quality gate
-passed; its dependent linux/amd64 image-build job is reported blocked and is not
-claimed as successful. Production rollout remains an explicit approval gate.
+and its dependent linux/amd64 image build both passed. Production rollout
+remains an explicit approval gate.
