@@ -4,7 +4,7 @@ Status values: `[x]` complete, `[~]` in progress, `[ ]` pending, `[!]` blocked
 by an explicit safety checkpoint. Evidence links are repository-relative unless
 marked as local-only.
 
-Last updated: 2026-08-01 (Asia/Shanghai)
+Last updated: 2026-08-02 (Asia/Shanghai)
 
 ## 1. Current state and data safety
 
@@ -103,12 +103,20 @@ Last updated: 2026-08-01 (Asia/Shanghai)
   [DjangoAILab/pve-storage-guard](https://github.com/DjangoAILab/pve-storage-guard).
 - [x] Validate the repaired main CI across test/race, lint, static analysis,
   govulncheck, replay golden, secrets, OCI build, and Trivy. Evidence:
-  [latest GitHub Actions run](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30708252749).
+  [latest GitHub Actions run](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30708897639).
 - [x] Enable and deploy GitHub Pages, set the repository homepage, verify HTTPS
   200, title/disclaimer content, and desktop width in a browser. Evidence:
   [public documentation site](https://djangoailab.github.io/pve-storage-guard/)
   and [Pages deployment](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30707972440).
-- [ ] Publish the public GHCR image only from a validated tagged release.
+- [x] Protect `main` with up-to-date PR branches, required test/lint/secret/
+  container/CodeQL checks, resolved conversations, linear history, and disabled
+  force-push/deletion. Administrator bypass remains available for documented
+  emergency recovery in this single-maintainer bootstrap phase.
+- [!] Make the tagged GHCR image publicly readable. The validated
+  `v0.1.0-rc.1` release successfully built, signed, attested, and uploaded the
+  `linux/amd64` and `linux/arm64` image, but GitHub still reports the package as
+  private. Changing package visibility requires an authenticated owner browser
+  session and is irreversible; anonymous pull verification remains pending.
 
 ## 6. Local practice and ITOps
 
