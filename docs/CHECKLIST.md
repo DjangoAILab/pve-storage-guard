@@ -130,8 +130,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   SBOM, provenance, checksums, and keyless container signing.
 - [x] Build the GitHub Pages landing/documentation site; local Astro build has
   zero diagnostics and responsive browser review has no horizontal overflow.
-- [~] Add verified architecture and incident/control-loop graphics; modeled
-  policy effect and real ITOps dashboard graphics remain pending.
+- [~] Add verified architecture and incident/control-loop graphics. The modeled
+  policy-effect SVG is now deterministically generated from the reviewed PoC
+  golden JSON, visibly labeled counterfactual/not-production, and checked in
+  CI. A real ITOps shadow-baseline dashboard graphic remains pending.
 - [x] Complete the initial pre-publication review: identifier/IP/private-key
   pattern scan clean, Gitleaks v8.30.1 reports no leaks, Markdown links resolve,
   screenshots contain anonymized content and standard JFIF/sRGB metadata only.

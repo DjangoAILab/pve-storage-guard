@@ -124,6 +124,11 @@ anonymous pulls work until the checklist records that change.
 
 ## Current replay result
 
+![Counterfactual modeled admission and unsafe seconds for fixed, threshold, adaptive, and no-limit strategies](docs/assets/policy-effect.svg)
+
+The chart is generated deterministically from `poc/results/report.json`. It is
+counterfactual model output, not a measured production effect.
+
 | Scenario | Fixed 20 admission | Selected AIMD admission | Unsafe seconds |
 | --- | ---: | ---: | ---: |
 | Conservative | 59.26% | 60.11% | 1 vs 1 |

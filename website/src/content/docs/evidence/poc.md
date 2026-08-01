@@ -40,6 +40,12 @@ promotion trace. Raw identifiers were not retained in the repository.
 
 ## Result
 
+![Counterfactual modeled admission and unsafe seconds for fixed, threshold, adaptive, and no-limit strategies](/pve-storage-guard/policy-effect.svg)
+
+The SVG is regenerated from the reviewed PoC golden JSON in CI. It deliberately
+places admission beside unsafe seconds and labels itself as counterfactual, not
+a production measurement.
+
 | Scenario | Fixed 20 admission | Selected AIMD admission | Unsafe seconds (both) |
 | --- | ---: | ---: | ---: |
 | Conservative | 59.26% | 60.11% | 1 |
