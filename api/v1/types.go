@@ -13,20 +13,27 @@ type Observation struct {
 	ObservedAt               time.Time `json:"observedAt"`
 	DomainKey                string    `json:"domainKey"`
 	WriteWaitP95Milliseconds float64   `json:"writeWaitP95Milliseconds"`
+	WaitValid                bool      `json:"waitValid"`
+	Emergency                bool      `json:"emergency"`
 	ManagementPlaneHealthy   bool      `json:"managementPlaneHealthy"`
 }
 
 // Proposal is a non-mutating desired allocation emitted by the policy engine.
 type Proposal struct {
-	SchemaVersion string             `json:"schemaVersion"`
-	ID            string             `json:"id"`
-	ObservationID string             `json:"observationId"`
-	PolicyVersion string             `json:"policyVersion"`
-	DomainKey     string             `json:"domainKey"`
-	Mode          string             `json:"mode"`
-	Reason        string             `json:"reason"`
-	BudgetMiBPS   float64            `json:"budgetMiBps"`
-	Allocations   map[string]float64 `json:"allocations"`
+	SchemaVersion       string             `json:"schemaVersion"`
+	ID                  string             `json:"id"`
+	GeneratedAt         time.Time          `json:"generatedAt"`
+	ObservationID       string             `json:"observationId"`
+	PolicyVersion       string             `json:"policyVersion"`
+	DomainKey           string             `json:"domainKey"`
+	Mode                string             `json:"mode"`
+	Reason              string             `json:"reason"`
+	PreviousBudgetMiBPS float64            `json:"previousBudgetMiBps"`
+	BudgetMiBPS         float64            `json:"budgetMiBps"`
+	Changed             bool               `json:"changed"`
+	Allocations         map[string]float64 `json:"allocations"`
+	AllocationFeasible  bool               `json:"allocationFeasible"`
+	ActuationAllowed    bool               `json:"actuationAllowed"`
 }
 
 // ApplyRequest is the only shape accepted by a future constrained actuator.

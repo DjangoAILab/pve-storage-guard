@@ -43,9 +43,9 @@ jobs:
           diff -u poc/results/report.json /tmp/report.json
       - name: Validate JSON documents
         run: |
-          python3 -m json.tool api/v1/schema/storage-domain-policy.schema.json >/dev/null
-          python3 -m json.tool api/v1/schema/disk-enrollment.schema.json >/dev/null
-          python3 -m json.tool configs/examples/reference-shadow-policy.json >/dev/null
+          for document in api/v1/schema/*.json configs/examples/*.json; do
+            python3 -m json.tool "$document" >/dev/null
+          done
       - name: Upload coverage
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

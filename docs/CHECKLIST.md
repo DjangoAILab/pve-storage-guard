@@ -32,7 +32,7 @@ Last updated: 2026-08-01 (Asia/Shanghai)
 - [x] Re-run all 11 unit tests and reproduce Markdown/JSON reports locally.
   Evidence: `poc/results/report.md` and `poc/results/report.json`.
 - [x] Add estimated job completion time and hourly decision churn to the report.
-- [ ] Record unavailable historical IOPS, PSI, queue, and management-plane
+- [x] Record unavailable historical IOPS, PSI, queue, and management-plane
   samples as evidence gaps; do not synthesize them as observations.
 - [ ] Add at least one independent trace before considering active control.
 - [x] Run one-at-a-time parameter-neighborhood sensitivity analysis. Evidence:
@@ -59,6 +59,10 @@ Last updated: 2026-08-01 (Asia/Shanghai)
   tests under `internal/policy` and `internal/allocator`.
 - [x] Implement read-only adapter and constrained actuator contracts without
   production mutation under `internal/adapter/pve` and `internal/actuator/pve`.
+- [x] Implement the versioned JSONL shadow stream, strict configuration
+  decoding, exact enrollment, telemetry-age checks, and non-actuating proposal
+  output. Evidence: `internal/controller`, `internal/config`, and
+  `cmd/pve-storage-guard`.
 
 ## 4. Safety validation
 
@@ -68,7 +72,8 @@ Last updated: 2026-08-01 (Asia/Shanghai)
 - [x] Specify stale-input, restart, drift, and read-back mismatch behavior.
 - [~] Add property/fuzz tests for controller bounds and allocator envelopes;
   monotonic sequence and feasibility properties need broader coverage.
-- [ ] Add restart, lease conflict, stale telemetry, and actuator fault tests.
+- [~] Add restart, lease conflict, stale telemetry, and actuator fault tests;
+  stale-input and wrong-domain shadow tests are complete.
 - [ ] Complete a non-critical controlled load test.
 - [!] Install or change a service on a production PVE host only after explicit
   approval at the production-write checkpoint.
@@ -80,7 +85,8 @@ Last updated: 2026-08-01 (Asia/Shanghai)
 - [x] Persist required project documents and ADRs locally.
 - [x] Add Apache-2.0 license, DCO, contributing guide, security policy, code of
   conduct, support/governance policy, Dependabot, and issue/PR templates.
-- [~] Add unit and replay tests; integration and performance coverage remain.
+- [~] Add unit, shadow CLI, and replay tests; integration and performance
+  coverage remain.
 - [x] Add pinned GitHub Actions for lint, test/race, replay golden, CodeQL,
   govulncheck, secret scan, OCI build/Trivy, docs build, and Pages.
 - [x] Add multi-architecture release workflow with pinned actions, binary/image
@@ -92,18 +98,29 @@ Last updated: 2026-08-01 (Asia/Shanghai)
 - [x] Complete the initial pre-publication review: identifier/IP/private-key
   pattern scan clean, Gitleaks v8.30.1 reports no leaks, Markdown links resolve,
   screenshots contain anonymized content and standard JFIF/sRGB metadata only.
-- [!] Create and push the public GitHub repository only after a clean sensitive
-  information scan and review of publishable artifacts.
+- [x] Create and push the public GitHub repository only after a clean sensitive
+  information scan and review of publishable artifacts. Evidence:
+  [DjangoAILab/pve-storage-guard](https://github.com/DjangoAILab/pve-storage-guard).
+- [x] Validate the repaired main CI across test/race, lint, static analysis,
+  govulncheck, replay golden, secrets, OCI build, and Trivy. Evidence:
+  [GitHub Actions run 30707400668](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30707400668).
+- [~] Enable and deploy GitHub Pages; repository Pages is enabled and the first
+  post-enable deployment is pending.
 - [ ] Publish the public GHCR image only from a validated tagged release.
 
 ## 6. Local practice and ITOps
 
 - [x] Define the monitoring, alert, event, and runbook contract.
-- [ ] Run the observer locally in dry-run mode.
+- [x] Run the observer locally in shadow mode and capture a structurally valid,
+  non-actuating proposal (`actuationAllowed=false`). Evidence: documented
+  quick-start plus the 2026-08-01 local test run.
 - [ ] Verify that it detects the historical incident signature early enough to
   be operationally useful.
-- [ ] Add ITOps ingestion for storage latency, PSI, queue, management-plane
-  health, and controller state.
+- [~] Add ITOps ingestion for storage latency, PSI, queue, management-plane
+  health, and controller state. A separate local ITOps worktree now has a
+  read-only `pve.storage-pressure` probe and mappings for PSI, in-flight I/O,
+  and disk counters; merge, deployment, latency derivation, management-plane
+  correlation, and controller events remain.
 - [ ] Add multi-signal warning/critical alerts and anti-noise behavior.
 - [ ] Add dashboard, decision journal, and incident-review links.
 - [ ] Exercise cold restart and rollback in a non-critical environment.

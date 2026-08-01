@@ -43,16 +43,27 @@ PVE Adapter.
 
 ## Quick start
 
-The first reproducible artifact is an offline replay. It has no SSH, PVE API,
-database, or actuator integration:
+Run the offline replay first. It has no SSH, PVE API, database, or actuator
+integration:
 
 ```sh
 python3 -m unittest discover -s poc -p 'test_*.py' -v
 python3 poc/simulate.py --format markdown
 ```
 
-Observer and service installation instructions will be published only after
-their safety gates pass. Until then, see [the goal](docs/GOAL.md),
+Then exercise the local shadow stream. The command accepts only versioned JSON,
+prints a proposal, and always emits `"actuationAllowed": false`:
+
+```sh
+OBSERVED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+printf '{"schemaVersion":"guard.storage-slo.io/v1alpha1","id":"quickstart-1","observedAt":"%s","domainKey":"reference-bulk-pool","writeWaitP95Milliseconds":42,"waitValid":true,"emergency":false,"managementPlaneHealthy":true}\n' "$OBSERVED_AT" \
+  | go run ./cmd/pve-storage-guard shadow \
+      --policy configs/examples/reference-shadow-policy.json \
+      --enrollment configs/examples/reference-enrollment.json
+```
+
+Host service installation instructions will be published only after their
+safety gates pass. Until then, see [the goal](docs/GOAL.md),
 [architecture](docs/ARCHITECTURE.md), [policy design](docs/POLICY-DESIGN.md),
 and [PoC protocol](docs/POC.md).
 
@@ -68,10 +79,10 @@ flowchart LR
     Actuator -->|effective-state read-back| Safety
 ```
 
-The intended distribution is a single `pve-storage-guard` binary with
-`agent`, `controller`, `replay`, and `policy validate` modes. Container images
-will be published at `ghcr.io/djangoailab/pve-storage-guard` after release
-validation.
+The current binary exposes `version` and a non-actuating `shadow` command.
+Agent, replay, validation, and approved enforcement modes remain roadmap work.
+Container images will be published at `ghcr.io/djangoailab/pve-storage-guard`
+after release validation.
 
 ## Current replay result
 

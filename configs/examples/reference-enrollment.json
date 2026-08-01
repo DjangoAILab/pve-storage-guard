@@ -1,0 +1,18 @@
+{
+  "apiVersion": "guard.storage-slo.io/v1alpha1",
+  "kind": "DiskEnrollment",
+  "metadata": {
+    "name": "reference-bulk-disk"
+  },
+  "spec": {
+    "storageDomain": "reference-bulk-pool",
+    "resourceKey": "resource-a",
+    "workloadClass": "bulk-import",
+    "criticality": "non-critical",
+    "envelope": {
+      "minimumMiBPS": 5,
+      "maximumMiBPS": 25,
+      "weight": 1
+    }
+  }
+}

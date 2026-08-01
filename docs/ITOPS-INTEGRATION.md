@@ -157,3 +157,23 @@ and update policy only through versioned review.
 5. Non-critical controlled load and rollback rehearsal.
 6. Explicitly approved, expiring one-disk canary.
 7. Evidence review before any broader enforcement.
+
+## Current implementation status
+
+The local ITOps integration branch adds one restricted, read-only operation:
+`pve.storage-pressure`. It reads Linux PSI and diskstats pseudo-files only and
+maps bounded node/disk metrics for the existing fast collection scope. It does
+not execute `zpool iostat`, expose hardware identifiers, install the probe, arm
+alerts, or deploy any service.
+
+ITOps currently permits a minimum fast interval of 10 seconds. This is suitable
+for durable monitoring and alert correlation, but not for a one-second control
+loop. The local PVE Storage Guard agent must own high-frequency sampling and
+downsample observations/events into ITOps; ITOps must not become the actuator or
+the source of controller timing.
+
+Diskstats provides cumulative operation and time counters, not a p95 latency.
+Average read/write service time can be derived from successive deltas. A real
+p95 still requires an appropriate storage telemetry source and must not be
+fabricated from these counters. Until that source and multi-signal detector are
+validated, no storage-pressure paging rule is enabled.

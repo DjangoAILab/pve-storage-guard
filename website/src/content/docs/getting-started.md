@@ -3,8 +3,8 @@ title: Getting started
 description: Reproduce the observer-only offline policy evaluation.
 ---
 
-The current release surface is deliberately offline and read-only. It has no
-SSH, PVE API, database, or actuator integration.
+The current release surface is deliberately read-only. It has no PVE actuator
+integration.
 
 ## Run the reference replay
 
@@ -28,6 +28,24 @@ go vet ./...
 go test -race ./...
 go run ./cmd/pve-storage-guard version
 ```
+
+## Exercise the shadow stream
+
+The command reads newline-delimited observations from stdin and writes
+proposals to stdout. It does not load PVE credentials, and every proposal has
+`actuationAllowed: false`.
+
+```sh
+OBSERVED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+printf '{"schemaVersion":"guard.storage-slo.io/v1alpha1","id":"quickstart-1","observedAt":"%s","domainKey":"reference-bulk-pool","writeWaitP95Milliseconds":42,"waitValid":true,"emergency":false,"managementPlaneHealthy":true}\n' "$OBSERVED_AT" \
+  | go run ./cmd/pve-storage-guard shadow \
+      --policy configs/examples/reference-shadow-policy.json \
+      --enrollment configs/examples/reference-enrollment.json
+```
+
+Only explicitly enrolled, non-critical resources can appear in an allocation.
+Unknown fields, unsupported schemas, and mismatched storage domains are
+rejected; stale observations cannot increase a budget.
 
 ## Container
 

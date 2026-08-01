@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/proposal.json",
+  "title": "PVE Storage Guard shadow proposal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "generatedAt", "observationId", "policyVersion", "domainKey", "mode", "reason", "previousBudgetMiBps", "budgetMiBps", "changed", "allocations", "allocationFeasible", "actuationAllowed"],
+  "properties": {
+    "schemaVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "id": { "type": "string", "pattern": "^proposal-[0-9a-f]{24}$" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "observationId": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "policyVersion": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "domainKey": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "mode": { "const": "shadow" },
+    "reason": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "previousBudgetMiBps": { "type": "number", "minimum": 0 },
+    "budgetMiBps": { "type": "number", "minimum": 0 },
+    "changed": { "type": "boolean" },
+    "allocations": { "type": "object", "additionalProperties": { "type": "number", "minimum": 0 } },
+    "allocationFeasible": { "type": "boolean" },
+    "actuationAllowed": { "const": false }
+  }
+}

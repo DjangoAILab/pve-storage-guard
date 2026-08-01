@@ -1,6 +1,7 @@
 name: Pages
 
 on:
+  workflow_dispatch:
   pull_request:
     paths: ['website/**', '.github/workflows/pages.yml']
   push:
@@ -14,7 +15,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:

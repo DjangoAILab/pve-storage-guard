@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/observation.json",
+  "title": "PVE Storage Guard normalized observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "observedAt", "domainKey", "writeWaitP95Milliseconds", "waitValid", "emergency", "managementPlaneHealthy"],
+  "properties": {
+    "schemaVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "observedAt": { "type": "string", "format": "date-time" },
+    "domainKey": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "writeWaitP95Milliseconds": { "type": "number", "minimum": 0 },
+    "waitValid": { "type": "boolean" },
+    "emergency": { "type": "boolean" },
+    "managementPlaneHealthy": { "type": "boolean" }
+  }
+}
