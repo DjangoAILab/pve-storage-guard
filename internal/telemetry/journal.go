@@ -7,22 +7,36 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"syscall"
 
 	v1 "github.com/DjangoAILab/pve-storage-guard/api/v1"
 )
 
-var eventIDPattern = regexp.MustCompile(`^event-[0-9a-f]{24}$`)
+const defaultJournalMaxBytes int64 = 256 * 1024 * 1024
+
+var (
+	eventIDPattern    = regexp.MustCompile(`^event-[0-9a-f]{24}$`)
+	proposalIDPattern = regexp.MustCompile(`^proposal-[0-9a-f]{24}$`)
+)
 
 // Journal is a single-writer, append-only JSONL decision journal.
 type Journal struct {
-	file *os.File
+	file     *os.File
+	maxBytes int64
 }
 
 // OpenJournal opens an existing private regular file or atomically creates a
 // new one with mode 0600. It rejects symlinks and group/other-accessible files.
 func OpenJournal(path string) (*Journal, error) {
+	return openJournal(path, defaultJournalMaxBytes)
+}
+
+func openJournal(path string, maxBytes int64) (*Journal, error) {
 	if path == "" {
 		return nil, errors.New("journal path is required")
+	}
+	if maxBytes <= 0 {
+		return nil, errors.New("journal size limit must be positive")
 	}
 	info, err := os.Lstat(path)
 	if err != nil {
@@ -33,11 +47,15 @@ func OpenJournal(path string) (*Journal, error) {
 		if createErr != nil {
 			return nil, fmt.Errorf("create journal: %w", createErr)
 		}
-		if validateErr := validateOpenedJournal(file, nil); validateErr != nil {
+		if validateErr := validateOpenedJournal(file, nil, maxBytes); validateErr != nil {
 			_ = file.Close()
 			return nil, validateErr
 		}
-		return &Journal{file: file}, nil
+		if lockErr := lockJournal(file); lockErr != nil {
+			_ = file.Close()
+			return nil, lockErr
+		}
+		return &Journal{file: file, maxBytes: maxBytes}, nil
 	}
 	if err := validateJournalInfo(info); err != nil {
 		return nil, err
@@ -46,14 +64,18 @@ func OpenJournal(path string) (*Journal, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open journal: %w", err)
 	}
-	if err := validateOpenedJournal(file, info); err != nil {
+	if err := validateOpenedJournal(file, info, maxBytes); err != nil {
 		_ = file.Close()
 		return nil, err
 	}
-	return &Journal{file: file}, nil
+	if err := lockJournal(file); err != nil {
+		_ = file.Close()
+		return nil, err
+	}
+	return &Journal{file: file, maxBytes: maxBytes}, nil
 }
 
-func validateOpenedJournal(file *os.File, expected os.FileInfo) error {
+func validateOpenedJournal(file *os.File, expected os.FileInfo, maxBytes int64) error {
 	info, err := file.Stat()
 	if err != nil {
 		return fmt.Errorf("stat opened journal: %w", err)
@@ -61,7 +83,20 @@ func validateOpenedJournal(file *os.File, expected os.FileInfo) error {
 	if expected != nil && !os.SameFile(expected, info) {
 		return errors.New("journal target changed while opening")
 	}
-	return validateJournalInfo(info)
+	if err := validateJournalInfo(info); err != nil {
+		return err
+	}
+	if info.Size() > maxBytes {
+		return errors.New("existing journal exceeds the size limit")
+	}
+	return nil
+}
+
+func lockJournal(file *os.File) error {
+	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		return fmt.Errorf("lock journal for a single writer: %w", err)
+	}
+	return nil
 }
 
 func validateJournalInfo(info os.FileInfo) error {
@@ -87,6 +122,13 @@ func (journal *Journal) Append(event v1.DecisionEvent) error {
 		return fmt.Errorf("encode decision event: %w", err)
 	}
 	payload = append(payload, '\n')
+	info, err := journal.file.Stat()
+	if err != nil {
+		return fmt.Errorf("stat journal before append: %w", err)
+	}
+	if info.Size() > journal.maxBytes-int64(len(payload)) {
+		return errors.New("journal size limit reached; rotate it before continuing")
+	}
 	written, err := journal.file.Write(payload)
 	if err != nil {
 		return fmt.Errorf("append decision event: %w", err)
@@ -105,26 +147,30 @@ func (journal *Journal) Close() error {
 	if journal == nil || journal.file == nil {
 		return nil
 	}
-	err := journal.file.Close()
+	unlockErr := syscall.Flock(int(journal.file.Fd()), syscall.LOCK_UN)
+	closeErr := journal.file.Close()
 	journal.file = nil
-	return err
+	if unlockErr != nil {
+		return fmt.Errorf("unlock journal: %w", unlockErr)
+	}
+	return closeErr
 }
 
 func validateDecisionEvent(event v1.DecisionEvent) error {
 	if event.SchemaVersion != v1.SchemaVersion || event.EventType != v1.DecisionEventType || !eventIDPattern.MatchString(event.EventID) {
 		return errors.New("decision event envelope is invalid")
 	}
-	if event.RecordedAt.IsZero() || event.DomainKey == "" || event.PolicyVersion == "" || event.Mode != "shadow" || event.Outcome != v1.DecisionOutcomeShadowEvaluated {
+	if event.RecordedAt.IsZero() || !validString(event.DomainKey, 256) || !validString(event.PolicyVersion, 128) || event.Mode != "shadow" || event.Outcome != v1.DecisionOutcomeShadowEvaluated {
 		return errors.New("decision event identity or outcome is invalid")
 	}
-	if event.Observation.ID == "" || event.Observation.ObservedAt.IsZero() || !finite(event.Observation.AgeSeconds) || !finiteNonNegative(event.Observation.WriteWaitP95Milliseconds) {
+	if !validString(event.Observation.ID, 256) || event.Observation.ObservedAt.IsZero() || !finite(event.Observation.AgeSeconds) || !finiteNonNegative(event.Observation.WriteWaitP95Milliseconds) {
 		return errors.New("decision event observation is invalid")
 	}
-	if event.Decision.ProposalID == "" || event.Decision.Reason == "" || !finiteNonNegative(event.Decision.PreviousBudgetMiBPS) || !finiteNonNegative(event.Decision.DesiredBudgetMiBPS) || len(event.Decision.Allocations) == 0 {
+	if !proposalIDPattern.MatchString(event.Decision.ProposalID) || !validString(event.Decision.Reason, 128) || !finiteNonNegative(event.Decision.PreviousBudgetMiBPS) || !finiteNonNegative(event.Decision.DesiredBudgetMiBPS) || len(event.Decision.Allocations) == 0 {
 		return errors.New("decision event decision is invalid")
 	}
 	for resourceKey, allocation := range event.Decision.Allocations {
-		if resourceKey == "" || !finiteNonNegative(allocation) {
+		if !validString(resourceKey, 256) || !finiteNonNegative(allocation) {
 			return errors.New("decision event allocation is invalid")
 		}
 	}
@@ -132,4 +178,8 @@ func validateDecisionEvent(event v1.DecisionEvent) error {
 		return errors.New("decision event shadow safety result is invalid")
 	}
 	return nil
+}
+
+func validString(value string, maxLength int) bool {
+	return value != "" && len(value) <= maxLength
 }

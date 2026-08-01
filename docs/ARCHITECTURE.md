@@ -101,7 +101,10 @@ journal. It writes a versioned `storage_guard.decision` event to a private
 regular file, calls `fsync`, and only then emits the matching proposal to
 stdout. Shadow records explicitly mark lease, approval, and effective state as
 `not_evaluated`; they never imply checks that did not run. The CLI has no
-journal by default, network exporter, rotation manager, or ITOps callback.
+journal by default, network exporter, rotation manager, or ITOps callback. A
+non-blocking exclusive file lock enforces the single-writer contract. The
+journal stops before 256 MiB and suppresses further proposals until an operator
+rotates it, preventing an unbounded audit file from consuming the filesystem.
 
 ## Controller boundary: storage domain first
 

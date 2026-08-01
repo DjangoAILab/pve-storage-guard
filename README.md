@@ -66,8 +66,9 @@ Decision journaling is explicit and remains local. Add `--journal FILE` to
 append a versioned JSONL event before each corresponding proposal reaches
 stdout. A new journal is created as `0600`; symlinks, non-regular targets, and
 existing files accessible by group or other are rejected. Every successful
-append is synced. There is no default journal, rotation, network export, or
-ITOps delivery in this command.
+append is synced; a non-blocking exclusive lock enforces one writer, and a
+256 MiB hard cap stops output until the operator rotates the file. There is no
+default journal, built-in rotation, network export, or ITOps delivery.
 
 Host service installation instructions will be published only after their
 safety gates pass. Until then, see [the goal](docs/GOAL.md),

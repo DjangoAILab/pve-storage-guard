@@ -39,7 +39,7 @@ func NewShadowDecisionEvent(observation v1.Observation, proposal v1.Proposal) (v
 		allocations[resourceKey] = allocation
 	}
 
-	return v1.DecisionEvent{
+	event := v1.DecisionEvent{
 		SchemaVersion: v1.SchemaVersion,
 		EventID:       eventID(proposal.ID),
 		EventType:     v1.DecisionEventType,
@@ -73,7 +73,11 @@ func NewShadowDecisionEvent(observation v1.Observation, proposal v1.Proposal) (v
 			EffectiveStateStatus: v1.SafetyNotEvaluated,
 		},
 		Outcome: v1.DecisionOutcomeShadowEvaluated,
-	}, nil
+	}
+	if err := validateDecisionEvent(event); err != nil {
+		return v1.DecisionEvent{}, err
+	}
+	return event, nil
 }
 
 func eventID(proposalID string) string {

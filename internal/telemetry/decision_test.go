@@ -78,6 +78,7 @@ func TestNewShadowDecisionEventRejectsInconsistentInputs(t *testing.T) {
 		PolicyVersion:      "policy-1",
 		DomainKey:          observation.DomainKey,
 		Mode:               "shadow",
+		Reason:             "hold",
 		Allocations:        map[string]float64{"resource-1": 5},
 		AllocationFeasible: true,
 	}

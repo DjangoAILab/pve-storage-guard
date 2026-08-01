@@ -33,6 +33,10 @@ The event contains opaque domain/resource keys but never raw device details,
 guest data, network addresses, credentials, command output, or actuator state
 that shadow mode did not evaluate.
 
+Security review adds two bounded-runtime constraints: a non-blocking exclusive
+file lock enforces one writer, and a 256 MiB hard limit stops journal and
+proposal output until operator rotation instead of allowing unbounded disk use.
+
 ### Task 1: Versioned decision-event contract
 
 **Files:**

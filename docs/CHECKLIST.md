@@ -104,10 +104,11 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   conduct, support/governance policy, Dependabot, and issue/PR templates.
 - [~] Add unit, shadow CLI, replay, trace-qualification, and performance smoke
   tests. Decision-journal tests cover deterministic event mapping, append after
-  reopen, private permissions, unsafe-target rejection, invalid-event rejection,
-  CLI compatibility, and fail-before-output behavior. Repeated local benchmarks
-  cover policy evaluation, 100-disk allocation, and the verified safety gate;
-  end-to-end adapter/storage performance and controlled-load coverage remain.
+  reopen, private permissions, unsafe-target rejection, exclusive-writer
+  locking, the 256 MiB hard bound, invalid-event rejection, CLI compatibility,
+  and fail-before-output behavior. Repeated local benchmarks cover policy
+  evaluation, 100-disk allocation, and the verified safety gate; end-to-end
+  adapter/storage performance and controlled-load coverage remain.
 - [x] Add pinned GitHub Actions for lint, test/race, replay golden, CodeQL,
   govulncheck, secret scan, OCI build/Trivy, docs build, and Pages.
 - [x] Add multi-architecture release workflow with pinned actions, binary/image

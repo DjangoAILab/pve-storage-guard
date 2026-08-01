@@ -99,10 +99,11 @@ and cardinality growth.
 The public controller now implements this shadow event as an opt-in local JSONL
 journal. It validates the event, appends it to a private regular file, syncs the
 file, and only then emits the proposal. Journal failure suppresses the matching
-proposal. This is a single-writer local handoff, not an ITOps ingestion route or
-a production durability claim. Absolute event times and opaque internal keys
-make the private journal unsuitable for public release without a separate
-sanitization/export review.
+proposal. A non-blocking exclusive lock enforces one writer, and a 256 MiB hard
+cap fails closed until operator rotation. This is a local handoff, not an ITOps
+ingestion route or a production durability claim. Absolute event times and
+opaque internal keys make the private journal unsuitable for public release
+without a separate sanitization/export review.
 
 ## Alert model
 

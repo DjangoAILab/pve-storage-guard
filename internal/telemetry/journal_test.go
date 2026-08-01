@@ -121,6 +121,39 @@ func TestJournalRejectsNonShadowEvent(t *testing.T) {
 	}
 }
 
+func TestOpenJournalRejectsSecondWriter(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "decisions.jsonl")
+	first, err := OpenJournal(path)
+	if err != nil {
+		t.Fatalf("open first journal: %v", err)
+	}
+	defer func() { _ = first.Close() }()
+	second, err := OpenJournal(path)
+	if err == nil {
+		_ = second.Close()
+		t.Fatal("expected second writer to be rejected")
+	}
+}
+
+func TestJournalStopsBeforeConfiguredSizeLimit(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "decisions.jsonl")
+	journal, err := openJournal(path, 1)
+	if err != nil {
+		t.Fatalf("open bounded journal: %v", err)
+	}
+	defer func() { _ = journal.Close() }()
+	if err := journal.Append(testDecisionEvent("event-0123456789abcdef01234567")); err == nil {
+		t.Fatal("expected size limit to reject event")
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat journal: %v", err)
+	}
+	if info.Size() != 0 {
+		t.Fatalf("bounded journal wrote %d bytes", info.Size())
+	}
+}
+
 func testDecisionEvent(eventID string) v1.DecisionEvent {
 	now := time.Date(2026, 8, 2, 1, 2, 3, 0, time.UTC)
 	return v1.DecisionEvent{
