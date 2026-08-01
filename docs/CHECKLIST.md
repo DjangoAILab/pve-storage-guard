@@ -163,18 +163,23 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   fixed `average`/`derived` diskstats semantics, relative offsets, declared
   gaps, and excludes internal selection identifiers; it has no route, writer,
   or deployment path. Merge, deployment, true p95 telemetry, trace review,
-  journal transport/persistence, and incident linking remain. The public
-  controller provides a tested opt-in private JSONL decision journal plus a
-  read-only sealed-file verifier; the ITOps draft has a pure strict mapper
-  returning an inert audit handoff plus low-cardinality derived metrics. Neither
-  side has network delivery or a repository write. Evidence: ITOps commits
-  `90b04b0`, `44df889`, `242a7ff`, `c236d06`, and `4fe5b97`; all 1,240 backend
-  tests across 146 files, 16 focused PVE/runtime tests, 11 restricted-probe
-  tests, four replay-export tests, four decision-mapper tests, build/lint, and
-  dependency checks passed locally on 2026-08-02. The latest internal CI
-  quality gate passed in 4m31s; the dependent linux/amd64 image job remained
-  blocked by required conditions while the PR stayed Draft, so it is not
-  recorded as a successful image build.
+  approved journal transport/runtime invocation and incident linking remain.
+  The public controller provides a tested opt-in private JSONL decision journal
+  plus a read-only sealed-file verifier; the ITOps draft has a pure strict mapper
+  plus an uninvoked persistence service. It revalidates the expected domain and
+  policy revision, resolves storage/disk resources only through reviewed
+  target-scoped bindings, and atomically stores an idempotent private audit row
+  with low-cardinality derived metrics. A canonical metric-projection digest
+  rejects altered retries. Neither side has network delivery, a journal reader,
+  runtime registration, alert processing, or production deployment. Evidence:
+  ITOps commits `90b04b0`, `44df889`, `242a7ff`, `c236d06`, `4fe5b97`, and
+  `40e7d0a`; all 1,252 backend tests across 148 files, 16 focused PVE/runtime
+  tests, 11 restricted-probe tests, four replay-export tests, and 16 focused
+  mapper/importer/repository
+  tests passed locally on 2026-08-02. Backend build/lint/dependency checks and
+  all 101 frontend tests plus build/lint passed. Internal CI run 153 confirmed
+  both the quality gate (4m35s) and dependent linux/amd64 image build (4m57s)
+  successful for the importer commit while the PR remained Draft.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
@@ -185,9 +190,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   Draft PR #37 now includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, per-disk pressure evidence, and alert gates. The
   controller now has a private append/sync journal and an identity-free sealed
-  verifier; a real shadow-baseline screenshot, approved ITOps importer/
-  persistence adapter, and incident/runbook links remain. The verifier and
-  ITOps pure mapper alone perform none of those side effects.
+  verifier; the internal draft has a tested but uninvoked persistence adapter.
+  A real shadow-baseline screenshot, approved transport/runtime registration,
+  and incident/runbook links remain. The verifier and importer expose no route,
+  scheduler, alert evaluation, or production side effect.
 - [ ] Exercise cold restart and rollback in a non-critical environment.
 - [!] Expand production control only after canary evidence is reviewed.
 

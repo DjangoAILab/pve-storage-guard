@@ -102,8 +102,10 @@ flowchart LR
 The current binary exposes `version`, a non-actuating `shadow` command with an
 optional private decision journal, and read-only sealed-journal verification.
 Agent, policy validation, and approved enforcement modes remain roadmap work.
-Container images will be published at `ghcr.io/djangoailab/pve-storage-guard`
-after release validation.
+The release workflow uploaded the signed, attested multi-architecture
+`v0.1.0-rc.1` image to `ghcr.io/djangoailab/pve-storage-guard`, but the GitHub
+package is still private pending an owner visibility checkpoint. Do not assume
+anonymous pulls work until the checklist records that change.
 
 ## Current replay result
 
