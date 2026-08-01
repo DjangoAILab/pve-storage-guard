@@ -4,8 +4,9 @@
 
 The replay contract prevents synthetic, modeled, aggregated, or same-incident
 data from being presented as independent observed evidence. Its machine-readable
-schema is `poc/schema/replay-trace.schema.json`; the dependency-free validator
-and evidence assessor is `poc/trace_contract.py`.
+schemas are `poc/schema/replay-trace.schema.json` for v1alpha1 and
+`poc/schema/replay-trace-v1alpha2.schema.json` for v1alpha2; the dependency-free
+validator and evidence assessor is `poc/trace_contract.py`.
 
 Structural validity, policy-signal compatibility, and evidence independence are
 three separate results. A trace may be valid and useful for tests without being
@@ -20,12 +21,23 @@ Every trace declares:
 - storage and workload classes;
 - sample interval, full window duration, and sanitized status;
 - whether write-wait is a real p95, an average, or ZFS total-wait;
+- whether write-wait was measured at the storage-domain, block-device,
+  virtual-disk, or application layer;
 - whether another p95 aggregation is applied across the control window;
 - monotonically increasing relative offsets, not host timestamps or identities.
 
-The current controller API consumes a p95 observation. Only a trace declaring
-`writeWaitStatistic=p95` and `controlWindowAggregation=none` is signal-compatible
-with that API. Average diskstats service time and ZFS total-wait remain valuable
+New exports use v1alpha2, whose management status is `healthy`, `unhealthy`, or
+`unknown`. The v1alpha1 boolean remains readable for diagnostics but cannot pass
+the machine promotion gate. Structural
+sample completeness, valid-write-wait completeness, and known-management
+completeness are reported separately; invalid placeholders and unknown
+management data cannot satisfy the promotion gate.
+
+The current controller API consumes a storage-domain p95 observation. Only a
+v1alpha2 trace declaring `writeWaitStatistic=p95`,
+`writeWaitMeasurementLayer=storage-domain`, and
+`controlWindowAggregation=none` is signal-compatible with that API. Average
+diskstats service time and ZFS total-wait remain valuable
 detection evidence, but they must not be relabeled as an I/O latency p95.
 
 ## Independent-trace qualification
@@ -34,15 +46,20 @@ The current automated gate requires all of the following:
 
 - source kind is `observed` and sanitization is affirmed;
 - independence group differs from the reference incident;
-- at least 600 declared window seconds with at least 95% sample completeness,
-  including leading and trailing gaps;
+- at least 600 declared window seconds with at least 95% structural,
+  valid-write-wait, and known-management completeness, including leading and
+  trailing gaps;
 - a known storage class and workload class;
-- a policy-compatible p95 signal;
+- a policy-compatible storage-domain p95 signal;
 - no structural validation error.
 
 This is a minimum evidence gate, not proof of generality. Promotion still needs
 coverage across quiet and busy windows, more than one workload shape, and the
 storage classes for which defaults will be published.
+
+Storage-only public traces may be processed in a separate research lane. They
+must declare management status `unknown` and remain ineligible for active-control
+promotion. See [external trace research](EXTERNAL-TRACE-RESEARCH.md).
 
 ## Privacy boundary
 
@@ -57,11 +74,13 @@ must have separate hashes and a human redaction review before publication.
 The internal ITOps draft contains a pure builder for mapping a reviewed,
 already-authorized metric window into this contract. It fixes diskstats-derived
 wait to `average`, provenance to `derived`, and window aggregation to `none`;
-callers cannot configure those fields as `p95`. A real histogram/telemetry
-percentile would require a separate, explicit source mapping. Missing samples
-remain gaps and affect completeness rather than being forward-filled. Offsets
-are relative to the declared window start; completeness is never recomputed
-from only the first and last surviving samples. The builder has no route, file
+its measurement layer is fixed to `block-device`. Callers cannot configure
+those fields as a storage-domain `p95`. A real histogram/telemetry
+percentile would require a separate, explicit source mapping. Missing wait
+samples remain gaps; a present wait sample without a matching management
+observation is retained with v1alpha2 status `unknown`. Neither condition is
+forward-filled. Offsets are relative to the declared window start; completeness
+is never recomputed from only the first and last surviving samples. The builder has no route, file
 writer, or publication side effect, so human source review and export approval
 remain separate gates.
 

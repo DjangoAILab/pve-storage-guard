@@ -195,6 +195,13 @@ python3 poc/simulate.py --format json
 python3 poc/trace_contract.py candidate.json --reference-group reference-incident
 ```
 
+For licensed, caller-supplied per-I/O data, the local-only
+[external trace converter](EXTERNAL-TRACE-RESEARCH.md#local-only-conversion-contract)
+can derive p95, IOPS, and throughput without copying source identity fields. It
+does not download datasets, requires an explicit measurement layer, and marks
+missing management evidence `unknown`, so a storage-only result cannot pass the
+promotion gate.
+
 Reviewed output snapshots will be stored under `poc/results/`. CI must regenerate
 them and fail on unexplained differences.
 
@@ -202,8 +209,8 @@ them and fail on unexplained differences.
 
 - Reproduced tests and reports from anonymized fixtures.
 - Parameter-neighbor sensitivity and at least one independent trace that passes
-  the trace contract's provenance, completeness, independence, and statistic
-  compatibility gates.
+  the trace contract's provenance, structural/wait/management completeness,
+  independence, and statistic compatibility gates.
 - Several weeks of 1 Hz latency/PSI/queue and management probe history.
 - Controlled non-critical disk load test.
 - Restart, stale metric, lease conflict, apply/read-back mismatch, and rollback

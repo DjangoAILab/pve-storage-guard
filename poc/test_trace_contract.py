@@ -1,6 +1,6 @@
 import unittest
 
-from trace_contract import API_VERSION, assess_trace
+from trace_contract import API_VERSION, LEGACY_API_VERSION, assess_trace
 
 
 def trace_document(source_kind="observed", statistic="p95", aggregation="none", group="independent-window"):
@@ -19,6 +19,7 @@ def trace_document(source_kind="observed", statistic="p95", aggregation="none", 
         },
         "metricSemantics": {
             "writeWaitStatistic": statistic,
+            "writeWaitMeasurementLayer": "storage-domain",
             "controlWindowAggregation": aggregation,
             "provenance": "observed",
         },
@@ -27,7 +28,7 @@ def trace_document(source_kind="observed", statistic="p95", aggregation="none", 
                 "offsetSeconds": second,
                 "writeWaitMilliseconds": 10.0,
                 "waitValid": True,
-                "managementPlaneHealthy": True,
+                "managementPlaneStatus": "healthy",
             }
             for second in range(600)
         ],
@@ -39,8 +40,42 @@ class TraceContractTests(unittest.TestCase):
         assessment = assess_trace(trace_document(), "reference-incident")
         self.assertEqual(assessment.errors, [])
         self.assertEqual(assessment.completeness, 1.0)
+        self.assertEqual(assessment.wait_completeness, 1.0)
+        self.assertEqual(assessment.management_plane_completeness, 1.0)
         self.assertTrue(assessment.policy_signal_compatible)
         self.assertTrue(assessment.meets_machine_independence_gate)
+
+    def test_unknown_management_evidence_is_valid_but_never_promotes(self):
+        document = trace_document()
+        for sample in document["samples"]:
+            sample["managementPlaneStatus"] = "unknown"
+        assessment = assess_trace(document, "reference-incident")
+        self.assertEqual(assessment.errors, [])
+        self.assertEqual(assessment.wait_completeness, 1.0)
+        self.assertEqual(assessment.management_plane_completeness, 0.0)
+        self.assertTrue(assessment.policy_signal_compatible)
+        self.assertFalse(assessment.meets_machine_independence_gate)
+
+    def test_invalid_wait_placeholders_do_not_count_as_evidence(self):
+        document = trace_document()
+        for sample in document["samples"][:31]:
+            sample["waitValid"] = False
+            sample["writeWaitMilliseconds"] = 0
+        assessment = assess_trace(document, "reference-incident")
+        self.assertEqual(assessment.errors, [])
+        self.assertLess(assessment.wait_completeness, 0.95)
+        self.assertFalse(assessment.meets_machine_independence_gate)
+
+    def test_v1alpha1_boolean_management_samples_remain_readable_but_do_not_promote(self):
+        document = trace_document()
+        document["apiVersion"] = LEGACY_API_VERSION
+        document["metricSemantics"].pop("writeWaitMeasurementLayer")
+        for sample in document["samples"]:
+            sample["managementPlaneHealthy"] = sample.pop("managementPlaneStatus") == "healthy"
+        assessment = assess_trace(document, "reference-incident")
+        self.assertEqual(assessment.errors, [])
+        self.assertEqual(assessment.management_plane_completeness, 1.0)
+        self.assertFalse(assessment.meets_machine_independence_gate)
 
     def test_synthetic_trace_never_qualifies_as_observed_evidence(self):
         assessment = assess_trace(trace_document(source_kind="synthetic"), "reference-incident")
@@ -52,6 +87,14 @@ class TraceContractTests(unittest.TestCase):
             trace_document(statistic="total-wait", aggregation="p95"),
             "reference-incident",
         )
+        self.assertEqual(assessment.errors, [])
+        self.assertFalse(assessment.policy_signal_compatible)
+        self.assertFalse(assessment.meets_machine_independence_gate)
+
+    def test_block_device_p95_is_not_storage_domain_policy_evidence(self):
+        document = trace_document()
+        document["metricSemantics"]["writeWaitMeasurementLayer"] = "block-device"
+        assessment = assess_trace(document, "reference-incident")
         self.assertEqual(assessment.errors, [])
         self.assertFalse(assessment.policy_signal_compatible)
         self.assertFalse(assessment.meets_machine_independence_gate)

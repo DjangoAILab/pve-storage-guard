@@ -153,6 +153,7 @@ as model-assisted estimates and are not presented as measured production gains.
 - [Policy design](docs/POLICY-DESIGN.md)
 - [Offline PoC](docs/POC.md)
 - [Replay trace contract](docs/TRACE-CONTRACT.md)
+- [External trace research and safe conversion](docs/EXTERNAL-TRACE-RESEARCH.md)
 - [Performance evidence](docs/PERFORMANCE.md)
 - [Anonymized incident case study](docs/CASE-STUDY.md)
 - [Community context and prior art](docs/PRIOR-ART.md)

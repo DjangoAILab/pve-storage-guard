@@ -298,7 +298,10 @@ evidence, and coarse storage/workload classes; internal target, resource, node,
 and absolute sample-time fields are selection inputs and never become public
 trace fields. Its wait semantics are fixed to `average`, aggregation to `none`,
 and provenance to `derived`, so a caller cannot relabel diskstats evidence as
-`p95`. Gaps remain gaps against the declared window. This builder has no route,
+`p95`. Its v1alpha2 form preserves a valid storage sample when its matching
+management probe is absent and marks the management status `unknown`; the
+assessor reports both coverage dimensions and rejects the gap at the production
+promotion gate. This builder has no route,
 API, file writer, scheduler, or deployment path and therefore does not publish
 data by itself.
 
