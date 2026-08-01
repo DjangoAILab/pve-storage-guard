@@ -183,14 +183,18 @@ The v1 detector emits a per-disk level only after wait telemetry exists.
 Warning requires target wait plus PSI, queue, or management failure;
 critical requires emergency wait plus full PSI or management failure. The
 recommended warning/critical rules are seeded disabled. They remain disabled
-until the integration is merged, persisted escalation/recovery tests pass, and
-a shadow baseline supports their thresholds.
+until the integration is merged and a shadow baseline supports their thresholds.
+The persisted SQLite integration test now proves that a two-sample warning
+debounce survives evaluator restart and produces one firing followed by one
+recovery, with the detector evidence retained. Real notification delivery is
+still intentionally disabled.
 
 As of 2026-08-02, the integration remains an internal draft PR and has not been
-merged or deployed. Verification covers all 1,231 backend tests, 16 focused
-PVE/runtime tests, 11 restricted-probe tests, TypeScript build/lint, and the
-dependency-boundary check. Production probe installation and alert enablement
-remain explicit approval gates.
+merged or deployed. Verification covers all 1,232 backend tests across 144
+files, including 16 focused PVE/runtime tests, 11 restricted-probe tests, and
+15 focused threshold-evaluator tests. TypeScript build/lint and the
+dependency-boundary check also pass. Production probe installation,
+notification delivery, and alert enablement remain explicit approval gates.
 
 The draft also adds a PVE-only storage-pressure dashboard that combines PSI,
 management-probe health, per-disk average wait, queue depth, utilization,

@@ -136,13 +136,15 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   read-only `pve.storage-pressure` probe and mappings for PSI, in-flight I/O,
   disk counters, derived IOPS/throughput/average wait/queue/utilization, and
   management-probe health; merge, deployment, p95 telemetry, and controller
-  events remain. Evidence: ITOps commit `90b04b0`; all 1,231 backend tests,
-  16 focused PVE/runtime tests, 11 restricted-probe tests, build/lint, and
-  dependency checks passed on 2026-08-02.
+  events remain. Evidence: ITOps commits `90b04b0` and `44df889`; all 1,232
+  backend tests, 16 focused PVE/runtime tests, 11 restricted-probe tests,
+  build/lint, and dependency checks passed on 2026-08-02.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
-  corroboration and seeds disabled warning/critical rules; persisted integration
-  tests, shadow baseline tuning, and explicit enablement remain.
+  corroboration and seeds disabled warning/critical rules. A persisted SQLite
+  test now verifies two-sample debounce across evaluator restart, one firing,
+  and one recovery with detector evidence attached; shadow-baseline tuning,
+  real notification delivery, and explicit enablement remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Draft PR #37 now includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, per-disk pressure evidence, and alert gates; a real
