@@ -160,7 +160,7 @@ and update policy only through versioned review.
 
 ## Current implementation status
 
-The local ITOps integration branch adds one restricted, read-only operation:
+The internal ITOps draft PR adds one restricted, read-only operation:
 `pve.storage-pressure`. It reads Linux PSI and diskstats pseudo-files only and
 maps bounded node/disk metrics for the existing fast collection scope. Safe
 counter deltas derive IOPS, throughput, average wait, queue depth, and
@@ -179,9 +179,15 @@ Average read/write service time is derived from successive deltas. A real p95
 still requires an appropriate storage telemetry source and must not be
 fabricated from these counters.
 
-The local v1 detector emits a per-disk level only after wait telemetry exists.
+The v1 detector emits a per-disk level only after wait telemetry exists.
 Warning requires target wait plus PSI, queue, or management failure;
 critical requires emergency wait plus full PSI or management failure. The
 recommended warning/critical rules are seeded disabled. They remain disabled
 until the integration is merged, persisted escalation/recovery tests pass, and
 a shadow baseline supports their thresholds.
+
+As of 2026-08-02, the integration remains an internal draft PR and has not been
+merged or deployed. Verification covers all 1,231 backend tests, 16 focused
+PVE/runtime tests, 11 restricted-probe tests, TypeScript build/lint, and the
+dependency-boundary check. Production probe installation and alert enablement
+remain explicit approval gates.
