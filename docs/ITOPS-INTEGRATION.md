@@ -191,3 +191,10 @@ merged or deployed. Verification covers all 1,231 backend tests, 16 focused
 PVE/runtime tests, 11 restricted-probe tests, TypeScript build/lint, and the
 dependency-boundary check. Production probe installation and alert enablement
 remain explicit approval gates.
+
+The draft also adds a PVE-only storage-pressure dashboard that combines PSI,
+management-probe health, per-disk average wait, queue depth, utilization,
+throughput, detector level, and alert-gate state. All 101 frontend tests plus
+the production frontend build and lint pass. The UI labels detector output as
+evidence rather than a controller decision and does not expose an actuation
+action. A screenshot must come from a real shadow baseline, not fixture data.

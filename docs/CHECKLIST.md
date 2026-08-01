@@ -143,7 +143,11 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules; persisted integration
   tests, shadow baseline tuning, and explicit enablement remain.
-- [ ] Add dashboard, decision journal, and incident-review links.
+- [~] Add dashboard, decision journal, and incident-review links. Internal
+  Draft PR #37 now includes a tested PVE-only storage-pressure dashboard for
+  PSI, management health, per-disk pressure evidence, and alert gates; a real
+  shadow-baseline screenshot, controller decision journal, and incident/runbook
+  links remain.
 - [ ] Exercise cold restart and rollback in a non-critical environment.
 - [!] Expand production control only after canary evidence is reviewed.
 
