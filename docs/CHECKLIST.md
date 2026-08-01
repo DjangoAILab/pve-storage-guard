@@ -134,11 +134,11 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   [DjangoAILab/pve-storage-guard](https://github.com/DjangoAILab/pve-storage-guard).
 - [x] Validate the repaired main CI across test/race, lint, static analysis,
   govulncheck, replay golden, secrets, OCI build, and Trivy. Evidence:
-  [latest GitHub Actions run](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30708897639).
+  [main CI for `b651099`](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30718700567).
 - [x] Enable and deploy GitHub Pages, set the repository homepage, verify HTTPS
   200, title/disclaimer content, and desktop width in a browser. Evidence:
   [public documentation site](https://djangoailab.github.io/pve-storage-guard/)
-  and [Pages deployment](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30707972440).
+  and [Pages deployment for `b651099`](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30718700564).
 - [x] Protect `main` with up-to-date PR branches, required test/lint/secret/
   container/CodeQL checks, resolved conversations, linear history, and disabled
   force-push/deletion. Administrator bypass remains available for documented
@@ -170,7 +170,9 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   The public controller provides a tested opt-in private JSONL decision journal
   plus a read-only sealed-file verifier and bounded content-addressed private
   batch reader. The reader rescans the complete sealed file under lock before
-  emitting and has no credentials, network, or persistence. The ITOps draft has
+  emitting and has no credentials, network, or persistence. Public PR #21
+  merged this boundary as `b651099`; main CI, CodeQL, and Pages passed, and the
+  deployed ITOps page returned HTTPS 200 with the final run-155 evidence. The ITOps draft has
   a pure strict mapper plus a runtime-uninvoked persistence service. It revalidates the expected domain and
   policy revision, resolves storage/disk resources only through reviewed
   target-scoped bindings, and atomically stores an idempotent private audit row
