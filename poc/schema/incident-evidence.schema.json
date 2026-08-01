@@ -20,8 +20,20 @@
     "timeline": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["events", "missingSignals"],
+      "required": ["writeWaitSeries", "events", "missingSignals"],
       "properties": {
+        "writeWaitSeries": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["metric", "units", "sampleIntervalSeconds", "sampleCount", "canonicalSamplesSha256"],
+          "properties": {
+            "metric": { "const": "zfs.pool.write_total_wait" },
+            "units": { "const": "milliseconds" },
+            "sampleIntervalSeconds": { "const": 1 },
+            "sampleCount": { "type": "integer", "minimum": 1 },
+            "canonicalSamplesSha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+          }
+        },
         "events": {
           "type": "array",
           "minItems": 3,

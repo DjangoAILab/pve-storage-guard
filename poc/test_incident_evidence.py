@@ -94,6 +94,12 @@ class IncidentEvidenceAssessmentTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "sampling start"):
             assess_incident_evidence(wait_fixture, self.evidence)
 
+    def test_rejects_wait_series_with_altered_content(self):
+        wait_fixture = copy.deepcopy(self.wait_fixture)
+        wait_fixture["samples"][0] = wait_fixture["samples"][0] + 0.001
+        with self.assertRaisesRegex(ValueError, "series digest"):
+            assess_incident_evidence(wait_fixture, self.evidence)
+
 
 if __name__ == "__main__":
     unittest.main()

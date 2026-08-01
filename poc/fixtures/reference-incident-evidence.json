@@ -6,6 +6,13 @@
     "independenceGroup": "reference-incident"
   },
   "timeline": {
+    "writeWaitSeries": {
+      "metric": "zfs.pool.write_total_wait",
+      "units": "milliseconds",
+      "sampleIntervalSeconds": 1,
+      "sampleCount": 12,
+      "canonicalSamplesSha256": "sha256:952a3b39d4e144505fffd4c305ee245c4728989fb49a213da34171a8fbee557a"
+    },
     "events": [
       {
         "kind": "durability_degradation_first",

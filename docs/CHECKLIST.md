@@ -29,7 +29,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [x] Define conservative, nominal, and optimistic storage models.
 - [x] Define a safety-first selection gate and bounded parameter search.
 - [x] Migrate the replay code and anonymized fixtures into this repository.
-- [x] Run all 29 offline Python tests and reproduce Markdown/JSON reports locally.
+- [x] Run all 30 offline Python tests and reproduce Markdown/JSON reports locally.
   Evidence: `poc/results/report.md` and `poc/results/report.json`.
 - [x] Add estimated job completion time and hourly decision churn to the report.
 - [x] Record unavailable historical IOPS, PSI, queue, and management-plane

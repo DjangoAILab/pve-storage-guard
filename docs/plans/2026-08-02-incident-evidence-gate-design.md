@@ -20,7 +20,9 @@ Keep three evidence classes separate:
    a fallback claim but may not be expanded into samples.
 
 A dependency-free validator and assessor will consume a new versioned incident
-evidence document. The generated report will state the first two-sample pressure
+evidence document. Its metric semantics, sample interval, count, and canonical
+sample-array SHA-256 bind conclusions to the exact public observed series. The
+generated report will state the first two-sample pressure
 detection offset, the first critical-sample offset, whether telemetry existed
 before the failure marker, and which corroborating signals are absent. It will
 also state that fixed 20 is a model comparator, not a validated production

@@ -24,7 +24,8 @@
 2. Run `python3 -m unittest poc.test_incident_evidence -v` and confirm failure
    because the validator does not exist.
 3. Implement strict dependency-free validation with no filesystem, network, or
-   production adapters.
+   production adapters, binding metric semantics, sample interval, count, and a
+   canonical sample-array SHA-256.
 4. Run the focused test and confirm it passes.
 5. Commit the fixture, schema, validator, and tests.
 

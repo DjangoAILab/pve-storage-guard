@@ -1,5 +1,7 @@
 """Validate and assess sanitized, non-replayable incident evidence."""
 
+import hashlib
+import json
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Mapping, Optional, Sequence
 
@@ -71,8 +73,34 @@ def validate_incident_evidence(document: object) -> List[str]:
                 errors.append(f"source.{key} must be a non-empty string")
 
     timeline = document["timeline"]
-    if _exact_keys(timeline, {"events", "missingSignals"}, "timeline", errors):
+    if _exact_keys(timeline, {"writeWaitSeries", "events", "missingSignals"}, "timeline", errors):
         assert isinstance(timeline, dict)
+        binding = timeline["writeWaitSeries"]
+        binding_keys = {
+            "metric",
+            "units",
+            "sampleIntervalSeconds",
+            "sampleCount",
+            "canonicalSamplesSha256",
+        }
+        if _exact_keys(binding, binding_keys, "timeline.writeWaitSeries", errors):
+            assert isinstance(binding, dict)
+            if binding["metric"] != "zfs.pool.write_total_wait":
+                errors.append("timeline.writeWaitSeries.metric must equal zfs.pool.write_total_wait")
+            if binding["units"] != "milliseconds":
+                errors.append("timeline.writeWaitSeries.units must equal milliseconds")
+            if binding["sampleIntervalSeconds"] != 1:
+                errors.append("timeline.writeWaitSeries.sampleIntervalSeconds must equal 1")
+            if type(binding["sampleCount"]) is not int or binding["sampleCount"] < 1:
+                errors.append("timeline.writeWaitSeries.sampleCount must be a positive integer")
+            digest = binding["canonicalSamplesSha256"]
+            if (
+                not isinstance(digest, str)
+                or not digest.startswith("sha256:")
+                or len(digest) != 71
+                or any(character not in "0123456789abcdef" for character in digest[7:])
+            ):
+                errors.append("timeline.writeWaitSeries.canonicalSamplesSha256 must be a lowercase SHA-256")
         events = timeline["events"]
         timestamps: Dict[str, datetime] = {}
         if not isinstance(events, list) or len(events) != len(EVENT_KINDS):
@@ -203,6 +231,18 @@ def assess_incident_evidence(
 
     timeline = evidence["timeline"]
     assert isinstance(timeline, dict)
+    binding = timeline["writeWaitSeries"]
+    assert isinstance(binding, dict)
+    if wait_fixture.get("metric") != binding["metric"] or wait_fixture.get("units") != binding["units"]:
+        raise ValueError("wait fixture metric semantics do not match incident evidence")
+    if wait_fixture.get("sampleIntervalSeconds") != binding["sampleIntervalSeconds"]:
+        raise ValueError("wait fixture sample interval does not match incident evidence")
+    if len(samples) != binding["sampleCount"]:
+        raise ValueError("wait fixture sample count does not match incident evidence")
+    canonical_samples = json.dumps(samples, separators=(",", ":"), ensure_ascii=True).encode("ascii")
+    sample_digest = "sha256:" + hashlib.sha256(canonical_samples).hexdigest()
+    if sample_digest != binding["canonicalSamplesSha256"]:
+        raise ValueError("wait fixture series digest does not match incident evidence")
     events = timeline["events"]
     assert isinstance(events, list)
     event_times = {
