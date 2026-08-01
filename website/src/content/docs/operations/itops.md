@@ -100,6 +100,18 @@ builder. The builder accepts only already-authorized metric samples and emits
 relative offsets, numeric evidence, and coarse classes. Its diskstats semantics
 are fixed to `average` / `derived`; callers cannot label them `p95`.
 
+The storage probe now optionally runs the fixed argv `zpool iostat -lpH 1 2`,
+discards the since-boot row, and maps only a complete one-second interval.
+ZFS pool IOPS, throughput, `total_wait`, and `disk_wait` are labeled
+`statistic=interval_mean` and remain separate from diskstats-derived device
+averages. Missing OpenZFS or inactive optional queue columns degrade safely.
+These ZFS series are shadow calibration telemetry: detector v1 and its disabled
+thresholds do not consume them.
+
+The dashboard mirrors this boundary with separate ZFS-pool and member-disk
+tables and states that ZFS `total_wait` is not I/O p95. A live stdin-only probe
+check succeeded without installing or registering anything on the host.
+
 There is no export route, transport, importer runtime registration, actuator,
 probe installation, alert enablement, or production deployment. The public
 batch reader is local, digest-bound, and persistence-free. All 1,266 backend

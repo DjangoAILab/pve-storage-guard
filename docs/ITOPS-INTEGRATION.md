@@ -244,7 +244,8 @@ and update policy only through versioned review.
 
 ## Rollout
 
-1. Add/retain 1 Hz metrics and management probes.
+1. Add/retain explicitly typed one-second storage-domain samples and management
+   probes; keep durable ITOps cadence separate from controller cadence.
 2. Offline replay in CI.
 3. Local observer, then shadow with ITOps event ingestion.
 4. Alert tuning across quiet and busy periods.
@@ -255,12 +256,21 @@ and update policy only through versioned review.
 ## Current implementation status
 
 The internal ITOps draft PR adds one restricted, read-only operation:
-`pve.storage-pressure`. It reads Linux PSI and diskstats pseudo-files only and
-maps bounded node/disk metrics for the existing fast collection scope. Safe
-counter deltas derive IOPS, throughput, average wait, queue depth, and
-utilization; the PVE REST cluster-status probe supplies management success and
-duration. It does not execute `zpool iostat`, expose hardware identifiers,
-install the probe, arm alerts, or deploy any service.
+`pve.storage-pressure`. It reads Linux PSI and diskstats pseudo-files and, when
+OpenZFS is available, runs the fixed argv `zpool iostat -lpH 1 2`. The first
+since-boot row is discarded and only a complete one-second interval row is
+mapped. Inactive optional queue fields reported as `-` remain null; required
+capacity, I/O, `total_wait`, and `disk_wait` fields fail closed on malformed
+data. A missing or failed `zpool` sample degrades that sub-capability without
+discarding PSI or diskstats.
+
+Safe diskstats counter deltas derive IOPS, throughput, average wait, queue depth,
+and utilization. ZFS pool metrics remain separate gauges named
+`zfs.pool.{read,write}.{total_wait,disk_wait}.seconds` plus pool IOPS and
+throughput, labeled `statistic=interval_mean` and `intervalSeconds=1`. They are
+not relabeled as disk average wait or I/O p95. The PVE REST cluster-status probe
+supplies management success and duration. The draft does not expose hardware
+identifiers, install the probe, arm alerts, or deploy any service.
 
 ITOps currently permits a minimum fast interval of 10 seconds. This is suitable
 for durable monitoring and alert correlation, but not for a one-second control
@@ -272,6 +282,15 @@ Diskstats provides cumulative operation and time counters, not a p95 latency.
 Average read/write service time is derived from successive deltas. A real p95
 still requires an appropriate storage telemetry source and must not be
 fabricated from these counters.
+
+The 2026-08-02 read-only baseline demonstrated why the split is necessary. Over
+the same short natural-load window, ZFS write `total_wait` reached 153.569 ms as
+a one-second interval mean while anonymous member-disk average write wait stayed
+at or below 20.100 ms in the three derived intervals; detector v1 remained at
+level 0 and all four management probes succeeded. This is not a detector false
+negative claim because the layers and statistics differ. ZFS latency is first
+being added as shadow calibration telemetry and does not feed detector v1 or a
+threshold rule. See the [PoC evidence limits](POC.md#read-only-live-baseline-not-replay-qualified).
 
 The draft integration also contains a pure replay-trace builder for reviewed,
 already-authorized metric samples. It emits only relative offsets, numeric
@@ -293,6 +312,11 @@ debounce survives evaluator restart and produces one firing followed by one
 recovery, with the detector evidence retained. Real notification delivery is
 still intentionally disabled.
 
+The dashboard presents ZFS storage-domain interval means in a separate table
+from diskstats-derived device averages. It explicitly states that ZFS
+`total_wait` is not I/O p95 and does not participate in detector v1. This
+prevents visually similar millisecond values from silently sharing thresholds.
+
 As of 2026-08-02, the integration remains an internal draft PR and has not been
 merged or deployed. Verification covers all 1,266 backend tests across 151
 files, including the approval-to-persistence SQLite handoff, exact-argv reader,
@@ -306,8 +330,8 @@ probe installation, capability registration/runtime invocation, trace export,
 notification delivery, and alert enablement remain explicit approval gates.
 
 The draft also adds a PVE-only storage-pressure dashboard that combines PSI,
-management-probe health, per-disk average wait, queue depth, utilization,
-throughput, detector level, and alert-gate state. All 101 frontend tests plus
-the production frontend build and lint pass. The UI labels detector output as
-evidence rather than a controller decision and does not expose an actuation
-action. A screenshot must come from a real shadow baseline, not fixture data.
+management-probe health, separately typed per-pool and per-disk evidence,
+queue depth, utilization, throughput, detector level, and alert-gate state.
+The UI labels detector output as evidence rather than a controller decision and
+does not expose an actuation action. A screenshot must come from a real shadow
+baseline, not fixture data.
