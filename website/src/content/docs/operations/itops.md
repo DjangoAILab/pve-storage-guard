@@ -26,3 +26,16 @@ failure, or continued pressure at minimum is critical.
 
 Group by storage domain and use clear/hold durations plus reason-aware
 deduplication.
+
+## Current draft boundary
+
+The internal integration draft includes the restricted read-only storage probe,
+multi-signal detector, disabled alert seeds, dashboard, and a pure replay-trace
+builder. The builder accepts only already-authorized metric samples and emits
+relative offsets, numeric evidence, and coarse classes. Its diskstats semantics
+are fixed to `average` / `derived`; callers cannot label them `p95`.
+
+There is no export route, file writer, actuator, probe installation, alert
+enablement, or production deployment. All 1,236 backend tests across 145 files,
+including four export tests, pass locally. Internal CI for the latest draft is
+still pending; production rollout remains an explicit approval gate.

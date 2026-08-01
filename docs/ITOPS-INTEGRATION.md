@@ -179,6 +179,16 @@ Average read/write service time is derived from successive deltas. A real p95
 still requires an appropriate storage telemetry source and must not be
 fabricated from these counters.
 
+The draft integration also contains a pure replay-trace builder for reviewed,
+already-authorized metric samples. It emits only relative offsets, numeric
+evidence, and coarse storage/workload classes; internal target, resource, node,
+and absolute sample-time fields are selection inputs and never become public
+trace fields. Its wait semantics are fixed to `average`, aggregation to `none`,
+and provenance to `derived`, so a caller cannot relabel diskstats evidence as
+`p95`. Gaps remain gaps against the declared window. This builder has no route,
+API, file writer, scheduler, or deployment path and therefore does not publish
+data by itself.
+
 The v1 detector emits a per-disk level only after wait telemetry exists.
 Warning requires target wait plus PSI, queue, or management failure;
 critical requires emergency wait plus full PSI or management failure. The
@@ -190,12 +200,13 @@ recovery, with the detector evidence retained. Real notification delivery is
 still intentionally disabled.
 
 As of 2026-08-02, the integration remains an internal draft PR and has not been
-merged or deployed. Verification covers all 1,232 backend tests across 144
-files, including 16 focused PVE/runtime tests, 11 restricted-probe tests, and
-15 focused threshold-evaluator tests. TypeScript build/lint and the
-dependency-boundary check also pass; the internal Draft PR's quality-gate and
-linux/amd64 image-build jobs are successful. Production probe installation,
-notification delivery, and alert enablement remain explicit approval gates.
+merged or deployed. Verification covers all 1,236 backend tests across 145
+files, including 16 focused PVE/runtime tests, 11 restricted-probe tests, 15
+focused threshold-evaluator tests, and four replay-export tests. TypeScript
+build/lint and the dependency-boundary check also pass. The latest internal CI
+run is still pending, so no successful-CI claim is made for that revision.
+Production probe installation, trace export, notification delivery, and alert
+enablement remain explicit approval gates.
 
 The draft also adds a PVE-only storage-pressure dashboard that combines PSI,
 management-probe health, per-disk average wait, queue depth, utilization,

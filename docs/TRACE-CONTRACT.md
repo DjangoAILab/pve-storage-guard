@@ -54,12 +54,16 @@ must have separate hashes and a human redaction review before publication.
 
 ## ITOps export mapping
 
-ITOps may export a reviewed window into this contract after collection. It must
-preserve the original statistic and provenance. Diskstats-derived average wait
-maps to `average`; a real histogram/telemetry percentile maps to `p95`. Missing
-samples remain gaps and affect completeness rather than being forward-filled.
-Offsets are relative to the declared window start; completeness is never
-recomputed from only the first and last surviving samples.
+The internal ITOps draft contains a pure builder for mapping a reviewed,
+already-authorized metric window into this contract. It fixes diskstats-derived
+wait to `average`, provenance to `derived`, and window aggregation to `none`;
+callers cannot configure those fields as `p95`. A real histogram/telemetry
+percentile would require a separate, explicit source mapping. Missing samples
+remain gaps and affect completeness rather than being forward-filled. Offsets
+are relative to the declared window start; completeness is never recomputed
+from only the first and last surviving samples. The builder has no route, file
+writer, or publication side effect, so human source review and export approval
+remain separate gates.
 
 Validate a candidate with:
 
