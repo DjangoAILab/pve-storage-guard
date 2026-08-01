@@ -3,6 +3,7 @@ package v1
 
 import "time"
 
+// SchemaVersion identifies the first pre-release wire contract.
 const SchemaVersion = "guard.storage-slo.io/v1alpha1"
 
 // Observation is a normalized, read-only storage-domain sample.

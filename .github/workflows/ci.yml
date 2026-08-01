@@ -26,7 +26,7 @@ jobs:
       - name: Test with race detector
         run: go test -race -coverprofile=coverage.out ./...
       - name: Install staticcheck
-        run: go install honnef.co/go/tools/cmd/staticcheck@v0.8.0
+        run: go install honnef.co/go/tools/cmd/staticcheck@v0.8.0-rc.1
       - name: Staticcheck
         run: staticcheck ./...
       - name: Install govulncheck
@@ -70,8 +70,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: 1.26.5
+          cache: true
       - name: Scan secrets
-        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        run: go run github.com/zricethezav/gitleaks/v8@v8.30.1 git --no-banner --redact --exit-code 1
 
   container:
     runs-on: ubuntu-24.04
