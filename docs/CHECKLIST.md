@@ -66,8 +66,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   production mutation under `internal/adapter/pve` and `internal/actuator/pve`.
 - [x] Implement the versioned JSONL shadow stream, strict configuration
   decoding, exact enrollment, telemetry-age checks, and non-actuating proposal
-  output. Evidence: `internal/controller`, `internal/config`, and
-  `cmd/pve-storage-guard`.
+  output. An opt-in private append/sync decision journal now records the
+  versioned event before its proposal reaches stdout and fails closed on journal
+  errors. Evidence: `internal/controller`, `internal/config`,
+  `internal/telemetry`, and `cmd/pve-storage-guard`.
 
 ## 4. Safety validation
 
@@ -101,9 +103,11 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [x] Add Apache-2.0 license, DCO, contributing guide, security policy, code of
   conduct, support/governance policy, Dependabot, and issue/PR templates.
 - [~] Add unit, shadow CLI, replay, trace-qualification, and performance smoke
-  tests. Repeated local benchmarks cover policy evaluation, 100-disk allocation,
-  and the verified safety gate; end-to-end adapter/storage performance and
-  controlled-load coverage remain.
+  tests. Decision-journal tests cover deterministic event mapping, append after
+  reopen, private permissions, unsafe-target rejection, invalid-event rejection,
+  CLI compatibility, and fail-before-output behavior. Repeated local benchmarks
+  cover policy evaluation, 100-disk allocation, and the verified safety gate;
+  end-to-end adapter/storage performance and controlled-load coverage remain.
 - [x] Add pinned GitHub Actions for lint, test/race, replay golden, CodeQL,
   govulncheck, secret scan, OCI build/Trivy, docs build, and Pages.
 - [x] Add multi-architecture release workflow with pinned actions, binary/image
@@ -152,8 +156,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   fixed `average`/`derived` diskstats semantics, relative offsets, declared
   gaps, and excludes internal selection identifiers; it has no route, writer,
   or deployment path. Merge, deployment, true p95 telemetry, trace review, and
-  controller events remain. Evidence: ITOps commits `90b04b0`, `44df889`, and
-  `242a7ff`; all 1,236 backend tests across 145 files, 16 focused PVE/runtime
+  ITOps ingestion/linking of controller events remain. The public controller
+  now provides a tested opt-in private JSONL decision journal without network
+  delivery. Evidence: ITOps commits `90b04b0`, `44df889`, and `242a7ff`; all
+  1,236 backend tests across 145 files, 16 focused PVE/runtime
   tests, 11 restricted-probe tests, four replay-export tests, build/lint, and
   dependency checks passed locally on 2026-08-02. The latest internal CI
   quality-gate job passed in 4m32s, followed by its dependent linux/amd64
@@ -166,9 +172,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   real notification delivery, and explicit enablement remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Draft PR #37 now includes a tested PVE-only storage-pressure dashboard for
-  PSI, management health, per-disk pressure evidence, and alert gates; a real
-  shadow-baseline screenshot, controller decision journal, and incident/runbook
-  links remain.
+  PSI, management health, per-disk pressure evidence, and alert gates. The
+  controller now has a private, append/sync shadow decision journal; a real
+  shadow-baseline screenshot, ITOps event ingestion, and incident/runbook links
+  remain.
 - [ ] Exercise cold restart and rollback in a non-critical environment.
 - [!] Expand production control only after canary evidence is reviewed.
 

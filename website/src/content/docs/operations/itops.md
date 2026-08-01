@@ -27,6 +27,18 @@ failure, or continued pressure at minimum is critical.
 Group by storage domain and use clear/hold durations plus reason-aware
 deduplication.
 
+## Decision-journal handoff
+
+The public shadow CLI now supports an opt-in private JSONL decision journal. It
+records normalized observation evidence, the bounded proposal, explicit
+`not_evaluated` authority/effective-state fields, and a stable event ID. Each
+event is appended and synced before the matching proposal reaches stdout;
+journal failure is fail-closed for that proposal.
+
+This is a local single-writer handoff only. It has no network exporter, ITOps
+callback, rotation manager, actuator, or public-trace sanitization. An approved
+ITOps ingestion/linking adapter remains future work.
+
 ## Current draft boundary
 
 The internal integration draft includes the restricted read-only storage probe,

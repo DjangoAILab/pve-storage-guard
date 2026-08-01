@@ -60,30 +60,49 @@ and cardinality growth.
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": "guard.storage-slo.io/v1alpha1",
+  "eventId": "event-0123456789abcdef01234567",
   "eventType": "storage_guard.decision",
-  "domain": "opaque-domain-key",
+  "recordedAt": "2026-08-02T01:02:03Z",
+  "domainKey": "opaque-domain-key",
   "mode": "shadow",
-  "policyVersion": "sha256:...",
+  "policyVersion": "opaque-policy-version",
   "observation": {
     "id": "opaque-observation-id",
+    "observedAt": "2026-08-02T01:02:01.8Z",
     "ageSeconds": 1.2,
     "writeWaitP95Milliseconds": 42.0,
-    "managementHealthy": true
+    "waitValid": true,
+    "emergency": false,
+    "managementPlaneHealthy": true
   },
   "decision": {
+    "proposalId": "proposal-0123456789abcdef01234567",
     "reason": "multiplicative_decrease",
     "previousBudgetMiBps": 20,
-    "desiredBudgetMiBps": 10
+    "desiredBudgetMiBps": 10,
+    "changed": true,
+    "allocations": {"opaque-resource-key": 10},
+    "allocationFeasible": true
   },
   "safety": {
-    "leaseValid": true,
-    "policyMatch": true,
-    "boundsValid": true,
-    "actuationAllowed": false
-  }
+    "allocationFeasible": true,
+    "actuationAllowed": false,
+    "leaseStatus": "not_evaluated",
+    "approvalStatus": "not_evaluated",
+    "effectiveStateStatus": "not_evaluated"
+  },
+  "outcome": "shadow_evaluated"
 }
 ```
+
+The public controller now implements this shadow event as an opt-in local JSONL
+journal. It validates the event, appends it to a private regular file, syncs the
+file, and only then emits the proposal. Journal failure suppresses the matching
+proposal. This is a single-writer local handoff, not an ITOps ingestion route or
+a production durability claim. Absolute event times and opaque internal keys
+make the private journal unsuitable for public release without a separate
+sanitization/export review.
 
 ## Alert model
 

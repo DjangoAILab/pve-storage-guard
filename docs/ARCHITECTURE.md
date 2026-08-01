@@ -96,6 +96,13 @@ policy version, previous/desired/effective state, reason, mode, and outcome.
 It integrates with ITOps without making ITOps metrics ingestion depend on
 actuation availability.
 
+The current shadow CLI implements the first narrow slice: an opt-in local JSONL
+journal. It writes a versioned `storage_guard.decision` event to a private
+regular file, calls `fsync`, and only then emits the matching proposal to
+stdout. Shadow records explicitly mark lease, approval, and effective state as
+`not_evaluated`; they never imply checks that did not run. The CLI has no
+journal by default, network exporter, rotation manager, or ITOps callback.
+
 ## Controller boundary: storage domain first
 
 The primary control key is `(adapter, node, storage-domain)`, not VM or disk.
@@ -116,7 +123,8 @@ controllers, SLOs, capacity baselines, and limit ranges.
 4. The policy engine proposes an aggregate budget and disk allocation.
 5. Safety Controller validates freshness, bounds, cooldown, policy feasibility,
    enrollment, desired/effective state, and operating mode.
-6. In observer/shadow mode, the proposal is journaled but not applied.
+6. In observer/shadow mode, an explicitly configured journal is synced before
+   the proposal is emitted; neither path can authorize an apply.
 7. In approved canary mode, the constrained actuator snapshots, applies, and
    reads back effective state.
 8. Telemetry records the full outcome and ITOps evaluates multi-signal alerts.
