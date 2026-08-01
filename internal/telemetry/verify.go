@@ -136,6 +136,19 @@ func verifyJournal(path string, maxFileBytes int64, maxEventBytes int) (summary 
 	if finalInfo.Size() != lockedInfo.Size() || !finalInfo.ModTime().Equal(lockedInfo.ModTime()) {
 		return summary, errors.New("journal changed during verification")
 	}
+	if err := validateJournalInfo(finalInfo); err != nil {
+		return summary, err
+	}
+	finalTarget, err := os.Lstat(path)
+	if err != nil {
+		return summary, fmt.Errorf("reinspect verified journal: %w", err)
+	}
+	if err := validateJournalInfo(finalTarget); err != nil {
+		return summary, err
+	}
+	if !os.SameFile(finalTarget, finalInfo) {
+		return summary, errors.New("journal target changed during verification")
+	}
 	return summary, nil
 }
 
