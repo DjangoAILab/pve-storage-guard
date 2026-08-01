@@ -204,9 +204,8 @@ merged or deployed. Verification covers all 1,236 backend tests across 145
 files, including 16 focused PVE/runtime tests, 11 restricted-probe tests, 15
 focused threshold-evaluator tests, and four replay-export tests. TypeScript
 build/lint and the dependency-boundary check also pass. The latest internal CI
-quality-gate job passed in 4m32s. Its dependent linux/amd64 image-build job is
-reported as blocked by workflow conditions and has not supplied a successful
-result for this revision. Production probe installation, trace export,
+quality-gate job passed in 4m32s, followed by its dependent linux/amd64
+image-build job in 4m48s. Production probe installation, trace export,
 notification delivery, and alert enablement remain explicit approval gates.
 
 The draft also adds a PVE-only storage-pressure dashboard that combines PSI,

@@ -156,8 +156,8 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   `242a7ff`; all 1,236 backend tests across 145 files, 16 focused PVE/runtime
   tests, 11 restricted-probe tests, four replay-export tests, build/lint, and
   dependency checks passed locally on 2026-08-02. The latest internal CI
-  quality-gate job passed in 4m32s; its dependent linux/amd64 image-build job is
-  reported blocked by workflow conditions and is not counted as successful.
+  quality-gate job passed in 4m32s, followed by its dependent linux/amd64
+  image-build job in 4m48s.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
