@@ -43,6 +43,7 @@ jobs:
           python3 poc/simulate.py --format json > /tmp/report.json
           diff -u poc/results/report.md /tmp/report.md
           diff -u poc/results/report.json /tmp/report.json
+          python3 poc/render_effect_chart.py --check
       - name: Validate JSON documents
         run: |
           for document in api/v1/schema/*.json configs/examples/*.json poc/schema/*.json; do
