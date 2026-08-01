@@ -11,6 +11,7 @@ import (
 	"time"
 
 	v1 "github.com/DjangoAILab/pve-storage-guard/api/v1"
+	"github.com/DjangoAILab/pve-storage-guard/internal/telemetry"
 )
 
 func TestShadowCommandEmitsNonActuatingProposal(t *testing.T) {
@@ -141,5 +142,65 @@ func TestShadowCommandDoesNotWriteJournalByDefault(t *testing.T) {
 	}
 	if len(entries) != 0 {
 		t.Fatalf("default shadow created files: %v", entries)
+	}
+}
+
+func TestJournalVerifyCommandEmitsIdentityFreeSummary(t *testing.T) {
+	root := filepath.Join("..", "..")
+	now := time.Now().UTC()
+	input := fmt.Sprintf(`{"schemaVersion":"guard.storage-slo.io/v1alpha1","id":"private-observation-cli-verify","observedAt":%q,"domainKey":"reference-bulk-pool","writeWaitP95Milliseconds":120,"waitValid":true,"emergency":false,"managementPlaneHealthy":true}`+"\n", now.Format(time.RFC3339Nano))
+	journalPath := filepath.Join(t.TempDir(), "decisions.jsonl")
+	var shadowOut, shadowErr bytes.Buffer
+	if code := run([]string{
+		"shadow",
+		"--policy", filepath.Join(root, "configs", "examples", "reference-shadow-policy.json"),
+		"--enrollment", filepath.Join(root, "configs", "examples", "reference-enrollment.json"),
+		"--journal", journalPath,
+	}, strings.NewReader(input), &shadowOut, &shadowErr); code != 0 {
+		t.Fatalf("shadow exit %d: %s", code, shadowErr.String())
+	}
+
+	var stdout, stderr bytes.Buffer
+	if code := run([]string{"journal", "verify", "--journal", journalPath}, strings.NewReader(""), &stdout, &stderr); code != 0 {
+		t.Fatalf("verify exit %d: %s", code, stderr.String())
+	}
+	var summary v1.DecisionJournalVerification
+	if err := json.Unmarshal(bytes.TrimSpace(stdout.Bytes()), &summary); err != nil {
+		t.Fatalf("decode summary: %v", err)
+	}
+	if summary.SchemaVersion != v1.SchemaVersion || summary.Kind != v1.DecisionJournalVerificationKind || summary.EventCount != 1 {
+		t.Fatalf("unexpected summary: %+v", summary)
+	}
+	for _, privateValue := range []string{"reference-bulk-pool", "resource-a", "private-observation-cli-verify", "proposal-", "event-"} {
+		if strings.Contains(stdout.String(), privateValue) {
+			t.Fatalf("summary leaked %q: %s", privateValue, stdout.String())
+		}
+	}
+}
+
+func TestJournalVerifyCommandRejectsActiveWriter(t *testing.T) {
+	journalPath := filepath.Join(t.TempDir(), "decisions.jsonl")
+	journal, err := telemetry.OpenJournal(journalPath)
+	if err != nil {
+		t.Fatalf("open journal: %v", err)
+	}
+	defer func() { _ = journal.Close() }()
+	var stdout, stderr bytes.Buffer
+	if code := run([]string{"journal", "verify", "--journal", journalPath}, strings.NewReader(""), &stdout, &stderr); code == 0 || stdout.Len() != 0 || !strings.Contains(stderr.String(), "lock") {
+		t.Fatalf("code=%d stdout=%q stderr=%q", code, stdout.String(), stderr.String())
+	}
+}
+
+func TestJournalVerifyCommandRejectsInvalidArguments(t *testing.T) {
+	for _, args := range [][]string{
+		{"journal"},
+		{"journal", "verify"},
+		{"journal", "verify", "--unknown"},
+		{"journal", "verify", "--journal", "unused", "extra"},
+	} {
+		var stdout, stderr bytes.Buffer
+		if code := run(args, strings.NewReader(""), &stdout, &stderr); code == 0 || stdout.Len() != 0 {
+			t.Fatalf("args=%v code=%d stdout=%q stderr=%q", args, code, stdout.String(), stderr.String())
+		}
 	}
 }

@@ -17,8 +17,8 @@ func TestJournalCreatesPrivateFileAndAppendsCompleteJSONL(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open journal: %v", err)
 	}
-	first := testDecisionEvent("event-0123456789abcdef01234567")
-	second := testDecisionEvent("event-abcdef0123456789abcdef01")
+	first := testDecisionEvent("proposal-0123456789abcdef01234567")
+	second := testDecisionEvent("proposal-abcdef0123456789abcdef01")
 	if err := journal.Append(first); err != nil {
 		t.Fatalf("append first: %v", err)
 	}
@@ -45,7 +45,8 @@ func TestJournalAppendsAfterReopen(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open first journal: %v", err)
 	}
-	if err := first.Append(testDecisionEvent("event-0123456789abcdef01234567")); err != nil {
+	firstEvent := testDecisionEvent("proposal-0123456789abcdef01234567")
+	if err := first.Append(firstEvent); err != nil {
 		t.Fatalf("append first: %v", err)
 	}
 	if err := first.Close(); err != nil {
@@ -56,13 +57,14 @@ func TestJournalAppendsAfterReopen(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reopen journal: %v", err)
 	}
-	if err := second.Append(testDecisionEvent("event-abcdef0123456789abcdef01")); err != nil {
+	secondEvent := testDecisionEvent("proposal-abcdef0123456789abcdef01")
+	if err := second.Append(secondEvent); err != nil {
 		t.Fatalf("append second: %v", err)
 	}
 	if err := second.Close(); err != nil {
 		t.Fatalf("close second journal: %v", err)
 	}
-	assertJournalEvents(t, path, []string{"event-0123456789abcdef01234567", "event-abcdef0123456789abcdef01"})
+	assertJournalEvents(t, path, []string{firstEvent.EventID, secondEvent.EventID})
 }
 
 func TestOpenJournalRejectsUnsafeTargets(t *testing.T) {
@@ -107,7 +109,7 @@ func TestJournalRejectsNonShadowEvent(t *testing.T) {
 		t.Fatalf("open journal: %v", err)
 	}
 	defer func() { _ = journal.Close() }()
-	event := testDecisionEvent("event-0123456789abcdef01234567")
+	event := testDecisionEvent("proposal-0123456789abcdef01234567")
 	event.Safety.ActuationAllowed = true
 	if err := journal.Append(event); err == nil {
 		t.Fatal("expected actuating event to be rejected")
@@ -118,6 +120,42 @@ func TestJournalRejectsNonShadowEvent(t *testing.T) {
 	}
 	if info.Size() != 0 {
 		t.Fatalf("invalid event wrote %d bytes", info.Size())
+	}
+}
+
+func TestJournalRejectsForgedLinkage(t *testing.T) {
+	tests := []struct {
+		name   string
+		mutate func(*v1.DecisionEvent)
+	}{
+		{name: "event id", mutate: func(event *v1.DecisionEvent) {
+			event.EventID = "event-0123456789abcdef01234567"
+		}},
+		{name: "observation age", mutate: func(event *v1.DecisionEvent) {
+			event.Observation.AgeSeconds = 9
+		}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "decisions.jsonl")
+			journal, err := OpenJournal(path)
+			if err != nil {
+				t.Fatalf("open journal: %v", err)
+			}
+			defer func() { _ = journal.Close() }()
+			event := testDecisionEvent("proposal-0123456789abcdef01234567")
+			test.mutate(&event)
+			if err := journal.Append(event); err == nil {
+				t.Fatal("expected forged linkage to be rejected")
+			}
+			info, err := os.Stat(path)
+			if err != nil {
+				t.Fatalf("stat journal: %v", err)
+			}
+			if info.Size() != 0 {
+				t.Fatalf("invalid event wrote %d bytes", info.Size())
+			}
+		})
 	}
 }
 
@@ -142,7 +180,7 @@ func TestJournalStopsBeforeConfiguredSizeLimit(t *testing.T) {
 		t.Fatalf("open bounded journal: %v", err)
 	}
 	defer func() { _ = journal.Close() }()
-	if err := journal.Append(testDecisionEvent("event-0123456789abcdef01234567")); err == nil {
+	if err := journal.Append(testDecisionEvent("proposal-0123456789abcdef01234567")); err == nil {
 		t.Fatal("expected size limit to reject event")
 	}
 	info, err := os.Stat(path)
@@ -154,11 +192,11 @@ func TestJournalStopsBeforeConfiguredSizeLimit(t *testing.T) {
 	}
 }
 
-func testDecisionEvent(eventID string) v1.DecisionEvent {
+func testDecisionEvent(proposalID string) v1.DecisionEvent {
 	now := time.Date(2026, 8, 2, 1, 2, 3, 0, time.UTC)
 	return v1.DecisionEvent{
 		SchemaVersion: v1.SchemaVersion,
-		EventID:       eventID,
+		EventID:       eventID(proposalID),
 		EventType:     v1.DecisionEventType,
 		RecordedAt:    now,
 		DomainKey:     "domain-opaque-1",
@@ -173,7 +211,7 @@ func testDecisionEvent(eventID string) v1.DecisionEvent {
 			ManagementPlaneHealthy:   true,
 		},
 		Decision: v1.DecisionEventDecision{
-			ProposalID:          "proposal-0123456789abcdef01234567",
+			ProposalID:          proposalID,
 			Reason:              "hold",
 			PreviousBudgetMiBPS: 10,
 			DesiredBudgetMiBPS:  10,

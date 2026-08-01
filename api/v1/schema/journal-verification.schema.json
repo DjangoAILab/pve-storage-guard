@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/journal-verification.json",
+  "title": "PVE Storage Guard sealed decision journal verification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "eventCount",
+    "changedCount",
+    "policyVersionCount",
+    "duplicateEventCount",
+    "timestampRegressionCount"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "kind": { "const": "DecisionJournalVerification" },
+    "eventCount": { "type": "integer", "minimum": 0 },
+    "changedCount": { "type": "integer", "minimum": 0 },
+    "policyVersionCount": { "type": "integer", "minimum": 0 },
+    "duplicateEventCount": { "type": "integer", "minimum": 0 },
+    "timestampRegressionCount": { "type": "integer", "minimum": 0 },
+    "earliestRecordedAt": { "type": "string", "format": "date-time" },
+    "latestRecordedAt": { "type": "string", "format": "date-time" }
+  }
+}
