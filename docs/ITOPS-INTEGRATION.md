@@ -163,6 +163,15 @@ domain/policy expectation, storage and every disk resource, optional review
 group, and batch size. Before each audit/metric transaction the repository
 rechecks the current proposal, envelope hash, running state, approval, and both
 expiry bounds. Task evidence receives only digest/count reconciliation.
+If an optional alert correlation group is present, the same transaction also
+requires that the reviewed group already exists. Historical import never
+creates or mutates an alert, correlation group, or incident.
+
+A local cross-repository PoC built this Go binary, wrote one synthetic private
+shadow event, verified its digest, and passed the exact file/digest to the
+compiled ITOps reader. The identity-free result confirmed digest match, one
+event, and complete pagination; event content was not printed and the temporary
+artifacts were moved to the system Trash.
 
 This remains storage plumbing, not a live ingestion path. The public batch
 reader has no transport or persistence. The internal persistence boundary has
@@ -284,12 +293,13 @@ recovery, with the detector evidence retained. Real notification delivery is
 still intentionally disabled.
 
 As of 2026-08-02, the integration remains an internal draft PR and has not been
-merged or deployed. Verification covers all 1,265 backend tests across 151
+merged or deployed. Verification covers all 1,266 backend tests across 151
 files, including the approval-to-persistence SQLite handoff, exact-argv reader,
 and deterministic reconciliation tests. TypeScript build/lint and the
 dependency-boundary check also pass locally, as do all 101 frontend tests plus
-build/lint. Internal CI run 153 remains the last completed remote evidence for
-the earlier atomic importer; CI for commit `51cc834` is pending. Production
+build/lint. Internal CI run 154 validated capability commit `51cc834`: its Node
+22 quality gate passed in 4m31s and dependent linux/amd64 image build passed in
+4m47s. CI for the smaller existing-review-group refinement `e7e7997` is pending. Production
 probe installation, capability registration/runtime invocation, trace export,
 notification delivery, and alert enablement remain explicit approval gates.
 

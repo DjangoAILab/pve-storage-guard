@@ -79,6 +79,13 @@ target, domain/policy expectation, storage and disk resources, optional review
 group, and batch size. Persistence rechecks the current running proposal,
 envelope hash, approval, and expiry in the audit/metric transaction. Only
 digest/count reconciliation reaches task evidence.
+An optional review group must already exist; historical import never creates or
+changes an alert, group, or incident.
+
+A cross-repository local PoC built the public binary and passed one synthetic
+private event through the compiled ITOps exact-argv reader. The identity-free
+result confirmed digest match, one event, and complete pagination; event content
+was not printed.
 
 This does not create a live ingestion path. The public reader has no transport
 or persistence, and the internal importer has no approved runtime registration,
@@ -95,8 +102,9 @@ are fixed to `average` / `derived`; callers cannot label them `p95`.
 
 There is no export route, transport, importer runtime registration, actuator,
 probe installation, alert enablement, or production deployment. The public
-batch reader is local, digest-bound, and persistence-free. All 1,265 backend
+batch reader is local, digest-bound, and persistence-free. All 1,266 backend
 tests across 151 files and all 101 frontend tests pass locally; build, lint, and
-dependency boundaries are also clean. Internal CI run 153 covered the earlier
-atomic importer; CI for the unregistered capability commit `51cc834` is pending
-while PR #37 stays Draft. Production rollout remains an explicit approval gate.
+dependency boundaries are also clean. Internal CI run 154 validated capability
+commit `51cc834` with a 4m31s quality gate and 4m47s image build; CI for the
+smaller existing-review-group refinement `e7e7997` is pending while PR #37
+stays Draft. Production rollout remains an explicit approval gate.
