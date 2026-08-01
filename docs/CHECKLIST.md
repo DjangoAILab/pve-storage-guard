@@ -165,8 +165,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   `44df889`, `242a7ff`, `c236d06`, and `4fe5b97`; all 1,240 backend tests across
   146 files, 16 focused PVE/runtime tests, 11 restricted-probe tests, four
   replay-export tests, four decision-mapper tests, build/lint, and dependency
-  checks passed locally on 2026-08-02. CI for the latest mapper revision is
-  pending.
+  checks passed locally on 2026-08-02. The latest internal CI quality gate
+  passed in 4m31s; the dependent linux/amd64 image job remained blocked by
+  required conditions while the PR stayed Draft, so it is not recorded as a
+  successful image build.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite

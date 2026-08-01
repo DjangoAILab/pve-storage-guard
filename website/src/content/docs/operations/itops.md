@@ -59,5 +59,7 @@ are fixed to `average` / `derived`; callers cannot label them `p95`.
 There is no export route, file writer, journal reader, repository write,
 actuator, probe installation, alert enablement, or production deployment. All
 1,240 backend tests across 146 files, including four export tests and four
-decision-mapper tests, pass locally. CI for the latest mapper revision is
-pending. Production rollout remains an explicit approval gate.
+decision-mapper tests, pass locally. The latest internal CI quality gate passed
+in 4m31s; the dependent linux/amd64 image job remained blocked by required
+conditions while the PR stayed Draft, so no image result is claimed. Production
+rollout remains an explicit approval gate.

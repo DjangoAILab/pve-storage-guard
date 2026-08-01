@@ -235,8 +235,10 @@ merged or deployed. Verification covers all 1,240 backend tests across 146
 files, including 16 focused PVE/runtime tests, 11 restricted-probe tests, 15
 focused threshold-evaluator tests, four replay-export tests, and four
 decision-mapper tests. TypeScript build/lint and the dependency-boundary check
-also pass locally. CI for the latest mapper revision is pending. Production
-probe installation, journal ingestion/persistence, trace export, notification
+also pass locally. The latest internal CI quality gate passed in 4m31s; its
+dependent linux/amd64 image job remained blocked by required conditions while
+the PR stayed Draft, so no image result is claimed. Production probe
+installation, journal ingestion/persistence, trace export, notification
 delivery, and alert enablement remain explicit approval gates.
 
 The draft also adds a PVE-only storage-pressure dashboard that combines PSI,
