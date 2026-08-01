@@ -58,20 +58,27 @@ captured in general task logs.
 Verification identifies structurally valid exact bytes. It is not a signature,
 sanitization result, publication approval, or permission to ingest. The public
 code performs no rotation, transport, or import; the internal persistence
-service described below remains uninvoked and approval-gated.
+service described below remains runtime-uninvoked and approval-gated.
 
 This is a local single-writer handoff only. It has no network exporter, ITOps
 callback, rotation manager, actuator, or public-trace sanitization. An approved
 transport, runtime invocation, and incident-linking adapter remain future work.
 
-The internal ITOps draft now contains the matching pure event mapper and an
-uninvoked persistence service. It requires an already-authorized target plus
+The internal ITOps draft now contains the matching pure event mapper and a
+runtime-uninvoked persistence service. It requires an already-authorized target plus
 reviewed domain, policy revision, and storage/disk resource bindings. The
 repository rechecks target ownership and kind, then atomically persists the
 private audit row and `estimated`, low-cardinality metrics. Deterministic IDs
 make identical retries no-ops; a canonical SHA-256 metric-projection digest
 rejects altered retries. One call is bounded to 64 events, 10,000 metrics, and
 1 MiB of private audit details per event.
+
+The draft also contains an unregistered, idempotent-write handoff capability
+and exact-argv reader. The immutable approval binds the digest and summary,
+target, domain/policy expectation, storage and disk resources, optional review
+group, and batch size. Persistence rechecks the current running proposal,
+envelope hash, approval, and expiry in the audit/metric transaction. Only
+digest/count reconciliation reaches task evidence.
 
 This does not create a live ingestion path. The public reader has no transport
 or persistence, and the internal importer has no approved runtime registration,
@@ -88,9 +95,8 @@ are fixed to `average` / `derived`; callers cannot label them `p95`.
 
 There is no export route, transport, importer runtime registration, actuator,
 probe installation, alert enablement, or production deployment. The public
-batch reader is local, digest-bound, and persistence-free. All 1,252 backend
-tests across 148 files pass locally,
-including four export tests and 16 focused mapper/importer/repository tests.
-Internal CI run 153 completed both its quality gate in 4m35s and dependent
-linux/amd64 image build in 4m57s for the importer commit while the PR stayed
-Draft. Production rollout remains an explicit approval gate.
+batch reader is local, digest-bound, and persistence-free. All 1,265 backend
+tests across 151 files and all 101 frontend tests pass locally; build, lint, and
+dependency boundaries are also clean. Internal CI run 153 covered the earlier
+atomic importer; CI for the unregistered capability commit `51cc834` is pending
+while PR #37 stays Draft. Production rollout remains an explicit approval gate.

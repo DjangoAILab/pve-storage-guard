@@ -166,27 +166,30 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   fixed `average`/`derived` diskstats semantics, relative offsets, declared
   gaps, and excludes internal selection identifiers; it has no route, writer,
   or deployment path. Merge, deployment, true p95 telemetry, trace review,
-  approved journal transport/runtime invocation and incident linking remain.
+  approved runtime invocation and incident linking remain.
   The public controller provides a tested opt-in private JSONL decision journal
   plus a read-only sealed-file verifier and bounded content-addressed private
   batch reader. The reader rescans the complete sealed file under lock before
   emitting and has no credentials, network, or persistence. The ITOps draft has
-  a pure strict mapper plus an uninvoked persistence service. It revalidates the expected domain and
+  a pure strict mapper plus a runtime-uninvoked persistence service. It revalidates the expected domain and
   policy revision, resolves storage/disk resources only through reviewed
   target-scoped bindings, and atomically stores an idempotent private audit row
   with low-cardinality derived metrics. A canonical metric-projection digest
   rejects altered retries. An approval-bound internal capability and exact-argv
-  subprocess adapter are the next unregistered integration step. Neither side
+  subprocess adapter are implemented and tested but deliberately absent from
+  the production registry. The repository rechecks running task, proposal,
+  envelope hash, approval, and expiry inside each audit/metric transaction;
+  task evidence contains only digest/count reconciliation. Neither side
   has network delivery, runtime registration, alert processing, or production
   deployment. Evidence: public ADR 0005 and public content-addressed batch tests;
-  ITOps commits `90b04b0`, `44df889`, `242a7ff`, `c236d06`, `4fe5b97`, and
-  `40e7d0a`; all 1,252 backend tests across 148 files, 16 focused PVE/runtime
-  tests, 11 restricted-probe tests, four replay-export tests, and 16 focused
-  mapper/importer/repository
-  tests passed locally on 2026-08-02. Backend build/lint/dependency checks and
+  ITOps commits `90b04b0`, `44df889`, `242a7ff`, `c236d06`, `4fe5b97`,
+  `40e7d0a`, and `51cc834`; all 1,265 backend tests across 151 files passed
+  locally on 2026-08-02, including the SQLite approval-to-import handoff,
+  exact-argv reader, and registry-absence tests. Backend build/lint/dependency checks and
   all 101 frontend tests plus build/lint passed. Internal CI run 153 confirmed
   both the quality gate (4m35s) and dependent linux/amd64 image build (4m57s)
-  successful for the importer commit while the PR remained Draft.
+  successful for the earlier importer commit while the PR remained Draft; CI
+  for `51cc834` is pending.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
