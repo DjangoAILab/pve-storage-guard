@@ -28,7 +28,7 @@ func NewShadowDecisionEvent(observation v1.Observation, proposal v1.Proposal) (v
 	if proposal.Mode != "shadow" || proposal.ActuationAllowed {
 		return v1.DecisionEvent{}, errors.New("decision event accepts non-actuating shadow proposals only")
 	}
-	if !finite(observation.WriteWaitP95Milliseconds) || !finiteNonNegative(proposal.PreviousBudgetMiBPS) || !finiteNonNegative(proposal.BudgetMiBPS) {
+	if !finiteNonNegative(observation.WriteWaitP95Milliseconds) || !finiteNonNegative(proposal.PreviousBudgetMiBPS) || !finiteNonNegative(proposal.BudgetMiBPS) {
 		return v1.DecisionEvent{}, errors.New("decision event contains a non-finite or negative metric")
 	}
 	allocations := make(map[string]float64, len(proposal.Allocations))

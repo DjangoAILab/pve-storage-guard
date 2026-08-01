@@ -91,6 +91,7 @@ func TestNewShadowDecisionEventRejectsInconsistentInputs(t *testing.T) {
 		{name: "domain", mutate: func(_ *v1.Observation, p *v1.Proposal) { p.DomainKey = "other" }},
 		{name: "mode", mutate: func(_ *v1.Observation, p *v1.Proposal) { p.Mode = "canary" }},
 		{name: "actuation", mutate: func(_ *v1.Observation, p *v1.Proposal) { p.ActuationAllowed = true }},
+		{name: "negative wait", mutate: func(o *v1.Observation, _ *v1.Proposal) { o.WriteWaitP95Milliseconds = -1 }},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
