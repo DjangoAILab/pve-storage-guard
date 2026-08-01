@@ -1,6 +1,6 @@
 """Validate and assess sanitized, non-replayable incident evidence."""
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Mapping, Optional, Sequence
 
 
@@ -146,9 +146,139 @@ def validate_incident_evidence(document: object) -> List[str]:
                 errors.append("fieldValidations[0].unsafeThresholdMilliseconds must be positive")
             if not _non_negative_number(validation["p99WriteWaitMilliseconds"]):
                 errors.append("fieldValidations[0].p99WriteWaitMilliseconds must be non-negative")
+            elif (
+                type(unsafe_count) is int
+                and unsafe_count > 0
+                and _positive_number(validation["unsafeThresholdMilliseconds"])
+                and validation["p99WriteWaitMilliseconds"] <= validation["unsafeThresholdMilliseconds"]
+            ):
+                errors.append("fieldValidations[0].p99WriteWaitMilliseconds contradicts unsafeSampleCount")
             if validation["replayable"] is not False:
                 errors.append("fieldValidations[0].replayable must be false for aggregate evidence")
             if validation["outcome"] != "rejected_and_rolled_back":
                 errors.append("fieldValidations[0].outcome must equal rejected_and_rolled_back")
 
     return errors
+
+
+def _first_consecutive_above(values: Sequence[float], threshold: float, count: int) -> Optional[int]:
+    run = 0
+    for index, value in enumerate(values):
+        run = run + 1 if value > threshold else 0
+        if run >= count:
+            return index
+    return None
+
+
+def _first_at_or_above(values: Sequence[float], threshold: float) -> Optional[int]:
+    return next((index for index, value in enumerate(values) if value >= threshold), None)
+
+
+def _iso(value: datetime) -> str:
+    return value.astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def assess_incident_evidence(
+    wait_fixture: Mapping[str, object],
+    evidence: Mapping[str, object],
+    pressure_threshold_milliseconds: float = 25,
+    pressure_consecutive_samples: int = 2,
+    critical_threshold_milliseconds: float = 100,
+) -> Dict[str, object]:
+    """Assess only what the retained timeline and samples can actually prove."""
+
+    errors = validate_incident_evidence(evidence)
+    if errors:
+        raise ValueError("invalid incident evidence: " + "; ".join(errors))
+    if pressure_consecutive_samples < 1:
+        raise ValueError("pressure_consecutive_samples must be positive")
+
+    wait_source = wait_fixture.get("source")
+    samples = wait_fixture.get("samples")
+    if not isinstance(wait_source, dict) or not isinstance(samples, list) or not samples:
+        raise ValueError("wait fixture must contain source and samples")
+    if any(type(value) not in (int, float) or value < 0 for value in samples):
+        raise ValueError("wait fixture samples must be non-negative numbers")
+    waits = [float(value) for value in samples]
+
+    timeline = evidence["timeline"]
+    assert isinstance(timeline, dict)
+    events = timeline["events"]
+    assert isinstance(events, list)
+    event_times = {
+        event["kind"]: datetime.fromisoformat(event["observedAt"].replace("Z", "+00:00")).astimezone(timezone.utc)
+        for event in events
+    }
+    sampling_start = event_times["write_wait_sampling_started"]
+    wait_start_errors: List[str] = []
+    wait_start = _utc_timestamp(wait_source.get("observedAt"), "wait source observedAt", wait_start_errors)
+    if wait_start is None or wait_start != sampling_start:
+        raise ValueError("wait fixture sampling start does not match incident evidence")
+
+    pressure_offset = _first_consecutive_above(
+        waits,
+        pressure_threshold_milliseconds,
+        pressure_consecutive_samples,
+    )
+    critical_offset = _first_at_or_above(waits, critical_threshold_milliseconds)
+    pressure_at = sampling_start + timedelta(seconds=pressure_offset) if pressure_offset is not None else None
+    critical_at = sampling_start + timedelta(seconds=critical_offset) if critical_offset is not None else None
+    failure_at = event_times["management_service_restart"]
+    sampling_lag = int((sampling_start - failure_at).total_seconds())
+    detection_lag = int((pressure_at - failure_at).total_seconds()) if pressure_at is not None else None
+
+    if sampling_lag > 0:
+        advance_status = "not_proven_telemetry_started_after_failure"
+        advance_proven = False
+        advance_lead = None
+    elif detection_lag is not None and detection_lag < 0:
+        advance_status = "proven_from_retained_timeline"
+        advance_proven = True
+        advance_lead = -detection_lag
+    else:
+        advance_status = "not_proven_detection_not_before_failure"
+        advance_proven = False
+        advance_lead = None
+
+    validations = evidence["fieldValidations"]
+    assert isinstance(validations, list)
+    field = validations[0]
+    assert isinstance(field, dict)
+    unsafe_percent = round(100 * field["unsafeSampleCount"] / field["sampleCount"], 2)
+
+    return {
+        "kind": "observed-incident-evidence-assessment",
+        "detection": {
+            "pressureThresholdMilliseconds": pressure_threshold_milliseconds,
+            "pressureConsecutiveSamples": pressure_consecutive_samples,
+            "pressureDetectionOffsetSeconds": pressure_offset,
+            "pressureDetectedAt": _iso(pressure_at) if pressure_at is not None else None,
+            "criticalThresholdMilliseconds": critical_threshold_milliseconds,
+            "criticalDetectionOffsetSeconds": critical_offset,
+            "criticalDetectedAt": _iso(critical_at) if critical_at is not None else None,
+            "samplingStartedAfterFailureSeconds": sampling_lag,
+            "pressureDetectionAfterFailureSeconds": detection_lag,
+            "advanceWarningStatus": advance_status,
+            "advanceWarningProven": advance_proven,
+            "advanceWarningLeadSeconds": advance_lead,
+        },
+        "corroboration": {
+            "status": "not_measurable_missing_series",
+            "missingSignals": sorted(timeline["missingSignals"]),
+        },
+        "fieldValidation": {
+            "kind": field["kind"],
+            "capMiBps": field["capMiBps"],
+            "controlledLoadStarted": field["controlledLoadStarted"],
+            "sampleCount": field["sampleCount"],
+            "unsafeThresholdMilliseconds": field["unsafeThresholdMilliseconds"],
+            "unsafeSampleCount": field["unsafeSampleCount"],
+            "unsafeSamplePercent": unsafe_percent,
+            "p99WriteWaitMilliseconds": field["p99WriteWaitMilliseconds"],
+            "outcome": field["outcome"],
+            "productionFallbackStatus": "rejected_by_observed_field_check",
+            "replayEligible": False,
+            "independentTrace": False,
+        },
+        "productionPromotionBlocked": True,
+    }
