@@ -43,6 +43,9 @@ type ApplyRequest struct {
 	ProposalID      string    `json:"proposalId"`
 	ApprovalID      string    `json:"approvalId"`
 	PolicyVersion   string    `json:"policyVersion"`
+	DomainKey       string    `json:"domainKey"`
+	LeaseHolderID   string    `json:"leaseHolderId"`
+	LeaseGeneration uint64    `json:"leaseGeneration"`
 	ResourceKey     string    `json:"resourceKey"`
 	WriteLimitMiBPS float64   `json:"writeLimitMiBps"`
 	ExpiresAt       time.Time `json:"expiresAt"`

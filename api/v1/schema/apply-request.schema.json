@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/apply-request.json",
+  "title": "PVE Storage Guard constrained apply request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "proposalId",
+    "approvalId",
+    "policyVersion",
+    "domainKey",
+    "leaseHolderId",
+    "leaseGeneration",
+    "resourceKey",
+    "writeLimitMiBps",
+    "expiresAt"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "proposalId": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "approvalId": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "policyVersion": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "domainKey": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "leaseHolderId": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "leaseGeneration": { "type": "integer", "minimum": 1 },
+    "resourceKey": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "writeLimitMiBps": { "type": "number", "exclusiveMinimum": 0 },
+    "expiresAt": { "type": "string", "format": "date-time" }
+  }
+}

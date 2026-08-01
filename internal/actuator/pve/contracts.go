@@ -2,19 +2,12 @@
 package pve
 
 import (
-	"context"
-
-	v1 "github.com/DjangoAILab/pve-storage-guard/api/v1"
+	"github.com/DjangoAILab/pve-storage-guard/internal/safety"
 )
 
-// EffectiveLimit is read back after any approved apply operation.
-type EffectiveLimit struct {
-	ResourceKey     string
-	WriteLimitMiBPS float64
-}
+// EffectiveLimit is the generic safety boundary's read-back state.
+type EffectiveLimit = safety.EffectiveLimit
 
-// Actuator cannot accept arbitrary commands or VM lifecycle operations.
-type Actuator interface {
-	ReadEffective(context.Context, string) (EffectiveLimit, error)
-	ApplyApproved(context.Context, v1.ApplyRequest) (EffectiveLimit, error)
-}
+// Actuator cannot accept arbitrary commands or VM lifecycle operations. The
+// PVE implementation must satisfy the platform-neutral safety contract.
+type Actuator = safety.Actuator
