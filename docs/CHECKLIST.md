@@ -127,12 +127,14 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [ ] Verify that it detects the historical incident signature early enough to
   be operationally useful.
 - [~] Add ITOps ingestion for storage latency, PSI, queue, management-plane
-  health, and controller state. A separate local ITOps worktree now has a
+  health, and controller state. Internal draft PR #37 now has a
   read-only `pve.storage-pressure` probe and mappings for PSI, in-flight I/O,
   disk counters, derived IOPS/throughput/average wait/queue/utilization, and
   management-probe health; merge, deployment, p95 telemetry, and controller
-  events remain. Local ITOps commit: `90b04b0`.
-- [~] Add multi-signal warning/critical alerts and anti-noise behavior. A local
+  events remain. Evidence: ITOps commit `90b04b0`; all 1,231 backend tests,
+  16 focused PVE/runtime tests, 11 restricted-probe tests, build/lint, and
+  dependency checks passed on 2026-08-02.
+- [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules; persisted integration
   tests, shadow baseline tuning, and explicit enablement remain.
