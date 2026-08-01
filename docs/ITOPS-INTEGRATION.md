@@ -332,6 +332,25 @@ in 4m33s and the linux/amd64 image build in 5m10s. Production
 probe installation, capability registration/runtime invocation, trace export,
 notification delivery, and alert enablement remain explicit approval gates.
 
+Rollout-hardening commits `c2ed208` and `db5493b` were validated by final
+[run 158](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/158):
+Node quality gates passed in 4m33s and the linux/amd64 image build passed in
+10m59s after a bounded retry recovered from a transient registry-mirror DNS
+timeout. The preceding run 157 failed closed because a shifted synthetic-secret
+fixture no longer matched its exact scan fingerprint; the correction preserved
+the fixture location rather than broadening the ignore policy.
+
+The internal rollout packet separates repository merge, restricted-probe write,
+immutable application deployment, alert arming, journal registration, and any
+future actuation into independent checkpoints. Initial live acceptance requires
+the exact 28 recommended-rule set with both storage-pressure rules disabled,
+plus fresh PSI/diskstats/management provenance, detector-v1 labels, and typed
+ZFS one-second interval semantics. General recommended-rule arming does not
+include storage-pressure rules without a second exact opt-in, and an idempotent
+rollback path disables only those two rules. A 24-hour shadow window accepts the
+deployment and data path; alert calibration requires at least 7–14 days spanning
+representative quiet and busy periods.
+
 The draft also adds a PVE-only storage-pressure dashboard that combines PSI,
 management-probe health, separately typed per-pool and per-disk evidence,
 queue depth, utilization, throughput, detector level, and alert-gate state.
