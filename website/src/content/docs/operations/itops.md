@@ -37,6 +37,10 @@ journal failure is fail-closed for that proposal. A non-blocking exclusive lock
 enforces one writer, and a 256 MiB hard cap requires operator rotation before
 output can resume.
 
+The journal must not share the storage domain being guarded. Slow or failed
+sync intentionally stops shadow output; batching or asynchronous persistence
+would weaken the current persist-before-output boundary and is not enabled.
+
 This is a local single-writer handoff only. It has no network exporter, ITOps
 callback, rotation manager, actuator, or public-trace sanitization. An approved
 ITOps ingestion/linking adapter remains future work.

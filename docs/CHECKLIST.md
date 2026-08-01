@@ -107,8 +107,11 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   reopen, private permissions, unsafe-target rejection, exclusive-writer
   locking, the 256 MiB hard bound, invalid-event rejection, CLI compatibility,
   and fail-before-output behavior. Repeated local benchmarks cover policy
-  evaluation, 100-disk allocation, and the verified safety gate; end-to-end
-  adapter/storage performance and controlled-load coverage remain.
+  evaluation, 100-disk allocation, the verified safety gate, and 32-observation
+  local shadow-command batches with and without real per-event journal sync.
+  Default shadow measured 4.048–4.155 µs/observation and the opt-in private
+  journal measured 3.770–3.827 ms/observation on the documented local machine;
+  collector/adapter/storage performance and controlled-load coverage remain.
 - [x] Add pinned GitHub Actions for lint, test/race, replay golden, CodeQL,
   govulncheck, secret scan, OCI build/Trivy, docs build, and Pages.
 - [x] Add multi-architecture release workflow with pinned actions, binary/image
