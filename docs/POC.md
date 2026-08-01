@@ -19,6 +19,8 @@ The reference incident currently provides:
 | attributed bulk-disk burst | 18 s | one burst | observed |
 | ZFS pool write-wait | 1 s | 12 samples | observed |
 | durable-service sync latency | event samples | two events | qualitative correlation only |
+| incident ordering markers | event timestamps | three markers | observed summary |
+| fixed-20 natural-load check | aggregate | 60 samples | observed summary; non-replayable |
 | historical PSI, queue depth, IOPS | unavailable | unavailable | evidence gap |
 | historical SSH/API probes | unavailable | unavailable | evidence gap |
 
@@ -31,9 +33,11 @@ originally sampled at one second.
 
 A 2026-08-02 local evidence audit found two other retained storage windows, but
 only aggregate summaries survived: one 30-sample quiet-period gate and one
-60-sample post-change check. Their per-sample series are unavailable, they are
-from the same operational episode, and they cannot be replayed or counted as an
-independent trace.
+60-sample post-change check. In the latter, a fixed 20 MiB/s cap still had 22
+samples above 25 ms and a 234.065464 ms p99 under natural load. Controlled load
+was not started; the cap was rejected and rolled back. The per-sample series are
+unavailable, both windows are from the same operational episode, and neither
+may be replayed or counted as an independent trace.
 
 The twelve incident values are ZFS write total-wait samples. The PoC computes a
 p95 across those sampled values for controller windows; that is not a true p95
@@ -58,6 +62,14 @@ the captured series. This lane measures detection time, proposed limits, reason
 codes, and churn only. Its signal statistic is ZFS total-wait, not a production
 I/O p95.
 
+The retained write-wait collection began 53 seconds after the retained
+management-failure marker. A two-consecutive-sample 25 ms pressure signature is
+present one second after collection begins, and the first 100 ms sample appears
+at offset two seconds. Therefore the history proves rapid recognition once
+telemetry exists, but it does **not** prove advance warning. Historical PSI,
+queue, and management-probe series are missing, so multi-signal corroboration
+is also not measurable.
+
 ### Counterfactual sensitivity replay
 
 Historical controlled demand is capped by each proposed budget and passed
@@ -76,7 +88,8 @@ measurements.
 ## Strategies
 
 - `no_limit`: admission baseline, effectively unbounded.
-- `fixed_20`: current fixed 20 MiB/s safety fallback.
+- `fixed_20`: model comparator; field evidence rejects treating it as a
+  validated production fallback.
 - `step_5_10_40`: threshold table with cooldown.
 - bounded AIMD variants, including a safety-constrained grid-search candidate.
 
@@ -124,6 +137,12 @@ These are model-assisted estimates from one incident. They support only this
 conclusion: slow bounded adaptation is worth further shadow validation. They do
 not prove active production prevention or a universal performance gain.
 
+The separate observed fixed-cap check overrides any stronger operational claim:
+20 MiB/s was insufficient in a later natural-load baseline on the same storage
+episode and was rolled back. This does not invalidate its use as a deterministic
+counterfactual comparator; it does block using it as a universal fallback or
+promotion gate by itself.
+
 ### Parameter sensitivity
 
 The reproducible report also varies six parameters one at a time around the
@@ -157,5 +176,6 @@ them and fail on unexplained differences.
   fault injection.
 - Existing storage soak gate and operator review.
 
-Until all gates pass, `aimd_poc_tuned` stays shadow-only and `fixed_20` remains
-the fallback.
+Until all gates pass, `aimd_poc_tuned` stays shadow-only. `fixed_20` remains a
+model comparator only; any canary fallback must be calibrated and approved for
+the specific storage domain.

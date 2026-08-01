@@ -26,6 +26,14 @@ I/O outlived the interactive session.
   fell below the 25 ms gate.
 - Independent durability-sensitive events took approximately 4.4 and 9.3
   seconds around the incident window.
+- Retained write-wait collection began after the retained management-service
+  failure marker. The pressure signature is visible one second after collection
+  starts, but that is 54 seconds after the failure marker; advance warning is
+  therefore not proven by this history.
+- A later 60-sample natural-load check with a 20 MiB/s cap still had 22 samples
+  above 25 ms and a 234.065464 ms p99. Controlled load was not started; the cap
+  was rejected and rolled back. Only the summary survived, so it is not a
+  replayable or independent trace.
 - The historical metrics store retained one-minute virtual-disk write counters,
   but not the one-second pool latency, PSI, queue, or management probes needed
   for early detection and causal comparison.
@@ -71,7 +79,8 @@ decision explanations, ITOps integration, and safe apply/read-back/rollback.
 The current replay suggests a slow bounded AIMD candidate can admit slightly
 more modeled work than fixed 20 MiB/s without worse modeled unsafe time across
 three sensitivity scenarios. This is a hypothesis for shadow validation, not a
-production effect claim.
+production effect claim. The observed fixed-cap check also means fixed 20 may
+only be used as a model comparator, not advertised as a validated fallback.
 
 ## Sanitization contract
 
@@ -103,7 +112,8 @@ repository creation or Pages deployment.
    management probe metrics.
 2. Run PVE Storage Guard in observer and shadow mode.
 3. Validate alerts and decisions across independent bursts and quiet periods.
-4. Load-test one non-critical enrolled disk with a reviewed fixed fallback.
+4. Derive and review a storage-domain-specific static rollback limit, then
+   load-test one non-critical enrolled disk.
 5. Fault-inject stale telemetry, restart, drift, apply/read-back mismatch, and
    rollback.
 6. Only then request approval for a time-bounded canary.

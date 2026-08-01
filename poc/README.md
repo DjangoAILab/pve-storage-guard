@@ -17,4 +17,6 @@ counterfactual values are estimates from the named monotonic pool models.
 
 The bounded search selects an adaptive candidate only when its unsafe-second
 count is no worse than fixed 20 MiB/s in conservative, nominal, and optimistic
-models. Passing this offline gate authorizes shadow validation only.
+models. Fixed 20 is a model comparator, not a validated production fallback: a
+separate aggregate field check rejected it, but cannot be replayed. Passing this
+offline gate authorizes shadow validation only.

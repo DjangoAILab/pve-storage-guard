@@ -224,7 +224,8 @@ The dashboard must label observed measurements separately from modeled replay.
 3. Attribute dominant disk demand using the PVE Adapter mapping.
 4. Inspect current policy, mode, lease owner, desired/effective state, and recent
    decisions.
-5. Determine whether pressure persists at the minimum/fixed fallback.
+5. Determine whether pressure persists at the policy minimum or the reviewed
+   storage-domain-specific rollback limit.
 
 ### Stabilize
 
