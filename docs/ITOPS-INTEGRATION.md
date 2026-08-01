@@ -105,6 +105,11 @@ ingestion route or a production durability claim. Absolute event times and
 opaque internal keys make the private journal unsuitable for public release
 without a separate sanitization/export review.
 
+Every accepted event is synced before its proposal is emitted, so the journal
+path must not share the storage domain being guarded. A slow or failed journal
+intentionally stops shadow output. Batching or asynchronous writes would change
+that durability boundary and are not enabled implicitly.
+
 The internal ITOps draft now implements the matching pure mapper. Given an
 already-authorized collector target and expected storage domain, it strictly
 validates the complete v1alpha1 event, deterministic event/proposal linkage,
