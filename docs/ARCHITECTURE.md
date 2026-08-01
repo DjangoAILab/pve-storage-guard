@@ -133,6 +133,10 @@ an authenticated allowlisted actuator. Network loss never causes an increase.
 - Desired and effective values are distinct and survive restart.
 - On restart, the controller reads effective state before calculating a new
   proposal.
+- Restored controller state is accepted only when its budget remains inside the
+  active policy, healthy/breach counters are mutually exclusive and below their
+  trigger windows, and the prior cooldown is preserved. Invalid state fails
+  closed; emergency decrease remains allowed.
 - Unknown effective state, inventory drift, hot-plug ambiguity, or policy
   mismatch freezes that resource and alerts.
 - The last verified effective limit remains in force if the controller fails;

@@ -70,10 +70,15 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [x] Specify hard minimum/maximum limits, hysteresis, timeout, cooldown, and
   emergency behavior.
 - [x] Specify stale-input, restart, drift, and read-back mismatch behavior.
-- [~] Add property/fuzz tests for controller bounds and allocator envelopes;
-  monotonic sequence and feasibility properties need broader coverage.
+- [x] Add property/fuzz tests for controller bounds, homogeneous healthy/
+  pressure monotonicity, allocator envelopes, feasibility, and input-order
+  invariance. Evidence: race tests pass; dedicated 5-second fuzz runs exercised
+  about 3.06 million policy inputs and 3.00 million allocator inputs on
+  2026-08-02 without a failure.
 - [~] Add restart, lease conflict, stale telemetry, and actuator fault tests;
-  stale-input and wrong-domain shadow tests are complete.
+  restored cooldown/emergency behavior, impossible-state rejection,
+  stale-input, and wrong-domain shadow tests are complete; lease and actuator
+  fault injection remain.
 - [ ] Complete a non-critical controlled load test.
 - [!] Install or change a service on a production PVE host only after explicit
   approval at the production-write checkpoint.

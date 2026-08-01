@@ -105,6 +105,12 @@ func RestoreController(p PoolPolicy, state State) (*Controller, error) {
 	if state.ConsecutiveHealthy < 0 || state.ConsecutiveBreaches < 0 {
 		return nil, errors.New("restored counters must be non-negative")
 	}
+	if state.ConsecutiveHealthy > 0 && state.ConsecutiveBreaches > 0 {
+		return nil, errors.New("restored healthy and breach counters are mutually exclusive")
+	}
+	if state.ConsecutiveHealthy >= p.HealthyWindows || state.ConsecutiveBreaches >= p.BreachWindows {
+		return nil, errors.New("restored counters must be below their decision windows")
+	}
 	controller.state = state
 	return controller, nil
 }
