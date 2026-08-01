@@ -75,10 +75,15 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   invariance. Evidence: race tests pass; dedicated 5-second fuzz runs exercised
   about 3.06 million policy inputs and 3.00 million allocator inputs on
   2026-08-02 without a failure.
-- [~] Add restart, lease conflict, stale telemetry, and actuator fault tests;
-  restored cooldown/emergency behavior, impossible-state rejection,
-  stale-input, and wrong-domain shadow tests are complete; lease and actuator
-  fault injection remain.
+- [x] Add restart, lease conflict, stale telemetry, and actuator fault tests.
+  Restored cooldown/emergency behavior, impossible-state rejection,
+  stale-input, and wrong-domain shadow tests pass. The generic safety-gate
+  suite also validates authoritative lease and approval stores plus fencing
+  generation, rejects conflicting/expired/unavailable authority before the
+  actuator, and freezes a resource on effective-state drift, actuator failure,
+  or read-back mismatch. The gate is not wired to a real actuator; durable
+  authority storage, authorized restoration, and production enablement remain
+  v0.2 gates.
 - [ ] Complete a non-critical controlled load test.
 - [!] Install or change a service on a production PVE host only after explicit
   approval at the production-write checkpoint.

@@ -76,6 +76,17 @@ Owns leases, policy version matching, min/max clamps, cooldown, timeouts,
 freshness gates, desired/effective reconciliation, rollback, and failure
 degradation. It is the only path from a proposal to an actuator request.
 
+The code-level apply gate verifies a caller-presented lease against an
+authoritative `LeaseVerifier` and resolves the approval ID through an
+authoritative `ApprovalVerifier`; caller fields alone are never proof of
+ownership or approval. The verified generation is carried as a fencing token
+in the structured actuator request. A conflicting, expired, or unavailable
+lease/approval is rejected before any effective-state read or apply.
+Effective-state drift, an actuator error, or a read-back mismatch freezes that
+resource without automatic retry. The gate is currently exercised only with
+injected fakes and is not wired to a PVE command, listener, service, or
+production configuration.
+
 ### Event and Telemetry
 
 Exports metrics and append-only decision events with observation references,
@@ -128,7 +139,8 @@ an authenticated allowlisted actuator. Network loss never causes an increase.
 
 ## State and consistency
 
-- One lease owner per storage domain may propose/apply changes.
+- One authoritative lease owner and generation per storage domain may apply
+  changes; the generation is carried to the actuator as a fencing token.
 - Policy versions are immutable inputs to decisions.
 - Desired and effective values are distinct and survive restart.
 - On restart, the controller reads effective state before calculating a new
@@ -137,8 +149,9 @@ an authenticated allowlisted actuator. Network loss never causes an increase.
   active policy, healthy/breach counters are mutually exclusive and below their
   trigger windows, and the prior cooldown is preserved. Invalid state fails
   closed; emergency decrease remains allowed.
-- Unknown effective state, inventory drift, hot-plug ambiguity, or policy
-  mismatch freezes that resource and alerts.
+- Unknown effective state, inventory drift, hot-plug ambiguity, policy
+  mismatch, actuator failure, or read-back mismatch freezes that resource and
+  alerts. Automatic retry is prohibited while frozen.
 - The last verified effective limit remains in force if the controller fails;
   optional expiry behavior must be explicit per policy, never assumed.
 

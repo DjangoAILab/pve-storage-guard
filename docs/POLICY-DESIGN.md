@@ -118,15 +118,20 @@ configuration change with review and audit.
 
 1. No proposal exceeds resolved hard bounds.
 2. Stale or invalid telemetry never causes an increase.
-3. At most one lease owner writes a storage domain.
-4. Unknown effective state blocks actuation.
-5. Policy/inventory drift freezes the affected disk.
-6. Apply/read-back mismatch attempts only a pre-authorized restoration of the
+3. At most one authoritative lease owner and fencing generation writes a
+   storage domain; a caller-presented lease is verified against the current
+   lease before the actuator boundary.
+4. A request is bounded by an authoritative, unexpired approval for the exact
+   domain, policy version, resource, and limit envelope; a non-empty approval
+   ID alone is never authorization.
+5. Unknown effective state blocks actuation.
+6. Policy/inventory drift freezes the affected disk.
+7. Apply/read-back mismatch attempts only a pre-authorized restoration of the
    last verified state, then stops the resource controller.
-7. Controller failure does not interrupt host management or remove the last
+8. Controller failure does not interrupt host management or remove the last
    verified throttle.
-8. The actuator cannot change VM lifecycle, storage topology, or filesystems.
-9. Decisions are deterministic for the same input, state, and policy version.
+9. The actuator cannot change VM lifecycle, storage topology, or filesystems.
+10. Decisions are deterministic for the same input, state, and policy version.
 
 ## Decision record
 
