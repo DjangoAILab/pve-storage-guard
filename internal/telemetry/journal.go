@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"regexp"
 	"syscall"
@@ -13,6 +14,8 @@ import (
 )
 
 const defaultJournalMaxBytes int64 = 256 * 1024 * 1024
+
+const decisionEventAgeToleranceSeconds = 0.002
 
 var (
 	eventIDPattern    = regexp.MustCompile(`^event-[0-9a-f]{24}$`)
@@ -168,6 +171,13 @@ func validateDecisionEvent(event v1.DecisionEvent) error {
 	}
 	if !proposalIDPattern.MatchString(event.Decision.ProposalID) || !validString(event.Decision.Reason, 128) || !finiteNonNegative(event.Decision.PreviousBudgetMiBPS) || !finiteNonNegative(event.Decision.DesiredBudgetMiBPS) || len(event.Decision.Allocations) == 0 {
 		return errors.New("decision event decision is invalid")
+	}
+	if event.EventID != eventID(event.Decision.ProposalID) {
+		return errors.New("decision event id does not match its proposal")
+	}
+	ageSeconds := event.RecordedAt.Sub(event.Observation.ObservedAt).Seconds()
+	if !finite(ageSeconds) || math.Abs(ageSeconds-event.Observation.AgeSeconds) > decisionEventAgeToleranceSeconds {
+		return errors.New("decision event observation age is inconsistent")
 	}
 	for resourceKey, allocation := range event.Decision.Allocations {
 		if !validString(resourceKey, 256) || !finiteNonNegative(allocation) {

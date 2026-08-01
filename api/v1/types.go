@@ -13,6 +13,8 @@ const (
 	DecisionOutcomeShadowEvaluated = "shadow_evaluated"
 	// SafetyNotEvaluated prevents shadow records from implying authority checks.
 	SafetyNotEvaluated = "not_evaluated"
+	// DecisionJournalVerificationKind identifies an identity-free verification summary.
+	DecisionJournalVerificationKind = "DecisionJournalVerification"
 )
 
 // Observation is a normalized, read-only storage-domain sample.
@@ -89,6 +91,20 @@ type DecisionEventSafety struct {
 	LeaseStatus          string `json:"leaseStatus"`
 	ApprovalStatus       string `json:"approvalStatus"`
 	EffectiveStateStatus string `json:"effectiveStateStatus"`
+}
+
+// DecisionJournalVerification summarizes one structurally valid sealed journal
+// without returning its domain, resource, observation, proposal, or event IDs.
+type DecisionJournalVerification struct {
+	SchemaVersion            string     `json:"schemaVersion"`
+	Kind                     string     `json:"kind"`
+	EventCount               uint64     `json:"eventCount"`
+	ChangedCount             uint64     `json:"changedCount"`
+	PolicyVersionCount       uint64     `json:"policyVersionCount"`
+	DuplicateEventCount      uint64     `json:"duplicateEventCount"`
+	TimestampRegressionCount uint64     `json:"timestampRegressionCount"`
+	EarliestRecordedAt       *time.Time `json:"earliestRecordedAt,omitempty"`
+	LatestRecordedAt         *time.Time `json:"latestRecordedAt,omitempty"`
 }
 
 // ApplyRequest is the only shape accepted by a future constrained actuator.

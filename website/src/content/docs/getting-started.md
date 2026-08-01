@@ -62,6 +62,18 @@ callback, or actuator. It contains absolute event times and operator-provided
 opaque keys, so do not publish it as a replay trace without the separate
 sanitization and export review.
 
+Once the writer is stopped or detached and the file is rotated by an approved
+operator procedure, verify the sealed artifact:
+
+```sh
+go run ./cmd/pve-storage-guard journal verify \
+  --journal /path/to/sealed-decisions.jsonl
+```
+
+The verifier takes a shared non-blocking lock, rejects an active writer and
+unsafe or malformed content, and outputs only a versioned identity-free summary.
+It does not rotate, sanitize, sign, publish, import, or deliver the journal.
+
 ## Container
 
 The local image runs as a non-root user:

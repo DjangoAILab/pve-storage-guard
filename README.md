@@ -70,6 +70,18 @@ append is synced; a non-blocking exclusive lock enforces one writer, and a
 256 MiB hard cap stops output until the operator rotates the file. There is no
 default journal, built-in rotation, network export, or ITOps delivery.
 
+After the writer is stopped or detached and the file is rotated by an
+operator-controlled procedure, verify the sealed file before any later import:
+
+```sh
+go run ./cmd/pve-storage-guard journal verify \
+  --journal /path/to/sealed-decisions.jsonl
+```
+
+The verifier is read-only, refuses an active writer, and emits a versioned
+identity-free summary. It does not rotate, sanitize, sign, publish, import, or
+deliver the underlying private journal.
+
 Host service installation instructions will be published only after their
 safety gates pass. Until then, see [the goal](docs/GOAL.md),
 [architecture](docs/ARCHITECTURE.md), [policy design](docs/POLICY-DESIGN.md),
@@ -87,9 +99,9 @@ flowchart LR
     Actuator -->|effective-state read-back| Safety
 ```
 
-The current binary exposes `version` and a non-actuating `shadow` command with
-an optional private decision journal. Agent, replay, validation, and approved
-enforcement modes remain roadmap work.
+The current binary exposes `version`, a non-actuating `shadow` command with an
+optional private decision journal, and read-only sealed-journal verification.
+Agent, policy validation, and approved enforcement modes remain roadmap work.
 Container images will be published at `ghcr.io/djangoailab/pve-storage-guard`
 after release validation.
 

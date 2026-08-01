@@ -37,11 +37,47 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		}
 		return 0
 	}
+	if len(args) > 0 && args[0] == "journal" {
+		if len(args) < 2 || args[1] != "verify" {
+			_ = writeUsage(stderr)
+			return 2
+		}
+		if err := runJournalVerify(args[2:], stdout, stderr); err != nil {
+			_, _ = fmt.Fprintf(stderr, "journal verify: %v\n", err)
+			return 1
+		}
+		return 0
+	}
 	_ = writeUsage(stderr)
 	if len(args) == 0 {
 		return 0
 	}
 	return 2
+}
+
+func runJournalVerify(args []string, stdout, stderr io.Writer) error {
+	flags := flag.NewFlagSet("journal verify", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	journalPath := flags.String("journal", "", "sealed private decision journal JSONL")
+	if err := flags.Parse(args); err != nil {
+		return err
+	}
+	if flags.NArg() != 0 {
+		return errors.New("unexpected positional arguments")
+	}
+	if *journalPath == "" {
+		return errors.New("--journal is required")
+	}
+	summary, err := telemetry.VerifyJournal(*journalPath)
+	if err != nil {
+		return err
+	}
+	encoder := json.NewEncoder(stdout)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(summary); err != nil {
+		return fmt.Errorf("write verification summary: %w", err)
+	}
+	return nil
 }
 
 func runShadow(args []string, stdin io.Reader, stdout, stderr io.Writer) (resultErr error) {
@@ -150,11 +186,16 @@ Status: pre-release; observer/shadow only
 Usage:
   pve-storage-guard version
   pve-storage-guard shadow --policy POLICY.json --enrollment RESOURCE.json [--enrollment ...] [--journal DECISIONS.jsonl]
+  pve-storage-guard journal verify --journal SEALED-DECISIONS.jsonl
 
 The shadow command reads newline-delimited observations from stdin and writes
 newline-delimited proposals to stdout. An explicit --journal appends and syncs
 private decision events before their proposals are emitted. No journal is
 created by default, and the command never invokes an actuator.
+
+The journal verify command takes a shared non-blocking lock and emits one
+identity-free structural summary. It refuses an active writer and performs no
+rotation, import, network delivery, or mutation.
 `)
 	return err
 }

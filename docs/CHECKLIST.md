@@ -106,7 +106,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   tests. Decision-journal tests cover deterministic event mapping, append after
   reopen, private permissions, unsafe-target rejection, exclusive-writer
   locking, the 256 MiB hard bound, invalid-event rejection, CLI compatibility,
-  and fail-before-output behavior. Repeated local benchmarks cover policy
+  and fail-before-output behavior. Sealed-journal verification tests cover
+  active-writer locks, symlink/permission/file/event bounds, strict JSONL,
+  forged linkage, age consistency, single-domain ownership, anomaly counts,
+  and identity-free CLI output. Repeated local benchmarks cover policy
   evaluation, 100-disk allocation, the verified safety gate, and 32-observation
   local shadow-command batches with and without real per-event journal sync.
   Default shadow measured 4.048–4.155 µs/observation and the opt-in private
@@ -159,19 +162,19 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   management-probe health. A pure sanitized replay-trace builder now preserves
   fixed `average`/`derived` diskstats semantics, relative offsets, declared
   gaps, and excludes internal selection identifiers; it has no route, writer,
-  or deployment path. Merge, deployment, true p95 telemetry, trace review, and
-  journal transport/persistence, true p95 telemetry, trace review, and incident
-  linking remain. The public controller provides a tested opt-in private JSONL
-  decision journal, and the ITOps draft now has a pure strict mapper returning
-  an inert audit handoff plus low-cardinality derived metrics; neither side has
-  network delivery or a repository write. Evidence: ITOps commits `90b04b0`,
-  `44df889`, `242a7ff`, `c236d06`, and `4fe5b97`; all 1,240 backend tests across
-  146 files, 16 focused PVE/runtime tests, 11 restricted-probe tests, four
-  replay-export tests, four decision-mapper tests, build/lint, and dependency
-  checks passed locally on 2026-08-02. The latest internal CI quality gate
-  passed in 4m31s; the dependent linux/amd64 image job remained blocked by
-  required conditions while the PR stayed Draft, so it is not recorded as a
-  successful image build.
+  or deployment path. Merge, deployment, true p95 telemetry, trace review,
+  journal transport/persistence, and incident linking remain. The public
+  controller provides a tested opt-in private JSONL decision journal plus a
+  read-only sealed-file verifier; the ITOps draft has a pure strict mapper
+  returning an inert audit handoff plus low-cardinality derived metrics. Neither
+  side has network delivery or a repository write. Evidence: ITOps commits
+  `90b04b0`, `44df889`, `242a7ff`, `c236d06`, and `4fe5b97`; all 1,240 backend
+  tests across 146 files, 16 focused PVE/runtime tests, 11 restricted-probe
+  tests, four replay-export tests, four decision-mapper tests, build/lint, and
+  dependency checks passed locally on 2026-08-02. The latest internal CI
+  quality gate passed in 4m31s; the dependent linux/amd64 image job remained
+  blocked by required conditions while the PR stayed Draft, so it is not
+  recorded as a successful image build.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
@@ -181,10 +184,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Draft PR #37 now includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, per-disk pressure evidence, and alert gates. The
-  controller now has a private, append/sync shadow decision journal; a real
-  shadow-baseline screenshot, reviewed journal reader/persistence adapter, and
-  incident/runbook links remain. The ITOps pure mapper alone performs none of
-  those side effects.
+  controller now has a private append/sync journal and an identity-free sealed
+  verifier; a real shadow-baseline screenshot, approved ITOps importer/
+  persistence adapter, and incident/runbook links remain. The verifier and
+  ITOps pure mapper alone perform none of those side effects.
 - [ ] Exercise cold restart and rollback in a non-critical environment.
 - [!] Expand production control only after canary evidence is reviewed.
 
