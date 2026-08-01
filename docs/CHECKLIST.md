@@ -103,9 +103,11 @@ Last updated: 2026-08-01 (Asia/Shanghai)
   [DjangoAILab/pve-storage-guard](https://github.com/DjangoAILab/pve-storage-guard).
 - [x] Validate the repaired main CI across test/race, lint, static analysis,
   govulncheck, replay golden, secrets, OCI build, and Trivy. Evidence:
-  [GitHub Actions run 30707400668](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30707400668).
-- [~] Enable and deploy GitHub Pages; repository Pages is enabled and the first
-  post-enable deployment is pending.
+  [latest GitHub Actions run](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30708252749).
+- [x] Enable and deploy GitHub Pages, set the repository homepage, verify HTTPS
+  200, title/disclaimer content, and desktop width in a browser. Evidence:
+  [public documentation site](https://djangoailab.github.io/pve-storage-guard/)
+  and [Pages deployment](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30707972440).
 - [ ] Publish the public GHCR image only from a validated tagged release.
 
 ## 6. Local practice and ITOps
