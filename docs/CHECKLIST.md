@@ -219,13 +219,28 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   gates passed in 4m34s and the image build in 4m45s. Final internal
   [run 156](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/156)
   validated typed ZFS shadow telemetry `ccbbabd`: quality gates passed in 4m33s
-  and the linux/amd64 image build in 5m10s. PR #37 remains Draft.
+  and the linux/amd64 image build in 5m10s. Internal commits `c2ed208` and
+  `db5493b` now
+  persists a staged observer rollout packet with separate merge, probe-write,
+  application-deploy, alert-arm, journal-registration, and actuation gates. It
+  also makes live acceptance verify PSI/diskstats/management provenance,
+  detector-v1 labels, the exact 28-rule set, and typed ZFS interval semantics.
+  Run 157 correctly failed when an inserted test line invalidated an existing
+  synthetic-secret fingerprint; the fix preserved the fixture line numbers and
+  did not expand the ignore list. Final internal
+  [run 158](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/158)
+  passed Node quality gates in 4m33s and the linux/amd64 image build in 10m59s;
+  the latter recovered through its bounded retry after a transient registry
+  mirror DNS timeout. PR #37 remains Draft and undeployed.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
   test now verifies two-sample debounce across evaluator restart, one firing,
-  and one recovery with detector evidence attached; shadow-baseline tuning,
-  real notification delivery, and explicit enablement remain.
+  and one recovery with detector evidence attached. The general recommended-rule
+  command now excludes both storage-pressure rules unless a second exact opt-in
+  is present, and an idempotent rollback helper disables only those two IDs.
+  A 24-hour window is deployment acceptance only; 7–14 days of representative
+  shadow data, real notification testing, and explicit enablement remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Draft PR #37 now includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, separately typed ZFS-pool and per-disk pressure
