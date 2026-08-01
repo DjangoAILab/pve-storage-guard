@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/decision-journal-batch.json",
+  "title": "PVE Storage Guard private sealed decision journal batch",
+  "description": "Private transport payload. Do not publish, log, or attach to public issues.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "verification", "offset", "complete", "events"],
+  "properties": {
+    "schemaVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "kind": { "const": "DecisionJournalBatch" },
+    "verification": { "$ref": "journal-verification.schema.json" },
+    "offset": { "type": "integer", "minimum": 0 },
+    "nextOffset": { "type": "integer", "minimum": 0 },
+    "complete": { "type": "boolean" },
+    "events": {
+      "type": "array",
+      "maxItems": 64,
+      "items": { "$ref": "decision-event.schema.json" }
+    }
+  }
+}

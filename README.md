@@ -79,8 +79,22 @@ go run ./cmd/pve-storage-guard journal verify \
 ```
 
 The verifier is read-only, refuses an active writer, and emits a versioned
-identity-free summary. It does not rotate, sanitize, sign, publish, import, or
-deliver the underlying private journal.
+identity-free summary containing the exact raw-file `sha256:` digest. Review
+and approve that summary, not a mutable path. An authorized local consumer can
+then request bounded pages from the exact sealed content:
+
+```sh
+go run ./cmd/pve-storage-guard journal batch \
+  --journal /path/to/sealed-decisions.jsonl \
+  --expected-digest sha256:APPROVED_DIGEST \
+  --offset 0 --limit 64
+```
+
+`journal batch` revalidates the whole sealed file and digest before emitting
+anything. Its stdout contains private events and must be piped only to an
+explicitly authorized local consumer; do not log, publish, or attach it to an
+issue. Neither journal command rotates, signs, imports, or delivers data over a
+network.
 
 Host service installation instructions will be published only after their
 safety gates pass. Until then, see [the goal](docs/GOAL.md),
@@ -100,7 +114,8 @@ flowchart LR
 ```
 
 The current binary exposes `version`, a non-actuating `shadow` command with an
-optional private decision journal, and read-only sealed-journal verification.
+optional private decision journal, identity-free sealed-journal verification,
+and content-addressed bounded local batch reading.
 Agent, policy validation, and approved enforcement modes remain roadmap work.
 The release workflow uploaded the signed, attested multi-architecture
 `v0.1.0-rc.1` image to `ghcr.io/djangoailab/pve-storage-guard`, but the GitHub

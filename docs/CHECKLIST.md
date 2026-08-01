@@ -109,7 +109,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   and fail-before-output behavior. Sealed-journal verification tests cover
   active-writer locks, symlink/permission/file/event bounds, strict JSONL,
   forged linkage, age consistency, single-domain ownership, anomaly counts,
-  and identity-free CLI output. Repeated local benchmarks cover policy
+  exact raw-byte SHA-256, and identity-free CLI output. Content-addressed batch
+  tests cover approved-digest matching, active-writer rejection, empty files,
+  offset pagination, a 64-event hard bound, and zero stdout on digest failure.
+  Repeated local benchmarks cover policy
   evaluation, 100-disk allocation, the verified safety gate, and 32-observation
   local shadow-command batches with and without real per-event journal sync.
   Default shadow measured 4.048–4.155 µs/observation and the opt-in private
@@ -165,13 +168,17 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   or deployment path. Merge, deployment, true p95 telemetry, trace review,
   approved journal transport/runtime invocation and incident linking remain.
   The public controller provides a tested opt-in private JSONL decision journal
-  plus a read-only sealed-file verifier; the ITOps draft has a pure strict mapper
-  plus an uninvoked persistence service. It revalidates the expected domain and
+  plus a read-only sealed-file verifier and bounded content-addressed private
+  batch reader. The reader rescans the complete sealed file under lock before
+  emitting and has no credentials, network, or persistence. The ITOps draft has
+  a pure strict mapper plus an uninvoked persistence service. It revalidates the expected domain and
   policy revision, resolves storage/disk resources only through reviewed
   target-scoped bindings, and atomically stores an idempotent private audit row
   with low-cardinality derived metrics. A canonical metric-projection digest
-  rejects altered retries. Neither side has network delivery, a journal reader,
-  runtime registration, alert processing, or production deployment. Evidence:
+  rejects altered retries. An approval-bound internal capability and exact-argv
+  subprocess adapter are the next unregistered integration step. Neither side
+  has network delivery, runtime registration, alert processing, or production
+  deployment. Evidence: public ADR 0005 and public content-addressed batch tests;
   ITOps commits `90b04b0`, `44df889`, `242a7ff`, `c236d06`, `4fe5b97`, and
   `40e7d0a`; all 1,252 backend tests across 148 files, 16 focused PVE/runtime
   tests, 11 restricted-probe tests, four replay-export tests, and 16 focused
@@ -189,8 +196,9 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Draft PR #37 now includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, per-disk pressure evidence, and alert gates. The
-  controller now has a private append/sync journal and an identity-free sealed
-  verifier; the internal draft has a tested but uninvoked persistence adapter.
+  controller now has a private append/sync journal, an identity-free sealed
+  verifier, and a bounded digest-matched reader; the internal draft has a tested
+  but uninvoked persistence adapter.
   A real shadow-baseline screenshot, approved transport/runtime registration,
   and incident/runbook links remain. The verifier and importer expose no route,
   scheduler, alert evaluation, or production side effect.

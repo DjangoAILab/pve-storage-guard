@@ -123,17 +123,22 @@ The audit handoff is intentionally separate from real-time metrics and alerts:
    limits, and rejects unsafe files, malformed/unknown fields, forged linkage,
    inconsistent age, and multiple domains.
 4. Review the identity-free event, changed, policy-version, duplicate, timestamp
-   regression, and time-bound summary. Non-zero anomaly counts are retained for
-   review; the verifier never silently deduplicates or sorts.
-5. Pass the sealed artifact to a separately approved importer only after its
-   authorization, persistence, retention, and incident-linking behavior is
-   reviewed. The internal ITOps draft contains a persistence service, but no
-   journal reader, transport, route, scheduler, or runtime registration invokes
-   it; the public project still contains no importer.
+   regression, time-bound, and exact raw-file `sha256:` summary. Non-zero
+   anomaly counts are retained for review; the verifier never silently
+   deduplicates or sorts.
+5. Bind approval to the digest and expected summary, collector target, storage
+   domain, policy version, expiry, and exact resource mappings. A file path is
+   not an approval identity.
+6. Only an approved local consumer may invoke `journal batch` with that digest.
+   Each call revalidates the complete sealed file and emits at most 64 private
+   events. Never capture its stdout in general task logs.
+7. Persist through an idempotent, atomic importer and link its sanitized result
+   to the approved task. The public CLI deliberately has no ITOps credentials,
+   database access, or network delivery.
 
-Successful verification proves structural consistency only. It is not a
-signature, tamper-proof provenance, sanitization result, publication approval,
-or permission to ingest the private journal.
+Successful verification proves structural consistency and identifies exact
+bytes. It is not a signature, tamper-proof provenance, sanitization result,
+publication approval, or permission to ingest the private journal.
 
 The internal ITOps draft now implements the matching pure mapper and an
 uninvoked persistence boundary. Given an already-authorized collector target,
@@ -150,9 +155,10 @@ Calls are bounded to 64 events, 10,000 metrics, and 1 MiB of private audit
 details per event. The mapper does not promote the event's p95 field into
 durable monitoring evidence.
 
-This is storage plumbing, not a live ingestion path. It does not read a journal,
-authenticate a transport, expose a route, register a scheduler, evaluate alerts,
-create incidents, send notifications, or actuate storage.
+This remains storage plumbing, not a live ingestion path. The public batch
+reader has no transport or persistence. The internal persistence boundary has
+no approved capability registration, route, scheduler, alert evaluation,
+incident creation, notification, or actuation side effect.
 
 ## Alert model
 

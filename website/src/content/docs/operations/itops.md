@@ -45,13 +45,20 @@ For audit handoff, first stop or detach the writer, rotate the file under the
 site's approved procedure, and run `pve-storage-guard journal verify --journal
 SEALED.jsonl`. The read-only verifier refuses an active writer, unsafe file,
 oversized or malformed event, forged linkage, inconsistent age, and journals
-containing multiple storage domains. Its versioned output contains counts and
-time bounds but no resource identities.
+containing multiple storage domains. Its versioned output contains the exact
+raw-file SHA-256 digest, counts, and time bounds but no resource identities.
 
-Verification is structural only. It is not a signature, sanitization result,
-publication approval, or permission to ingest. The public code performs no
-rotation or import; the internal persistence service described below remains
-uninvoked and approval-gated.
+Approval must bind that digest and expected summary, target, domain, policy
+version, expiry, and exact resource mappings. An authorized local consumer may
+then invoke `journal batch` with the approved digest, offset, and a limit of at
+most 64. The command revalidates the entire file before emitting the requested
+private page. A mutable path is never authority, and batch stdout must never be
+captured in general task logs.
+
+Verification identifies structurally valid exact bytes. It is not a signature,
+sanitization result, publication approval, or permission to ingest. The public
+code performs no rotation, transport, or import; the internal persistence
+service described below remains uninvoked and approval-gated.
 
 This is a local single-writer handoff only. It has no network exporter, ITOps
 callback, rotation manager, actuator, or public-trace sanitization. An approved
@@ -66,9 +73,10 @@ make identical retries no-ops; a canonical SHA-256 metric-projection digest
 rejects altered retries. One call is bounded to 64 events, 10,000 metrics, and
 1 MiB of private audit details per event.
 
-This does not create a live ingestion path. There is no journal reader,
-transport authentication, route, scheduler, runtime registration, alert
-evaluation, incident creation, notification, or actuation side effect.
+This does not create a live ingestion path. The public reader has no transport
+or persistence, and the internal importer has no approved runtime registration,
+route, scheduler, alert evaluation, incident creation, notification, or
+actuation side effect.
 
 ## Current draft boundary
 
@@ -78,9 +86,10 @@ builder. The builder accepts only already-authorized metric samples and emits
 relative offsets, numeric evidence, and coarse classes. Its diskstats semantics
 are fixed to `average` / `derived`; callers cannot label them `p95`.
 
-There is no export route, file writer, journal reader, transport, importer
-runtime registration, actuator, probe installation, alert enablement, or
-production deployment. All 1,252 backend tests across 148 files pass locally,
+There is no export route, transport, importer runtime registration, actuator,
+probe installation, alert enablement, or production deployment. The public
+batch reader is local, digest-bound, and persistence-free. All 1,252 backend
+tests across 148 files pass locally,
 including four export tests and 16 focused mapper/importer/repository tests.
 Internal CI run 153 completed both its quality gate in 4m35s and dependent
 linux/amd64 image build in 4m57s for the importer commit while the PR stayed

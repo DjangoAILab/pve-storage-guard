@@ -110,9 +110,16 @@ The matching read-only verifier is deliberately a sealed-file boundary, not a
 live journal consumer. It takes a non-blocking shared lock, which fails while
 the exclusive writer is active, and validates file safety, size, strict JSONL,
 event/proposal linkage, observation age, and single-domain ownership. Its
-versioned summary contains counts and time bounds but no domain, resource,
-observation, proposal, or event identities. Verification does not rotate,
-persist, transmit, deduplicate, reorder, or authenticate the file.
+versioned summary contains the exact raw-file SHA-256 digest, counts, and time
+bounds but no domain, resource, observation, proposal, or event identities.
+
+The separate `journal batch` command accepts that approved digest, an offset,
+and a limit of at most 64. While holding the same lock, it scans and validates
+the complete file, compares the digest, rechecks file identity, and only then
+emits the requested private page. Paths are location hints, never authority.
+The command has no credentials, network transport, database, approval lookup,
+or log sink. Verification and paging do not rotate, persist, transmit,
+deduplicate, reorder, or authenticate provenance; see ADR 0005.
 
 ## Controller boundary: storage domain first
 
@@ -137,8 +144,10 @@ controllers, SLOs, capacity baselines, and limit ranges.
 6. In observer/shadow mode, an explicitly configured journal is synced before
    the proposal is emitted; neither path can authorize an apply.
 7. After the writer is stopped or detached, an operator may rotate and verify a
-   sealed journal before a separately approved ITOps import. Active files are
-   never tailed by this handoff.
+   sealed journal. ITOps approval binds its immutable digest, expected counts,
+   target, domain, policy version, expiry, and resource mappings; an authorized
+   local capability may then request bounded pages. Active files are never
+   tailed, and mutable paths are never approval identities.
 8. In approved canary mode, the constrained actuator snapshots, applies, and
    reads back effective state.
 9. Telemetry records the full outcome and ITOps evaluates multi-signal alerts.

@@ -204,3 +204,106 @@ func TestJournalVerifyCommandRejectsInvalidArguments(t *testing.T) {
 		}
 	}
 }
+
+func TestJournalBatchCommandEmitsApprovedBoundedPages(t *testing.T) {
+	journalPath := createCLIJournal(t, 3)
+	summary, err := telemetry.VerifyJournal(journalPath)
+	if err != nil {
+		t.Fatalf("verify journal: %v", err)
+	}
+
+	var firstOut, firstErr bytes.Buffer
+	if code := run([]string{
+		"journal", "batch",
+		"--journal", journalPath,
+		"--expected-digest", summary.ContentDigest,
+		"--limit", "2",
+	}, strings.NewReader(""), &firstOut, &firstErr); code != 0 {
+		t.Fatalf("first batch exit %d: %s", code, firstErr.String())
+	}
+	var first v1.DecisionJournalBatch
+	if err := json.Unmarshal(bytes.TrimSpace(firstOut.Bytes()), &first); err != nil {
+		t.Fatalf("decode first batch: %v", err)
+	}
+	if len(first.Events) != 2 || first.Offset != 0 || first.NextOffset == nil || *first.NextOffset != 2 || first.Complete {
+		t.Fatalf("unexpected first batch: %+v", first)
+	}
+	if first.Verification.ContentDigest != summary.ContentDigest || !strings.Contains(firstOut.String(), "private-observation-cli-batch-1") {
+		t.Fatalf("first batch did not bind and expose expected private events: %s", firstOut.String())
+	}
+
+	var lastOut, lastErr bytes.Buffer
+	if code := run([]string{
+		"journal", "batch",
+		"--journal", journalPath,
+		"--expected-digest", summary.ContentDigest,
+		"--offset", "2",
+		"--limit", "2",
+	}, strings.NewReader(""), &lastOut, &lastErr); code != 0 {
+		t.Fatalf("last batch exit %d: %s", code, lastErr.String())
+	}
+	var last v1.DecisionJournalBatch
+	if err := json.Unmarshal(bytes.TrimSpace(lastOut.Bytes()), &last); err != nil {
+		t.Fatalf("decode last batch: %v", err)
+	}
+	if len(last.Events) != 1 || last.Offset != 2 || last.NextOffset != nil || !last.Complete {
+		t.Fatalf("unexpected last batch: %+v", last)
+	}
+}
+
+func TestJournalBatchCommandRejectsUnapprovedContentWithoutStdout(t *testing.T) {
+	journalPath := createCLIJournal(t, 1)
+	wrongDigest := "sha256:" + strings.Repeat("0", 64)
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"journal", "batch",
+		"--journal", journalPath,
+		"--expected-digest", wrongDigest,
+	}, strings.NewReader(""), &stdout, &stderr)
+	if code == 0 || stdout.Len() != 0 || !strings.Contains(stderr.String(), "digest") {
+		t.Fatalf("code=%d stdout=%q stderr=%q", code, stdout.String(), stderr.String())
+	}
+	for _, privateValue := range []string{"reference-bulk-pool", "private-observation-cli-batch-1"} {
+		if strings.Contains(stderr.String(), privateValue) {
+			t.Fatalf("error leaked %q: %s", privateValue, stderr.String())
+		}
+	}
+}
+
+func TestJournalBatchCommandRejectsInvalidArguments(t *testing.T) {
+	for _, args := range [][]string{
+		{"journal", "batch"},
+		{"journal", "batch", "--journal", "unused"},
+		{"journal", "batch", "--journal", "unused", "--expected-digest", "bad"},
+		{"journal", "batch", "--journal", "unused", "--expected-digest", "sha256:" + strings.Repeat("0", 64), "--limit", "0"},
+		{"journal", "batch", "--journal", "unused", "--expected-digest", "sha256:" + strings.Repeat("0", 64), "--limit", "65"},
+		{"journal", "batch", "--unknown"},
+		{"journal", "batch", "--journal", "unused", "--expected-digest", "sha256:" + strings.Repeat("0", 64), "extra"},
+	} {
+		var stdout, stderr bytes.Buffer
+		if code := run(args, strings.NewReader(""), &stdout, &stderr); code == 0 || stdout.Len() != 0 {
+			t.Fatalf("args=%v code=%d stdout=%q stderr=%q", args, code, stdout.String(), stderr.String())
+		}
+	}
+}
+
+func createCLIJournal(t *testing.T, eventCount int) string {
+	t.Helper()
+	root := filepath.Join("..", "..")
+	journalPath := filepath.Join(t.TempDir(), "decisions.jsonl")
+	base := time.Now().UTC().Add(-time.Duration(eventCount) * time.Second)
+	for index := 1; index <= eventCount; index++ {
+		observedAt := base.Add(time.Duration(index) * time.Second)
+		input := fmt.Sprintf(`{"schemaVersion":"guard.storage-slo.io/v1alpha1","id":"private-observation-cli-batch-%d","observedAt":%q,"domainKey":"reference-bulk-pool","writeWaitP95Milliseconds":120,"waitValid":true,"emergency":false,"managementPlaneHealthy":true}`+"\n", index, observedAt.Format(time.RFC3339Nano))
+		var stdout, stderr bytes.Buffer
+		if code := run([]string{
+			"shadow",
+			"--policy", filepath.Join(root, "configs", "examples", "reference-shadow-policy.json"),
+			"--enrollment", filepath.Join(root, "configs", "examples", "reference-enrollment.json"),
+			"--journal", journalPath,
+		}, strings.NewReader(input), &stdout, &stderr); code != 0 {
+			t.Fatalf("shadow event %d exit %d: %s", index, code, stderr.String())
+		}
+	}
+	return journalPath
+}

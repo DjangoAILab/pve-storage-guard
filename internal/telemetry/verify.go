@@ -3,11 +3,14 @@ package telemetry
 import (
 	"bufio"
 	"bytes"
+	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"syscall"
 	"time"
 
@@ -15,6 +18,15 @@ import (
 )
 
 const defaultJournalEventMaxBytes = 1024 * 1024
+const maxJournalBatchEvents = 64
+
+var journalDigestPattern = regexp.MustCompile(`^sha256:[0-9a-f]{64}$`)
+
+type journalScanOptions struct {
+	collect bool
+	offset  uint64
+	limit   uint64
+}
 
 // VerifyJournal validates one sealed private decision journal and returns an
 // identity-free summary. It rejects an active writer and performs no mutation.
@@ -22,27 +34,84 @@ func VerifyJournal(path string) (v1.DecisionJournalVerification, error) {
 	return verifyJournal(path, defaultJournalMaxBytes, defaultJournalEventMaxBytes)
 }
 
-func verifyJournal(path string, maxFileBytes int64, maxEventBytes int) (summary v1.DecisionJournalVerification, resultErr error) {
+// ReadVerifiedJournalBatch returns one bounded private page only after the
+// complete sealed journal validates and matches the already-reviewed digest.
+func ReadVerifiedJournalBatch(path, expectedDigest string, offset, limit uint64) (v1.DecisionJournalBatch, error) {
+	batch := v1.DecisionJournalBatch{
+		SchemaVersion: v1.SchemaVersion,
+		Kind:          v1.DecisionJournalBatchKind,
+		Offset:        offset,
+		Events:        make([]v1.DecisionEvent, 0),
+	}
+	if !journalDigestPattern.MatchString(expectedDigest) {
+		return batch, errors.New("expected journal digest must be canonical sha256")
+	}
+	if limit == 0 || limit > maxJournalBatchEvents {
+		return batch, fmt.Errorf("journal batch limit must be between 1 and %d", maxJournalBatchEvents)
+	}
+	summary, events, err := scanSealedJournal(
+		path,
+		defaultJournalMaxBytes,
+		defaultJournalEventMaxBytes,
+		journalScanOptions{collect: true, offset: offset, limit: limit},
+	)
+	if err != nil {
+		return batch, err
+	}
+	if subtle.ConstantTimeCompare([]byte(summary.ContentDigest), []byte(expectedDigest)) != 1 {
+		return batch, errors.New("sealed journal content digest does not match the approved digest")
+	}
+	if offset > summary.EventCount {
+		return batch, errors.New("journal batch offset exceeds the sealed event count")
+	}
+	batch.Verification = summary
+	batch.Events = events
+	next := offset + uint64(len(events))
+	batch.Complete = next >= summary.EventCount
+	if !batch.Complete {
+		batch.NextOffset = &next
+	}
+	return batch, nil
+}
+
+func verifyJournal(path string, maxFileBytes int64, maxEventBytes int) (v1.DecisionJournalVerification, error) {
+	summary, _, err := scanSealedJournal(path, maxFileBytes, maxEventBytes, journalScanOptions{})
+	return summary, err
+}
+
+func scanSealedJournal(
+	path string,
+	maxFileBytes int64,
+	maxEventBytes int,
+	options journalScanOptions,
+) (summary v1.DecisionJournalVerification, events []v1.DecisionEvent, resultErr error) {
 	summary = v1.DecisionJournalVerification{
 		SchemaVersion: v1.SchemaVersion,
 		Kind:          v1.DecisionJournalVerificationKind,
 	}
+	if options.collect {
+		capacity := options.limit
+		if capacity > maxJournalBatchEvents {
+			capacity = maxJournalBatchEvents
+		}
+		events = make([]v1.DecisionEvent, 0, int(capacity))
+	}
 	if path == "" {
-		return summary, errors.New("journal path is required")
+		return summary, events, errors.New("journal path is required")
 	}
 	if maxFileBytes <= 0 || maxEventBytes <= 0 {
-		return summary, errors.New("journal verification limits must be positive")
+		return summary, events, errors.New("journal verification limits must be positive")
 	}
 	expected, err := os.Lstat(path)
 	if err != nil {
-		return summary, fmt.Errorf("inspect journal: %w", err)
+		return summary, events, fmt.Errorf("inspect journal: %w", err)
 	}
 	if err := validateJournalInfo(expected); err != nil {
-		return summary, err
+		return summary, events, err
 	}
 	file, err := os.Open(path)
 	if err != nil {
-		return summary, fmt.Errorf("open journal for verification: %w", err)
+		return summary, events, fmt.Errorf("open journal for verification: %w", err)
 	}
 	locked := false
 	defer func() {
@@ -60,47 +129,52 @@ func verifyJournal(path string, maxFileBytes int64, maxEventBytes int) (summary 
 		}
 	}()
 	if err := validateOpenedJournal(file, expected, maxFileBytes); err != nil {
-		return summary, err
+		return summary, events, err
 	}
 	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_SH|syscall.LOCK_NB); err != nil {
-		return summary, fmt.Errorf("lock sealed journal for verification: %w", err)
+		return summary, events, fmt.Errorf("lock sealed journal for verification: %w", err)
 	}
 	locked = true
 	lockedInfo, err := file.Stat()
 	if err != nil {
-		return summary, fmt.Errorf("stat locked journal: %w", err)
+		return summary, events, fmt.Errorf("stat locked journal: %w", err)
 	}
 	current, err := os.Lstat(path)
 	if err != nil {
-		return summary, fmt.Errorf("reinspect locked journal: %w", err)
+		return summary, events, fmt.Errorf("reinspect locked journal: %w", err)
 	}
 	if err := validateJournalInfo(current); err != nil {
-		return summary, err
+		return summary, events, err
 	}
 	if !os.SameFile(current, lockedInfo) {
-		return summary, errors.New("journal target changed while locking for verification")
+		return summary, events, errors.New("journal target changed while locking for verification")
 	}
 
 	policyVersions := make(map[string]struct{})
 	eventIDs := make(map[string]struct{})
 	var domainKey string
 	var previousRecordedAt time.Time
-	scanner := bufio.NewScanner(file)
+	hasher := sha256.New()
+	scanner := bufio.NewScanner(io.TeeReader(file, hasher))
 	scanner.Buffer(make([]byte, 64*1024), maxEventBytes)
 	line := 0
 	for scanner.Scan() {
 		line++
 		event, err := decodeDecisionEvent(scanner.Bytes())
 		if err != nil {
-			return summary, fmt.Errorf("decode journal event on line %d: %w", line, err)
+			return summary, events, fmt.Errorf("decode journal event on line %d: %w", line, err)
 		}
 		if err := validateDecisionEvent(event); err != nil {
-			return summary, fmt.Errorf("validate journal event on line %d: %w", line, err)
+			return summary, events, fmt.Errorf("validate journal event on line %d: %w", line, err)
 		}
 		if domainKey == "" {
 			domainKey = event.DomainKey
 		} else if event.DomainKey != domainKey {
-			return summary, errors.New("sealed journal contains multiple storage domains")
+			return summary, events, errors.New("sealed journal contains multiple storage domains")
+		}
+		index := summary.EventCount
+		if options.collect && index >= options.offset && uint64(len(events)) < options.limit {
+			events = append(events, event)
 		}
 		summary.EventCount++
 		if event.Decision.Changed {
@@ -126,30 +200,31 @@ func verifyJournal(path string, maxFileBytes int64, maxEventBytes int) (summary 
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return summary, fmt.Errorf("scan sealed journal after line %d: %w", line, err)
+		return summary, events, fmt.Errorf("scan sealed journal after line %d: %w", line, err)
 	}
+	summary.ContentDigest = fmt.Sprintf("sha256:%x", hasher.Sum(nil))
 	summary.PolicyVersionCount = uint64(len(policyVersions))
 	finalInfo, err := file.Stat()
 	if err != nil {
-		return summary, fmt.Errorf("stat verified journal: %w", err)
+		return summary, events, fmt.Errorf("stat verified journal: %w", err)
 	}
 	if finalInfo.Size() != lockedInfo.Size() || !finalInfo.ModTime().Equal(lockedInfo.ModTime()) {
-		return summary, errors.New("journal changed during verification")
+		return summary, events, errors.New("journal changed during verification")
 	}
 	if err := validateJournalInfo(finalInfo); err != nil {
-		return summary, err
+		return summary, events, err
 	}
 	finalTarget, err := os.Lstat(path)
 	if err != nil {
-		return summary, fmt.Errorf("reinspect verified journal: %w", err)
+		return summary, events, fmt.Errorf("reinspect verified journal: %w", err)
 	}
 	if err := validateJournalInfo(finalTarget); err != nil {
-		return summary, err
+		return summary, events, err
 	}
 	if !os.SameFile(finalTarget, finalInfo) {
-		return summary, errors.New("journal target changed during verification")
+		return summary, events, errors.New("journal target changed during verification")
 	}
-	return summary, nil
+	return summary, events, nil
 }
 
 func decodeDecisionEvent(payload []byte) (v1.DecisionEvent, error) {
