@@ -157,14 +157,18 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   fixed `average`/`derived` diskstats semantics, relative offsets, declared
   gaps, and excludes internal selection identifiers; it has no route, writer,
   or deployment path. Merge, deployment, true p95 telemetry, trace review, and
-  ITOps ingestion/linking of controller events remain. The public controller
-  now provides a tested opt-in private JSONL decision journal without network
-  delivery. Evidence: ITOps commits `90b04b0`, `44df889`, and `242a7ff`; all
-  1,236 backend tests across 145 files, 16 focused PVE/runtime
-  tests, 11 restricted-probe tests, four replay-export tests, build/lint, and
-  dependency checks passed locally on 2026-08-02. The latest internal CI
-  quality-gate job passed in 4m32s, followed by its dependent linux/amd64
-  image-build job in 4m48s.
+  journal transport/persistence, true p95 telemetry, trace review, and incident
+  linking remain. The public controller provides a tested opt-in private JSONL
+  decision journal, and the ITOps draft now has a pure strict mapper returning
+  an inert audit handoff plus low-cardinality derived metrics; neither side has
+  network delivery or a repository write. Evidence: ITOps commits `90b04b0`,
+  `44df889`, `242a7ff`, `c236d06`, and `4fe5b97`; all 1,240 backend tests across
+  146 files, 16 focused PVE/runtime tests, 11 restricted-probe tests, four
+  replay-export tests, four decision-mapper tests, build/lint, and dependency
+  checks passed locally on 2026-08-02. The latest internal CI quality gate
+  passed in 4m31s; the dependent linux/amd64 image job remained blocked by
+  required conditions while the PR stayed Draft, so it is not recorded as a
+  successful image build.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
@@ -175,8 +179,9 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   Draft PR #37 now includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, per-disk pressure evidence, and alert gates. The
   controller now has a private, append/sync shadow decision journal; a real
-  shadow-baseline screenshot, ITOps event ingestion, and incident/runbook links
-  remain.
+  shadow-baseline screenshot, reviewed journal reader/persistence adapter, and
+  incident/runbook links remain. The ITOps pure mapper alone performs none of
+  those side effects.
 - [ ] Exercise cold restart and rollback in a non-critical environment.
 - [!] Expand production control only after canary evidence is reviewed.
 

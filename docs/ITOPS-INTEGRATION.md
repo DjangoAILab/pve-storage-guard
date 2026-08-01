@@ -105,6 +105,17 @@ ingestion route or a production durability claim. Absolute event times and
 opaque internal keys make the private journal unsuitable for public release
 without a separate sanitization/export review.
 
+The internal ITOps draft now implements the matching pure mapper. Given an
+already-authorized collector target and expected storage domain, it strictly
+validates the complete v1alpha1 event, deterministic event/proposal linkage,
+timestamp-derived age, non-actuating safety state, stable reason vocabulary,
+bounded budgets, and at most 1,024 allocations. It returns an inert audit
+handoff plus low-cardinality observation-age, budget, allocation, and
+changed-state metrics. Decision-derived metrics are labeled `estimated`; the
+mapper does not promote the event's p95 field into durable monitoring evidence.
+It does not read a journal, write a repository, process metrics, create an
+incident, or expose a route.
+
 ## Alert model
 
 ### Informational
@@ -220,13 +231,15 @@ recovery, with the detector evidence retained. Real notification delivery is
 still intentionally disabled.
 
 As of 2026-08-02, the integration remains an internal draft PR and has not been
-merged or deployed. Verification covers all 1,236 backend tests across 145
+merged or deployed. Verification covers all 1,240 backend tests across 146
 files, including 16 focused PVE/runtime tests, 11 restricted-probe tests, 15
-focused threshold-evaluator tests, and four replay-export tests. TypeScript
-build/lint and the dependency-boundary check also pass. The latest internal CI
-quality-gate job passed in 4m32s, followed by its dependent linux/amd64
-image-build job in 4m48s. Production probe installation, trace export,
-notification delivery, and alert enablement remain explicit approval gates.
+focused threshold-evaluator tests, four replay-export tests, and four
+decision-mapper tests. TypeScript build/lint and the dependency-boundary check
+also pass locally. The latest internal CI quality gate passed in 4m31s; its
+dependent linux/amd64 image job remained blocked by required conditions while
+the PR stayed Draft, so no image result is claimed. Production probe
+installation, journal ingestion/persistence, trace export, notification
+delivery, and alert enablement remain explicit approval gates.
 
 The draft also adds a PVE-only storage-pressure dashboard that combines PSI,
 management-probe health, per-disk average wait, queue depth, utilization,

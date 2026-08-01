@@ -41,6 +41,13 @@ This is a local single-writer handoff only. It has no network exporter, ITOps
 callback, rotation manager, actuator, or public-trace sanitization. An approved
 ITOps ingestion/linking adapter remains future work.
 
+The internal ITOps draft now contains the matching pure event mapper. It
+requires an already-authorized target and expected domain, strictly validates
+the non-actuating contract and bounded reason/resource cardinality, and returns
+an inert audit handoff plus decision-derived metrics marked `estimated`. It has
+no journal reader, repository write, metric processor, route, scheduler, or
+incident side effect.
+
 ## Current draft boundary
 
 The internal integration draft includes the restricted read-only storage probe,
@@ -49,8 +56,10 @@ builder. The builder accepts only already-authorized metric samples and emits
 relative offsets, numeric evidence, and coarse classes. Its diskstats semantics
 are fixed to `average` / `derived`; callers cannot label them `p95`.
 
-There is no export route, file writer, actuator, probe installation, alert
-enablement, or production deployment. All 1,236 backend tests across 145 files,
-including four export tests, pass locally. The latest internal CI quality gate
-and its dependent linux/amd64 image build both passed. Production rollout
-remains an explicit approval gate.
+There is no export route, file writer, journal reader, repository write,
+actuator, probe installation, alert enablement, or production deployment. All
+1,240 backend tests across 146 files, including four export tests and four
+decision-mapper tests, pass locally. The latest internal CI quality gate passed
+in 4m31s; the dependent linux/amd64 image job remained blocked by required
+conditions while the PR stayed Draft, so no image result is claimed. Production
+rollout remains an explicit approval gate.
