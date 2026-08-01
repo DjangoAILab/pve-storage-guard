@@ -103,9 +103,11 @@ Last updated: 2026-08-01 (Asia/Shanghai)
   [DjangoAILab/pve-storage-guard](https://github.com/DjangoAILab/pve-storage-guard).
 - [x] Validate the repaired main CI across test/race, lint, static analysis,
   govulncheck, replay golden, secrets, OCI build, and Trivy. Evidence:
-  [GitHub Actions run 30707400668](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30707400668).
-- [~] Enable and deploy GitHub Pages; repository Pages is enabled and the first
-  post-enable deployment is pending.
+  [latest GitHub Actions run](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30708252749).
+- [x] Enable and deploy GitHub Pages, set the repository homepage, verify HTTPS
+  200, title/disclaimer content, and desktop width in a browser. Evidence:
+  [public documentation site](https://djangoailab.github.io/pve-storage-guard/)
+  and [Pages deployment](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30707972440).
 - [ ] Publish the public GHCR image only from a validated tagged release.
 
 ## 6. Local practice and ITOps
@@ -119,9 +121,13 @@ Last updated: 2026-08-01 (Asia/Shanghai)
 - [~] Add ITOps ingestion for storage latency, PSI, queue, management-plane
   health, and controller state. A separate local ITOps worktree now has a
   read-only `pve.storage-pressure` probe and mappings for PSI, in-flight I/O,
-  and disk counters; merge, deployment, latency derivation, management-plane
-  correlation, and controller events remain.
-- [ ] Add multi-signal warning/critical alerts and anti-noise behavior.
+  disk counters, derived IOPS/throughput/average wait/queue/utilization, and
+  management-probe health; merge, deployment, p95 telemetry, and controller
+  events remain. Local ITOps commit: `90b04b0`.
+- [~] Add multi-signal warning/critical alerts and anti-noise behavior. A local
+  detector now requires write-wait plus PSI, queue, or management-plane
+  corroboration and seeds disabled warning/critical rules; persisted integration
+  tests, shadow baseline tuning, and explicit enablement remain.
 - [ ] Add dashboard, decision journal, and incident-review links.
 - [ ] Exercise cold restart and rollback in a non-critical environment.
 - [!] Expand production control only after canary evidence is reviewed.
