@@ -162,9 +162,11 @@ and update policy only through versioned review.
 
 The local ITOps integration branch adds one restricted, read-only operation:
 `pve.storage-pressure`. It reads Linux PSI and diskstats pseudo-files only and
-maps bounded node/disk metrics for the existing fast collection scope. It does
-not execute `zpool iostat`, expose hardware identifiers, install the probe, arm
-alerts, or deploy any service.
+maps bounded node/disk metrics for the existing fast collection scope. Safe
+counter deltas derive IOPS, throughput, average wait, queue depth, and
+utilization; the PVE REST cluster-status probe supplies management success and
+duration. It does not execute `zpool iostat`, expose hardware identifiers,
+install the probe, arm alerts, or deploy any service.
 
 ITOps currently permits a minimum fast interval of 10 seconds. This is suitable
 for durable monitoring and alert correlation, but not for a one-second control
@@ -173,7 +175,13 @@ downsample observations/events into ITOps; ITOps must not become the actuator or
 the source of controller timing.
 
 Diskstats provides cumulative operation and time counters, not a p95 latency.
-Average read/write service time can be derived from successive deltas. A real
-p95 still requires an appropriate storage telemetry source and must not be
-fabricated from these counters. Until that source and multi-signal detector are
-validated, no storage-pressure paging rule is enabled.
+Average read/write service time is derived from successive deltas. A real p95
+still requires an appropriate storage telemetry source and must not be
+fabricated from these counters.
+
+The local v1 detector emits a per-disk level only after wait telemetry exists.
+Warning requires target wait plus PSI, queue, or management failure;
+critical requires emergency wait plus full PSI or management failure. The
+recommended warning/critical rules are seeded disabled. They remain disabled
+until the integration is merged, persisted escalation/recovery tests pass, and
+a shadow baseline supports their thresholds.

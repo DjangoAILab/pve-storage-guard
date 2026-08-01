@@ -119,9 +119,13 @@ Last updated: 2026-08-01 (Asia/Shanghai)
 - [~] Add ITOps ingestion for storage latency, PSI, queue, management-plane
   health, and controller state. A separate local ITOps worktree now has a
   read-only `pve.storage-pressure` probe and mappings for PSI, in-flight I/O,
-  and disk counters; merge, deployment, latency derivation, management-plane
-  correlation, and controller events remain.
-- [ ] Add multi-signal warning/critical alerts and anti-noise behavior.
+  disk counters, derived IOPS/throughput/average wait/queue/utilization, and
+  management-probe health; merge, deployment, p95 telemetry, and controller
+  events remain. Local ITOps commit: `90b04b0`.
+- [~] Add multi-signal warning/critical alerts and anti-noise behavior. A local
+  detector now requires write-wait plus PSI, queue, or management-plane
+  corroboration and seeds disabled warning/critical rules; persisted integration
+  tests, shadow baseline tuning, and explicit enablement remain.
 - [ ] Add dashboard, decision journal, and incident-review links.
 - [ ] Exercise cold restart and rollback in a non-critical environment.
 - [!] Expand production control only after canary evidence is reviewed.
