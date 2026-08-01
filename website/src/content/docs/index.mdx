@@ -1,0 +1,70 @@
+---
+title: PVE Storage Guard — Prevent Proxmox VE Disk I/O Starvation
+description: Adaptive, explainable I/O protection for Proxmox VE storage domains.
+template: splash
+hero:
+  title: Protect the control plane from the storage queue.
+  tagline: Adaptive I/O protection for Proxmox VE hosts — bounded by storage domain, enrolled by exact disk, observable before it is allowed to act.
+  actions:
+    - text: Read the architecture
+      link: /pve-storage-guard/concepts/architecture/
+      icon: right-arrow
+    - text: Reproduce the PoC
+      link: /pve-storage-guard/getting-started/
+      variant: minimal
+      icon: external
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+import SignalPanel from '../../components/SignalPanel.astro';
+
+<SignalPanel />
+
+## A guardrail, not an optimizer
+
+<CardGrid>
+  <Card title="Storage-domain control" icon="seti:config">
+    One controller protects one shared bottleneck. Disk envelopes express
+    minimums, maximums, and weights without creating competing feedback loops.
+  </Card>
+  <Card title="Dry-run by default" icon="seti:lock">
+    Observer and shadow modes produce detections, proposed budgets, and a full
+    explanation without mutating PVE.
+  </Card>
+  <Card title="Safe under uncertainty" icon="warning">
+    Stale telemetry never increases a limit. Unknown effective state, policy
+    drift, lease conflict, and read-back mismatch stop actuation.
+  </Card>
+  <Card title="Built for operations" icon="seti:time-cop">
+    Prometheus metrics, decision events, multi-signal alerts, replay, runbooks,
+    and rollback make the controller inspectable under pressure.
+  </Card>
+</CardGrid>
+
+## What the first evidence says
+
+The offline reference replay evaluated **972** bounded AIMD policies. **198**
+passed a safety gate requiring no more unsafe seconds than a fixed 20 MiB/s
+limit in conservative, nominal, and optimistic models. The selected shadow
+candidate admitted **60.11–63.88%** of modeled demand versus **59.26%** for the
+fixed baseline, with the same modeled unsafe seconds.
+
+<Aside type="caution" title="Model-assisted, not a production claim">
+  The replay is based on one anonymized incident. Counterfactual outcomes depend
+  on explicit monotonic models. The adaptive policy remains shadow-only until
+  independent traces, live metrics, controlled load, fault injection, and
+  rollback gates pass.
+</Aside>
+
+## PVE product, portable kernel
+
+`pve-storage-guard` owns the operator experience, PVE discovery, packaging, and
+constrained actuator boundary. The internal `storage-slo-guard` engine receives
+platform-neutral observations and emits bounded proposals. Future Linux,
+Kubernetes, or hypervisor adapters can reuse the engine without importing PVE
+semantics into policy code.
+
+---
+
+PVE Storage Guard is an independent community project. It is not affiliated
+with, endorsed by, or sponsored by Proxmox Server Solutions GmbH.

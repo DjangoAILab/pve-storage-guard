@@ -1,0 +1,110 @@
+# PVE Storage Guard
+
+**Adaptive I/O protection for Proxmox VE hosts**
+
+PVE Storage Guard protects a Proxmox VE management plane from disk I/O
+starvation caused by bulk workloads. It observes storage-domain pressure,
+proposes bounded per-disk limits, explains every decision, and can later apply
+approved limits through a constrained PVE adapter.
+
+> **Project status: pre-release / observer-only.** The repository is being
+> validated with offline replay and local dry-run operation. It does not yet
+> authorize production actuation.
+
+PVE Storage Guard is an independent community project. It is not affiliated
+with, endorsed by, or sponsored by Proxmox Server Solutions GmbH. Proxmox and
+Proxmox VE are trademarks of their respective owners.
+
+## Why this exists
+
+A healthy storage pool can still become an operational single point of failure:
+one high-throughput import or backup may drive write latency high enough that
+SSH, cluster services, and the PVE management plane become unresponsive. Static
+limits help but waste headroom; independent per-VM controllers compete around
+the same shared bottleneck.
+
+PVE Storage Guard uses one bounded controller per storage domain and allocates
+its budget only to explicitly enrolled disks. The generic policy kernel is
+called `storage-slo-guard`; PVE-specific discovery and actuation live behind a
+PVE Adapter.
+
+![An anonymized storage-latency incident and the observe, decide, verify, explain control loop](docs/assets/incident-signal.jpg)
+
+## Safety principles
+
+- Read-only and `dry-run` by default.
+- One controller for one shared storage bottleneck.
+- Exact disk enrollment; root and critical disks are excluded by default.
+- Hard minimum and maximum limits, hysteresis, cooldown, and emergency brake.
+- Stale or invalid telemetry can never increase a limit.
+- Desired state is verified against effective state before promotion.
+- Every proposal is explainable, versioned, and auditable.
+- No arbitrary shell execution through the actuator.
+
+## Quick start
+
+The first reproducible artifact is an offline replay. It has no SSH, PVE API,
+database, or actuator integration:
+
+```sh
+python3 -m unittest discover -s poc -p 'test_*.py' -v
+python3 poc/simulate.py --format markdown
+```
+
+Observer and service installation instructions will be published only after
+their safety gates pass. Until then, see [the goal](docs/GOAL.md),
+[architecture](docs/ARCHITECTURE.md), [policy design](docs/POLICY-DESIGN.md),
+and [PoC protocol](docs/POC.md).
+
+## Components
+
+```mermaid
+flowchart LR
+    PVE["PVE Adapter"] --> Metrics["Metrics Collector"]
+    Metrics --> Engine["storage-slo-guard\nPolicy + Pool Actor + Allocator"]
+    Engine --> Safety["Safety Controller"]
+    Safety -->|observer / shadow| Events["Event + Telemetry + ITOps"]
+    Safety -->|approved canary only| Actuator["Constrained PVE Actuator"]
+    Actuator -->|effective-state read-back| Safety
+```
+
+The intended distribution is a single `pve-storage-guard` binary with
+`agent`, `controller`, `replay`, and `policy validate` modes. Container images
+will be published at `ghcr.io/djangoailab/pve-storage-guard` after release
+validation.
+
+## Current replay result
+
+| Scenario | Fixed 20 admission | Selected AIMD admission | Unsafe seconds |
+| --- | ---: | ---: | ---: |
+| Conservative | 59.26% | 60.11% | 1 vs 1 |
+| Nominal | 59.26% | 63.73% | 0 vs 0 |
+| Optimistic | 59.26% | 63.88% | 0 vs 0 |
+
+The numbers are counterfactual model estimates, not measured production gains.
+The selected AIMD policy remains shadow-only.
+
+## Evidence, not claims
+
+The initial case study is based on a real production incident, with identities,
+network details, raw logs, and guest data removed. Historical replay preserves
+observed measurements. Counterfactual strategy results are explicitly labeled
+as model-assisted estimates and are not presented as measured production gains.
+
+## Documentation
+
+- [Goal and success criteria](docs/GOAL.md)
+- [Execution checklist](docs/CHECKLIST.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Policy design](docs/POLICY-DESIGN.md)
+- [Offline PoC](docs/POC.md)
+- [Anonymized incident case study](docs/CASE-STUDY.md)
+- [Community context and prior art](docs/PRIOR-ART.md)
+- [ITOps integration](docs/ITOPS-INTEGRATION.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Architecture decisions](docs/adr/README.md)
+
+## License
+
+Licensed under Apache-2.0. See [LICENSE](LICENSE). Contributions use the
+[Developer Certificate of Origin](DCO.md).

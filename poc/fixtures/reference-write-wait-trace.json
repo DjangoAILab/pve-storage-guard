@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "kind": "observed",
+    "system": "anonymized one-second storage-domain write-wait sample",
+    "recoveredFrom": "retained incident evidence",
+    "observedAt": "2026-07-31T15:07:42Z"
+  },
+  "pool": "reference-node/bulk-pool",
+  "metric": "zfs.pool.write_total_wait",
+  "units": "milliseconds",
+  "samples": [
+    99.848624,
+    89.302025,
+    126.287872,
+    126.816015,
+    80.726442,
+    82.691737,
+    50.04293,
+    89.187765,
+    348.86717,
+    150.656629,
+    68.258264,
+    22.10823
+  ],
+  "notes": [
+    "Eleven samples exceeded 50 ms; the final sample was below the 25 ms gate.",
+    "The first zpool row may include since-boot aggregation semantics; it is retained exactly because the incident record treated all twelve rows as the observed window."
+  ]
+}

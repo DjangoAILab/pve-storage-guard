@@ -1,0 +1,1903 @@
+{
+  "counterfactual": {
+    "conservative": {
+      "model": {
+        "base_wait_ms": 12,
+        "name": "conservative",
+        "safe_capacity_mibps": 15,
+        "slope_ms_per_mibps": 1.2
+      },
+      "ranking": [
+        "aimd_conservative",
+        "aimd_poc_tuned",
+        "fixed_20",
+        "aimd_responsive",
+        "aimd_balanced",
+        "step_5_10_40",
+        "no_limit"
+      ],
+      "results": [
+        {
+          "admission_percent": 63.96,
+          "admitted_mib": 21156.237,
+          "decisions": [
+            {
+              "atSeconds": 59,
+              "budgetMiBps": 21,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 22,
+              "previousBudgetMiBps": 21,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 179,
+              "budgetMiBps": 23,
+              "previousBudgetMiBps": 22,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1029,
+              "budgetMiBps": 24,
+              "previousBudgetMiBps": 23,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1089,
+              "budgetMiBps": 25,
+              "previousBudgetMiBps": 24,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1329,
+              "budgetMiBps": 26,
+              "previousBudgetMiBps": 25,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1389,
+              "budgetMiBps": 27,
+              "previousBudgetMiBps": 26,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1449,
+              "budgetMiBps": 28,
+              "previousBudgetMiBps": 27,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2345.11,
+          "limit_changes": 8,
+          "limit_changes_per_hour": 19.2,
+          "recovery_seconds": 9,
+          "severe_seconds": 0,
+          "strategy": "aimd_conservative",
+          "unsafe_seconds": 1
+        },
+        {
+          "admission_percent": 60.11,
+          "admitted_mib": 19881.237,
+          "decisions": [
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 20.5,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1089,
+              "budgetMiBps": 21.0,
+              "previousBudgetMiBps": 20.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1389,
+              "budgetMiBps": 21.5,
+              "previousBudgetMiBps": 21.0,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2495.51,
+          "limit_changes": 3,
+          "limit_changes_per_hour": 7.2,
+          "recovery_seconds": 9,
+          "severe_seconds": 0,
+          "strategy": "aimd_poc_tuned",
+          "unsafe_seconds": 1
+        },
+        {
+          "admission_percent": 59.26,
+          "admitted_mib": 19602.237,
+          "decisions": [],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2531.02,
+          "limit_changes": 0,
+          "limit_changes_per_hour": 0.0,
+          "recovery_seconds": 9,
+          "severe_seconds": 0,
+          "strategy": "fixed_20",
+          "unsafe_seconds": 1
+        },
+        {
+          "admission_percent": 55.35,
+          "admitted_mib": 18305.835,
+          "decisions": [
+            {
+              "atSeconds": 59,
+              "budgetMiBps": 21,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 22,
+              "previousBudgetMiBps": 21,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 179,
+              "budgetMiBps": 23,
+              "previousBudgetMiBps": 22,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 769,
+              "budgetMiBps": 11.5,
+              "previousBudgetMiBps": 23,
+              "reason": "multiplicative_decrease"
+            },
+            {
+              "atSeconds": 829,
+              "budgetMiBps": 12.5,
+              "previousBudgetMiBps": 11.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 889,
+              "budgetMiBps": 13.5,
+              "previousBudgetMiBps": 12.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 949,
+              "budgetMiBps": 14.5,
+              "previousBudgetMiBps": 13.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1009,
+              "budgetMiBps": 15.5,
+              "previousBudgetMiBps": 14.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1069,
+              "budgetMiBps": 16.5,
+              "previousBudgetMiBps": 15.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1129,
+              "budgetMiBps": 17.5,
+              "previousBudgetMiBps": 16.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1319,
+              "budgetMiBps": 18.5,
+              "previousBudgetMiBps": 17.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1379,
+              "budgetMiBps": 19.5,
+              "previousBudgetMiBps": 18.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1439,
+              "budgetMiBps": 20.5,
+              "previousBudgetMiBps": 19.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1499,
+              "budgetMiBps": 21.5,
+              "previousBudgetMiBps": 20.5,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2710.27,
+          "limit_changes": 14,
+          "limit_changes_per_hour": 33.6,
+          "recovery_seconds": 9,
+          "severe_seconds": 0,
+          "strategy": "aimd_responsive",
+          "unsafe_seconds": 1
+        },
+        {
+          "admission_percent": 59.51,
+          "admitted_mib": 19682.037,
+          "decisions": [
+            {
+              "atSeconds": 59,
+              "budgetMiBps": 22,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 24,
+              "previousBudgetMiBps": 22,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 179,
+              "budgetMiBps": 26,
+              "previousBudgetMiBps": 24,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 619,
+              "budgetMiBps": 18.2,
+              "previousBudgetMiBps": 26,
+              "reason": "multiplicative_decrease"
+            },
+            {
+              "atSeconds": 1019,
+              "budgetMiBps": 20.2,
+              "previousBudgetMiBps": 18.2,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1079,
+              "budgetMiBps": 22.2,
+              "previousBudgetMiBps": 20.2,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1139,
+              "budgetMiBps": 24.2,
+              "previousBudgetMiBps": 22.2,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1329,
+              "budgetMiBps": 26.2,
+              "previousBudgetMiBps": 24.2,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1389,
+              "budgetMiBps": 28.2,
+              "previousBudgetMiBps": 26.2,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1449,
+              "budgetMiBps": 30.2,
+              "previousBudgetMiBps": 28.2,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2520.76,
+          "limit_changes": 10,
+          "limit_changes_per_hour": 24.0,
+          "recovery_seconds": 9,
+          "severe_seconds": 0,
+          "strategy": "aimd_balanced",
+          "unsafe_seconds": 20
+        },
+        {
+          "admission_percent": 63.08,
+          "admitted_mib": 20862.747,
+          "decisions": [
+            {
+              "atSeconds": 9,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 20,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 609,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 639,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 669,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 699,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 729,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 759,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 849,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 879,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 909,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 939,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 969,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 999,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 1149,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 1179,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 1209,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 1239,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2378.1,
+          "limit_changes": 17,
+          "limit_changes_per_hour": 40.8,
+          "recovery_seconds": 11,
+          "severe_seconds": 0,
+          "strategy": "step_5_10_40",
+          "unsafe_seconds": 158
+        },
+        {
+          "admission_percent": 100.0,
+          "admitted_mib": 33075.824,
+          "decisions": [],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 1500.0,
+          "limit_changes": 0,
+          "limit_changes_per_hour": 0.0,
+          "recovery_seconds": 11,
+          "severe_seconds": 64,
+          "strategy": "no_limit",
+          "unsafe_seconds": 311
+        }
+      ]
+    },
+    "nominal": {
+      "model": {
+        "base_wait_ms": 10,
+        "name": "nominal",
+        "safe_capacity_mibps": 20,
+        "slope_ms_per_mibps": 0.9
+      },
+      "ranking": [
+        "aimd_poc_tuned",
+        "fixed_20",
+        "aimd_conservative",
+        "aimd_responsive",
+        "aimd_balanced",
+        "step_5_10_40",
+        "no_limit"
+      ],
+      "results": [
+        {
+          "admission_percent": 63.73,
+          "admitted_mib": 21077.737,
+          "decisions": [
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 20.5,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 239,
+              "budgetMiBps": 21.0,
+              "previousBudgetMiBps": 20.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 359,
+              "budgetMiBps": 21.5,
+              "previousBudgetMiBps": 21.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 479,
+              "budgetMiBps": 22.0,
+              "previousBudgetMiBps": 21.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 599,
+              "budgetMiBps": 22.5,
+              "previousBudgetMiBps": 22.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 719,
+              "budgetMiBps": 23.0,
+              "previousBudgetMiBps": 22.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 889,
+              "budgetMiBps": 23.5,
+              "previousBudgetMiBps": 23.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1009,
+              "budgetMiBps": 24.0,
+              "previousBudgetMiBps": 23.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1129,
+              "budgetMiBps": 24.5,
+              "previousBudgetMiBps": 24.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1249,
+              "budgetMiBps": 25,
+              "previousBudgetMiBps": 24.5,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2353.85,
+          "limit_changes": 10,
+          "limit_changes_per_hour": 24.0,
+          "recovery_seconds": 0,
+          "severe_seconds": 0,
+          "strategy": "aimd_poc_tuned",
+          "unsafe_seconds": 0
+        },
+        {
+          "admission_percent": 59.26,
+          "admitted_mib": 19602.237,
+          "decisions": [],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2531.02,
+          "limit_changes": 0,
+          "limit_changes_per_hour": 0.0,
+          "recovery_seconds": 0,
+          "severe_seconds": 0,
+          "strategy": "fixed_20",
+          "unsafe_seconds": 0
+        },
+        {
+          "admission_percent": 69.9,
+          "admitted_mib": 23121.357,
+          "decisions": [
+            {
+              "atSeconds": 59,
+              "budgetMiBps": 21,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 22,
+              "previousBudgetMiBps": 21,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 179,
+              "budgetMiBps": 23,
+              "previousBudgetMiBps": 22,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 239,
+              "budgetMiBps": 24,
+              "previousBudgetMiBps": 23,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 299,
+              "budgetMiBps": 25,
+              "previousBudgetMiBps": 24,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 359,
+              "budgetMiBps": 26,
+              "previousBudgetMiBps": 25,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 419,
+              "budgetMiBps": 27,
+              "previousBudgetMiBps": 26,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 479,
+              "budgetMiBps": 28,
+              "previousBudgetMiBps": 27,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 539,
+              "budgetMiBps": 29,
+              "previousBudgetMiBps": 28,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 599,
+              "budgetMiBps": 30,
+              "previousBudgetMiBps": 29,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2145.8,
+          "limit_changes": 10,
+          "limit_changes_per_hour": 24.0,
+          "recovery_seconds": 10,
+          "severe_seconds": 0,
+          "strategy": "aimd_conservative",
+          "unsafe_seconds": 2
+        },
+        {
+          "admission_percent": 61.14,
+          "admitted_mib": 20223.457,
+          "decisions": [
+            {
+              "atSeconds": 59,
+              "budgetMiBps": 21,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 22,
+              "previousBudgetMiBps": 21,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 179,
+              "budgetMiBps": 23,
+              "previousBudgetMiBps": 22,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 239,
+              "budgetMiBps": 24,
+              "previousBudgetMiBps": 23,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 299,
+              "budgetMiBps": 25,
+              "previousBudgetMiBps": 24,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 359,
+              "budgetMiBps": 26,
+              "previousBudgetMiBps": 25,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 419,
+              "budgetMiBps": 27,
+              "previousBudgetMiBps": 26,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 479,
+              "budgetMiBps": 28,
+              "previousBudgetMiBps": 27,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 539,
+              "budgetMiBps": 29,
+              "previousBudgetMiBps": 28,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 599,
+              "budgetMiBps": 30,
+              "previousBudgetMiBps": 29,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 769,
+              "budgetMiBps": 15.0,
+              "previousBudgetMiBps": 30,
+              "reason": "multiplicative_decrease"
+            },
+            {
+              "atSeconds": 829,
+              "budgetMiBps": 16.0,
+              "previousBudgetMiBps": 15.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 889,
+              "budgetMiBps": 17.0,
+              "previousBudgetMiBps": 16.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 949,
+              "budgetMiBps": 18.0,
+              "previousBudgetMiBps": 17.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1009,
+              "budgetMiBps": 19.0,
+              "previousBudgetMiBps": 18.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1069,
+              "budgetMiBps": 20.0,
+              "previousBudgetMiBps": 19.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1129,
+              "budgetMiBps": 21.0,
+              "previousBudgetMiBps": 20.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1189,
+              "budgetMiBps": 22.0,
+              "previousBudgetMiBps": 21.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1249,
+              "budgetMiBps": 23.0,
+              "previousBudgetMiBps": 22.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1309,
+              "budgetMiBps": 24.0,
+              "previousBudgetMiBps": 23.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1369,
+              "budgetMiBps": 25.0,
+              "previousBudgetMiBps": 24.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1429,
+              "budgetMiBps": 26.0,
+              "previousBudgetMiBps": 25.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1489,
+              "budgetMiBps": 27.0,
+              "previousBudgetMiBps": 26.0,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2453.28,
+          "limit_changes": 23,
+          "limit_changes_per_hour": 55.2,
+          "recovery_seconds": 10,
+          "severe_seconds": 0,
+          "strategy": "aimd_responsive",
+          "unsafe_seconds": 2
+        },
+        {
+          "admission_percent": 70.85,
+          "admitted_mib": 23433.357,
+          "decisions": [
+            {
+              "atSeconds": 59,
+              "budgetMiBps": 22,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 24,
+              "previousBudgetMiBps": 22,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 179,
+              "budgetMiBps": 26,
+              "previousBudgetMiBps": 24,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 239,
+              "budgetMiBps": 28,
+              "previousBudgetMiBps": 26,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 299,
+              "budgetMiBps": 30,
+              "previousBudgetMiBps": 28,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 359,
+              "budgetMiBps": 32,
+              "previousBudgetMiBps": 30,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 419,
+              "budgetMiBps": 34,
+              "previousBudgetMiBps": 32,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 479,
+              "budgetMiBps": 36,
+              "previousBudgetMiBps": 34,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 539,
+              "budgetMiBps": 38,
+              "previousBudgetMiBps": 36,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 599,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 38,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 679,
+              "budgetMiBps": 28.0,
+              "previousBudgetMiBps": 40,
+              "reason": "multiplicative_decrease"
+            },
+            {
+              "atSeconds": 829,
+              "budgetMiBps": 30.0,
+              "previousBudgetMiBps": 28.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1029,
+              "budgetMiBps": 32.0,
+              "previousBudgetMiBps": 30.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1089,
+              "budgetMiBps": 34.0,
+              "previousBudgetMiBps": 32.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1269,
+              "budgetMiBps": 36.0,
+              "previousBudgetMiBps": 34.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1329,
+              "budgetMiBps": 38.0,
+              "previousBudgetMiBps": 36.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1389,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 38.0,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2117.23,
+          "limit_changes": 17,
+          "limit_changes_per_hour": 40.8,
+          "recovery_seconds": 9,
+          "severe_seconds": 0,
+          "strategy": "aimd_balanced",
+          "unsafe_seconds": 20
+        },
+        {
+          "admission_percent": 64.79,
+          "admitted_mib": 21431.067,
+          "decisions": [
+            {
+              "atSeconds": 9,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 20,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 669,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 699,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 759,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 789,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 849,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 879,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 909,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 939,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 1149,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 1179,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2315.04,
+          "limit_changes": 11,
+          "limit_changes_per_hour": 26.4,
+          "recovery_seconds": 2,
+          "severe_seconds": 0,
+          "strategy": "step_5_10_40",
+          "unsafe_seconds": 122
+        },
+        {
+          "admission_percent": 100.0,
+          "admitted_mib": 33075.824,
+          "decisions": [],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 1500.0,
+          "limit_changes": 0,
+          "limit_changes_per_hour": 0.0,
+          "recovery_seconds": 11,
+          "severe_seconds": 64,
+          "strategy": "no_limit",
+          "unsafe_seconds": 251
+        }
+      ]
+    },
+    "optimistic": {
+      "model": {
+        "base_wait_ms": 8,
+        "name": "optimistic",
+        "safe_capacity_mibps": 30,
+        "slope_ms_per_mibps": 0.6
+      },
+      "ranking": [
+        "aimd_responsive",
+        "aimd_conservative",
+        "aimd_poc_tuned",
+        "fixed_20",
+        "aimd_balanced",
+        "step_5_10_40",
+        "no_limit"
+      ],
+      "results": [
+        {
+          "admission_percent": 72.94,
+          "admitted_mib": 24124.937,
+          "decisions": [
+            {
+              "atSeconds": 59,
+              "budgetMiBps": 21,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 22,
+              "previousBudgetMiBps": 21,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 179,
+              "budgetMiBps": 23,
+              "previousBudgetMiBps": 22,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 239,
+              "budgetMiBps": 24,
+              "previousBudgetMiBps": 23,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 299,
+              "budgetMiBps": 25,
+              "previousBudgetMiBps": 24,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 359,
+              "budgetMiBps": 26,
+              "previousBudgetMiBps": 25,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 419,
+              "budgetMiBps": 27,
+              "previousBudgetMiBps": 26,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 479,
+              "budgetMiBps": 28,
+              "previousBudgetMiBps": 27,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 539,
+              "budgetMiBps": 29,
+              "previousBudgetMiBps": 28,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 599,
+              "budgetMiBps": 30,
+              "previousBudgetMiBps": 29,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 659,
+              "budgetMiBps": 31,
+              "previousBudgetMiBps": 30,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 719,
+              "budgetMiBps": 32,
+              "previousBudgetMiBps": 31,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 829,
+              "budgetMiBps": 33,
+              "previousBudgetMiBps": 32,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 889,
+              "budgetMiBps": 34,
+              "previousBudgetMiBps": 33,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 949,
+              "budgetMiBps": 35,
+              "previousBudgetMiBps": 34,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1009,
+              "budgetMiBps": 36,
+              "previousBudgetMiBps": 35,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1069,
+              "budgetMiBps": 37,
+              "previousBudgetMiBps": 36,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1129,
+              "budgetMiBps": 38,
+              "previousBudgetMiBps": 37,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1189,
+              "budgetMiBps": 39,
+              "previousBudgetMiBps": 38,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1249,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 39,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2056.53,
+          "limit_changes": 20,
+          "limit_changes_per_hour": 48.0,
+          "recovery_seconds": 0,
+          "severe_seconds": 0,
+          "strategy": "aimd_responsive",
+          "unsafe_seconds": 0
+        },
+        {
+          "admission_percent": 69.9,
+          "admitted_mib": 23121.357,
+          "decisions": [
+            {
+              "atSeconds": 59,
+              "budgetMiBps": 21,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 22,
+              "previousBudgetMiBps": 21,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 179,
+              "budgetMiBps": 23,
+              "previousBudgetMiBps": 22,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 239,
+              "budgetMiBps": 24,
+              "previousBudgetMiBps": 23,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 299,
+              "budgetMiBps": 25,
+              "previousBudgetMiBps": 24,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 359,
+              "budgetMiBps": 26,
+              "previousBudgetMiBps": 25,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 419,
+              "budgetMiBps": 27,
+              "previousBudgetMiBps": 26,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 479,
+              "budgetMiBps": 28,
+              "previousBudgetMiBps": 27,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 539,
+              "budgetMiBps": 29,
+              "previousBudgetMiBps": 28,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 599,
+              "budgetMiBps": 30,
+              "previousBudgetMiBps": 29,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2145.8,
+          "limit_changes": 10,
+          "limit_changes_per_hour": 24.0,
+          "recovery_seconds": 0,
+          "severe_seconds": 0,
+          "strategy": "aimd_conservative",
+          "unsafe_seconds": 0
+        },
+        {
+          "admission_percent": 63.88,
+          "admitted_mib": 21128.237,
+          "decisions": [
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 20.5,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 239,
+              "budgetMiBps": 21.0,
+              "previousBudgetMiBps": 20.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 359,
+              "budgetMiBps": 21.5,
+              "previousBudgetMiBps": 21.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 479,
+              "budgetMiBps": 22.0,
+              "previousBudgetMiBps": 21.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 599,
+              "budgetMiBps": 22.5,
+              "previousBudgetMiBps": 22.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 719,
+              "budgetMiBps": 23.0,
+              "previousBudgetMiBps": 22.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 839,
+              "budgetMiBps": 23.5,
+              "previousBudgetMiBps": 23.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 959,
+              "budgetMiBps": 24.0,
+              "previousBudgetMiBps": 23.5,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1079,
+              "budgetMiBps": 24.5,
+              "previousBudgetMiBps": 24.0,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 1199,
+              "budgetMiBps": 25,
+              "previousBudgetMiBps": 24.5,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2348.22,
+          "limit_changes": 10,
+          "limit_changes_per_hour": 24.0,
+          "recovery_seconds": 0,
+          "severe_seconds": 0,
+          "strategy": "aimd_poc_tuned",
+          "unsafe_seconds": 0
+        },
+        {
+          "admission_percent": 59.26,
+          "admitted_mib": 19602.237,
+          "decisions": [],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 2531.02,
+          "limit_changes": 0,
+          "limit_changes_per_hour": 0.0,
+          "recovery_seconds": 0,
+          "severe_seconds": 0,
+          "strategy": "fixed_20",
+          "unsafe_seconds": 0
+        },
+        {
+          "admission_percent": 77.29,
+          "admitted_mib": 25565.937,
+          "decisions": [
+            {
+              "atSeconds": 59,
+              "budgetMiBps": 22,
+              "previousBudgetMiBps": 20,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 119,
+              "budgetMiBps": 24,
+              "previousBudgetMiBps": 22,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 179,
+              "budgetMiBps": 26,
+              "previousBudgetMiBps": 24,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 239,
+              "budgetMiBps": 28,
+              "previousBudgetMiBps": 26,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 299,
+              "budgetMiBps": 30,
+              "previousBudgetMiBps": 28,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 359,
+              "budgetMiBps": 32,
+              "previousBudgetMiBps": 30,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 419,
+              "budgetMiBps": 34,
+              "previousBudgetMiBps": 32,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 479,
+              "budgetMiBps": 36,
+              "previousBudgetMiBps": 34,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 539,
+              "budgetMiBps": 38,
+              "previousBudgetMiBps": 36,
+              "reason": "additive_increase"
+            },
+            {
+              "atSeconds": 599,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 38,
+              "reason": "additive_increase"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 1940.62,
+          "limit_changes": 10,
+          "limit_changes_per_hour": 24.0,
+          "recovery_seconds": 10,
+          "severe_seconds": 0,
+          "strategy": "aimd_balanced",
+          "unsafe_seconds": 2
+        },
+        {
+          "admission_percent": 75.97,
+          "admitted_mib": 25127.157,
+          "decisions": [
+            {
+              "atSeconds": 9,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 20,
+              "reason": "healthy_step"
+            },
+            {
+              "atSeconds": 769,
+              "budgetMiBps": 10,
+              "previousBudgetMiBps": 40,
+              "reason": "pressure_step"
+            },
+            {
+              "atSeconds": 799,
+              "budgetMiBps": 40,
+              "previousBudgetMiBps": 10,
+              "reason": "healthy_step"
+            }
+          ],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 1974.51,
+          "limit_changes": 3,
+          "limit_changes_per_hour": 7.2,
+          "recovery_seconds": 10,
+          "severe_seconds": 0,
+          "strategy": "step_5_10_40",
+          "unsafe_seconds": 2
+        },
+        {
+          "admission_percent": 100.0,
+          "admitted_mib": 33075.824,
+          "decisions": [],
+          "demanded_mib": 33075.824,
+          "estimated_completion_seconds": 1500.0,
+          "limit_changes": 0,
+          "limit_changes_per_hour": 0.0,
+          "recovery_seconds": 11,
+          "severe_seconds": 4,
+          "strategy": "no_limit",
+          "unsafe_seconds": 71
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Observed replay says what the controller would decide; it does not alter captured wait values.",
+    "Counterfactual wait values come from explicit monotonic models, not causal production measurements.",
+    "One incident cannot establish a globally optimal policy; the recommendation is shadow-only."
+  ],
+  "mode": "offline-read-only-poc",
+  "observedShadowReplay": {
+    "decisions": [
+      {
+        "atSeconds": 2,
+        "budgetMiBps": 5,
+        "previousBudgetMiBps": 20,
+        "reason": "emergency"
+      }
+    ],
+    "finalBudgetMiBps": 5,
+    "kind": "observed-shadow-replay",
+    "observedWaitMilliseconds": [
+      99.848624,
+      89.302025,
+      126.287872,
+      126.816015,
+      80.726442,
+      82.691737,
+      50.04293,
+      89.187765,
+      348.86717,
+      150.656629,
+      68.258264,
+      22.10823
+    ]
+  },
+  "parameterSearch": {
+    "eligiblePolicies": 198,
+    "evaluatedPolicies": 972,
+    "kind": "bounded-grid-search",
+    "objective": "maximize aggregate admitted MiB subject to unsafe seconds <= fixed_20 in every model",
+    "selectedPolicy": {
+      "additive_increase_mibps": 0.5,
+      "breach_windows": 2,
+      "cooldown_seconds": 60,
+      "emergency_wait_milliseconds": 100,
+      "healthy_wait_milliseconds": 15,
+      "healthy_windows": 12,
+      "initial_budget_mibps": 20,
+      "maximum_budget_mibps": 25,
+      "minimum_budget_mibps": 5,
+      "multiplicative_decrease": 0.5,
+      "target_wait_milliseconds": 25
+    },
+    "selectedResults": {
+      "conservative": {
+        "admission_percent": 60.11,
+        "admitted_mib": 19881.237,
+        "decisions": [
+          {
+            "atSeconds": 119,
+            "budgetMiBps": 20.5,
+            "previousBudgetMiBps": 20,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 1089,
+            "budgetMiBps": 21.0,
+            "previousBudgetMiBps": 20.5,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 1389,
+            "budgetMiBps": 21.5,
+            "previousBudgetMiBps": 21.0,
+            "reason": "additive_increase"
+          }
+        ],
+        "demanded_mib": 33075.824,
+        "estimated_completion_seconds": 2495.51,
+        "limit_changes": 3,
+        "limit_changes_per_hour": 7.2,
+        "recovery_seconds": 9,
+        "severe_seconds": 0,
+        "strategy": "search_candidate",
+        "unsafe_seconds": 1
+      },
+      "nominal": {
+        "admission_percent": 63.73,
+        "admitted_mib": 21077.737,
+        "decisions": [
+          {
+            "atSeconds": 119,
+            "budgetMiBps": 20.5,
+            "previousBudgetMiBps": 20,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 239,
+            "budgetMiBps": 21.0,
+            "previousBudgetMiBps": 20.5,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 359,
+            "budgetMiBps": 21.5,
+            "previousBudgetMiBps": 21.0,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 479,
+            "budgetMiBps": 22.0,
+            "previousBudgetMiBps": 21.5,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 599,
+            "budgetMiBps": 22.5,
+            "previousBudgetMiBps": 22.0,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 719,
+            "budgetMiBps": 23.0,
+            "previousBudgetMiBps": 22.5,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 889,
+            "budgetMiBps": 23.5,
+            "previousBudgetMiBps": 23.0,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 1009,
+            "budgetMiBps": 24.0,
+            "previousBudgetMiBps": 23.5,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 1129,
+            "budgetMiBps": 24.5,
+            "previousBudgetMiBps": 24.0,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 1249,
+            "budgetMiBps": 25,
+            "previousBudgetMiBps": 24.5,
+            "reason": "additive_increase"
+          }
+        ],
+        "demanded_mib": 33075.824,
+        "estimated_completion_seconds": 2353.85,
+        "limit_changes": 10,
+        "limit_changes_per_hour": 24.0,
+        "recovery_seconds": 0,
+        "severe_seconds": 0,
+        "strategy": "search_candidate",
+        "unsafe_seconds": 0
+      },
+      "optimistic": {
+        "admission_percent": 63.88,
+        "admitted_mib": 21128.237,
+        "decisions": [
+          {
+            "atSeconds": 119,
+            "budgetMiBps": 20.5,
+            "previousBudgetMiBps": 20,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 239,
+            "budgetMiBps": 21.0,
+            "previousBudgetMiBps": 20.5,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 359,
+            "budgetMiBps": 21.5,
+            "previousBudgetMiBps": 21.0,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 479,
+            "budgetMiBps": 22.0,
+            "previousBudgetMiBps": 21.5,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 599,
+            "budgetMiBps": 22.5,
+            "previousBudgetMiBps": 22.0,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 719,
+            "budgetMiBps": 23.0,
+            "previousBudgetMiBps": 22.5,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 839,
+            "budgetMiBps": 23.5,
+            "previousBudgetMiBps": 23.0,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 959,
+            "budgetMiBps": 24.0,
+            "previousBudgetMiBps": 23.5,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 1079,
+            "budgetMiBps": 24.5,
+            "previousBudgetMiBps": 24.0,
+            "reason": "additive_increase"
+          },
+          {
+            "atSeconds": 1199,
+            "budgetMiBps": 25,
+            "previousBudgetMiBps": 24.5,
+            "reason": "additive_increase"
+          }
+        ],
+        "demanded_mib": 33075.824,
+        "estimated_completion_seconds": 2348.22,
+        "limit_changes": 10,
+        "limit_changes_per_hour": 24.0,
+        "recovery_seconds": 0,
+        "severe_seconds": 0,
+        "strategy": "search_candidate",
+        "unsafe_seconds": 0
+      }
+    },
+    "warning": "POC fit on one incident; validate on more incidents and in shadow mode before actuation."
+  },
+  "parameterSensitivity": {
+    "kind": "one-at-a-time-neighborhood",
+    "rows": [
+      {
+        "aggregateAdmissionPercent": 59.26,
+        "parameter": "maximum_budget_mibps",
+        "passesSafetyGate": true,
+        "selectedValue": false,
+        "totalLimitChanges": 0,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 20
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "maximum_budget_mibps",
+        "passesSafetyGate": true,
+        "selectedValue": true,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 25
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "maximum_budget_mibps",
+        "passesSafetyGate": true,
+        "selectedValue": false,
+        "totalLimitChanges": 27,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 30
+      },
+      {
+        "aggregateAdmissionPercent": 60.92,
+        "parameter": "additive_increase_mibps",
+        "passesSafetyGate": true,
+        "selectedValue": false,
+        "totalLimitChanges": 27,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 0.25
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "additive_increase_mibps",
+        "passesSafetyGate": true,
+        "selectedValue": true,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 0.5
+      },
+      {
+        "aggregateAdmissionPercent": 64.07,
+        "parameter": "additive_increase_mibps",
+        "passesSafetyGate": false,
+        "selectedValue": false,
+        "totalLimitChanges": 13,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 1,
+          "optimistic": 0
+        },
+        "value": 1
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "multiplicative_decrease",
+        "passesSafetyGate": true,
+        "selectedValue": false,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 0.3
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "multiplicative_decrease",
+        "passesSafetyGate": true,
+        "selectedValue": true,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 0.5
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "multiplicative_decrease",
+        "passesSafetyGate": true,
+        "selectedValue": false,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 0.7
+      },
+      {
+        "aggregateAdmissionPercent": 64.29,
+        "parameter": "healthy_windows",
+        "passesSafetyGate": false,
+        "selectedValue": false,
+        "totalLimitChanges": 28,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 1,
+          "optimistic": 0
+        },
+        "value": 6
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "healthy_windows",
+        "passesSafetyGate": true,
+        "selectedValue": true,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 12
+      },
+      {
+        "aggregateAdmissionPercent": 61.41,
+        "parameter": "healthy_windows",
+        "passesSafetyGate": true,
+        "selectedValue": false,
+        "totalLimitChanges": 18,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 18
+      },
+      {
+        "aggregateAdmissionPercent": 59.32,
+        "parameter": "breach_windows",
+        "passesSafetyGate": true,
+        "selectedValue": false,
+        "totalLimitChanges": 28,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 1
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "breach_windows",
+        "passesSafetyGate": true,
+        "selectedValue": true,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 2
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "breach_windows",
+        "passesSafetyGate": true,
+        "selectedValue": false,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 3
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "cooldown_seconds",
+        "passesSafetyGate": true,
+        "selectedValue": false,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 30
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "cooldown_seconds",
+        "passesSafetyGate": true,
+        "selectedValue": true,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 60
+      },
+      {
+        "aggregateAdmissionPercent": 62.57,
+        "parameter": "cooldown_seconds",
+        "passesSafetyGate": true,
+        "selectedValue": false,
+        "totalLimitChanges": 23,
+        "unsafeSeconds": {
+          "conservative": 1,
+          "nominal": 0,
+          "optimistic": 0
+        },
+        "value": 90
+      }
+    ],
+    "warning": "Sensitivity is model-assisted and holds all non-varied parameters constant."
+  },
+  "schemaVersion": 1,
+  "selectionGate": {
+    "eligibleAdaptiveStrategies": [
+      "aimd_poc_tuned"
+    ],
+    "fixed20UnsafeSeconds": {
+      "conservative": 1,
+      "nominal": 0,
+      "optimistic": 0
+    },
+    "recommendedShadowCandidate": "aimd_poc_tuned",
+    "rejectedAdaptiveStrategies": [
+      "aimd_balanced",
+      "aimd_conservative",
+      "aimd_responsive"
+    ],
+    "rule": "adaptive unsafe_seconds must be <= fixed_20 in every model"
+  },
+  "trace": {
+    "firstTimestamp": "2026-07-31T14:55:04Z",
+    "incidentSeconds": 18,
+    "lastTimestamp": "2026-07-31T15:20:03Z",
+    "seconds": 1500
+  }
+}

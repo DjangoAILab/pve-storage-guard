@@ -1,0 +1,29 @@
+<section id="incident-signal" class="signal-panel" aria-labelledby="signal-title">
+  <div class="signal-copy">
+    <p class="eyebrow">REFERENCE INCIDENT · ANONYMIZED</p>
+    <h2 id="signal-title">The pool was healthy.<br />The control plane was not.</h2>
+    <p>
+      A single bulk disk reached <strong>115.36 MiB/s</strong> while shared ZFS
+      write wait peaked at <strong>348.87 ms</strong>. Capacity checks stayed
+      green; SSH and durability-sensitive services did not.
+    </p>
+  </div>
+  <div class="scope" aria-label="Observed incident signals">
+    <div class="scope-grid" aria-hidden="true"></div>
+    <div class="trace trace-safe"><span>25 ms target</span></div>
+    <div class="trace trace-observed">
+      <i style="--h: 28%"></i><i style="--h: 25%"></i><i style="--h: 36%"></i>
+      <i style="--h: 36%"></i><i style="--h: 23%"></i><i style="--h: 24%"></i>
+      <i style="--h: 14%"></i><i style="--h: 25%"></i><i style="--h: 100%"></i>
+      <i style="--h: 43%"></i><i style="--h: 19%"></i><i style="--h: 6%"></i>
+    </div>
+    <div class="scope-labels"><span>12-second observed window</span><span>write wait</span></div>
+  </div>
+</section>
+
+<section class="decision-strip" aria-label="Control loop summary">
+  <div><b>01</b><span>Observe</span><small>latency · PSI · queue · management</small></div>
+  <div><b>02</b><span>Decide</span><small>one bounded actor per storage domain</small></div>
+  <div><b>03</b><span>Verify</span><small>desired ≠ effective until read-back</small></div>
+  <div><b>04</b><span>Explain</span><small>policy · evidence · reason · outcome</small></div>
+</section>

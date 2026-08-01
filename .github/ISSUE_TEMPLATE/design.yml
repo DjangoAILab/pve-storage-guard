@@ -1,0 +1,30 @@
+name: Design proposal
+description: Propose a policy, adapter, integration, or architecture change
+title: "[Design]: "
+labels: ["design", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and operator outcome
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Component and privilege boundary
+      description: Explain what owns observation, policy, safety, and actuation.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and tradeoffs
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Replay, failure, and rollback validation
+    validations:
+      required: true

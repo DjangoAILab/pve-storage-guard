@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/disk-enrollment.json",
+  "title": "PVE Storage Guard disk enrollment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "kind": { "const": "DiskEnrollment" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": { "name": { "type": "string", "minLength": 1, "maxLength": 128 } }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storageDomain", "resourceKey", "criticality", "envelope"],
+      "properties": {
+        "storageDomain": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "resourceKey": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "workloadClass": { "type": "string", "maxLength": 128 },
+        "criticality": { "const": "non-critical" },
+        "envelope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["minimumMiBPS", "maximumMiBPS", "weight"],
+          "properties": {
+            "minimumMiBPS": { "type": "number", "minimum": 0 },
+            "maximumMiBPS": { "type": "number", "minimum": 0 },
+            "weight": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        }
+      }
+    }
+  }
+}

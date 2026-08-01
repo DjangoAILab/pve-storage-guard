@@ -1,0 +1,32 @@
+# Editors and operating systems
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Python reference PoC
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Go
+/bin/
+/dist/
+coverage.out
+
+# Documentation site
+/website/node_modules/
+/website/dist/
+/website/.astro/
+
+# Local configuration, secrets, and runtime state
+.env
+.env.*
+!.env.example
+*.local.yaml
+*.local.yml
+/state/
+/tmp/

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/storage-domain-policy.json",
+  "title": "PVE Storage Guard storage-domain policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "kind": { "const": "StorageDomainPolicy" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 128 }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "controlIntervalSeconds", "cooldownSeconds", "telemetryMaxAgeSeconds", "latency", "budget", "aimd"],
+      "properties": {
+        "mode": { "enum": ["observer", "shadow", "canary", "enforce"] },
+        "controlIntervalSeconds": { "type": "integer", "minimum": 1, "maximum": 300 },
+        "cooldownSeconds": { "type": "integer", "minimum": 0, "maximum": 3600 },
+        "telemetryMaxAgeSeconds": { "type": "integer", "minimum": 1, "maximum": 300 },
+        "latency": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["healthyP95Milliseconds", "targetP95Milliseconds", "emergencyMilliseconds"],
+          "properties": {
+            "healthyP95Milliseconds": { "type": "number", "minimum": 0 },
+            "targetP95Milliseconds": { "type": "number", "exclusiveMinimum": 0 },
+            "emergencyMilliseconds": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["minimumMiBPS", "initialMiBPS", "maximumMiBPS"],
+          "properties": {
+            "minimumMiBPS": { "type": "number", "exclusiveMinimum": 0 },
+            "initialMiBPS": { "type": "number", "exclusiveMinimum": 0 },
+            "maximumMiBPS": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        },
+        "aimd": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["additiveIncreaseMiBPS", "multiplicativeDecrease", "healthyWindows", "breachWindows"],
+          "properties": {
+            "additiveIncreaseMiBPS": { "type": "number", "exclusiveMinimum": 0 },
+            "multiplicativeDecrease": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+            "healthyWindows": { "type": "integer", "minimum": 1 },
+            "breachWindows": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    }
+  }
+}

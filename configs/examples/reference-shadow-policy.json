@@ -1,0 +1,30 @@
+{
+  "apiVersion": "guard.storage-slo.io/v1alpha1",
+  "kind": "StorageDomainPolicy",
+  "metadata": {
+    "name": "reference-bulk-pool",
+    "version": "poc-shadow-1"
+  },
+  "spec": {
+    "mode": "shadow",
+    "controlIntervalSeconds": 10,
+    "cooldownSeconds": 60,
+    "telemetryMaxAgeSeconds": 5,
+    "latency": {
+      "healthyP95Milliseconds": 15,
+      "targetP95Milliseconds": 25,
+      "emergencyMilliseconds": 100
+    },
+    "budget": {
+      "minimumMiBPS": 5,
+      "initialMiBPS": 20,
+      "maximumMiBPS": 25
+    },
+    "aimd": {
+      "additiveIncreaseMiBPS": 0.5,
+      "multiplicativeDecrease": 0.5,
+      "healthyWindows": 12,
+      "breachWindows": 2
+    }
+  }
+}
