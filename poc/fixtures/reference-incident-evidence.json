@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "kind": "observed-summary",
+    "recoveredFrom": "retained operational evidence",
+    "independenceGroup": "reference-incident"
+  },
+  "timeline": {
+    "writeWaitSeries": {
+      "metric": "zfs.pool.write_total_wait",
+      "units": "milliseconds",
+      "sampleIntervalSeconds": 1,
+      "sampleCount": 12,
+      "canonicalSamplesSha256": "sha256:952a3b39d4e144505fffd4c305ee245c4728989fb49a213da34171a8fbee557a"
+    },
+    "events": [
+      {
+        "kind": "durability_degradation_first",
+        "observedAt": "2026-07-31T15:05:13Z"
+      },
+      {
+        "kind": "management_service_restart",
+        "observedAt": "2026-07-31T15:06:49Z"
+      },
+      {
+        "kind": "write_wait_sampling_started",
+        "observedAt": "2026-07-31T15:07:42Z"
+      }
+    ],
+    "missingSignals": [
+      "io_psi",
+      "queue_depth",
+      "management_probe_series"
+    ]
+  },
+  "fieldValidations": [
+    {
+      "kind": "fixed_cap_natural_load",
+      "independenceGroup": "reference-incident",
+      "capMiBps": 20,
+      "controlledLoadStarted": false,
+      "sampleCount": 60,
+      "unsafeThresholdMilliseconds": 25,
+      "unsafeSampleCount": 22,
+      "p99WriteWaitMilliseconds": 234.065464,
+      "replayable": false,
+      "outcome": "rejected_and_rolled_back"
+    }
+  ]
+}

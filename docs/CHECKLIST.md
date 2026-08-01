@@ -29,7 +29,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [x] Define conservative, nominal, and optimistic storage models.
 - [x] Define a safety-first selection gate and bounded parameter search.
 - [x] Migrate the replay code and anonymized fixtures into this repository.
-- [x] Run all 19 offline Python tests and reproduce Markdown/JSON reports locally.
+- [x] Run all 30 offline Python tests and reproduce Markdown/JSON reports locally.
   Evidence: `poc/results/report.md` and `poc/results/report.json`.
 - [x] Add estimated job completion time and hourly decision churn to the report.
 - [x] Record unavailable historical IOPS, PSI, queue, and management-plane
@@ -156,8 +156,14 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [x] Run the observer locally in shadow mode and capture a structurally valid,
   non-actuating proposal (`actuationAllowed=false`). Evidence: documented
   quick-start plus the 2026-08-01 local test run.
-- [ ] Verify that it detects the historical incident signature early enough to
-  be operationally useful.
+- [~] Verify that it detects the historical incident signature early enough to
+  be operationally useful. The generated evidence gate finds two consecutive
+  samples above 25 ms one second after retained collection starts and a 100 ms
+  sample at offset two seconds. However collection began 53 seconds after the
+  management-failure marker, so advance warning is not proven; PSI, queue, and
+  management-probe series are also absent. A separate same-episode aggregate
+  check rejected and rolled back fixed 20 after 22/60 unsafe samples and a
+  234.065464 ms p99, but cannot be replayed or count as an independent trace.
 - [~] Add ITOps ingestion for storage latency, PSI, queue, management-plane
   health, and controller state. Internal draft PR #37 now has a
   read-only `pve.storage-pressure` probe and mappings for PSI, in-flight I/O,

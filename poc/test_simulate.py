@@ -64,13 +64,34 @@ class RankingTests(unittest.TestCase):
 
 
 class ReportGateTests(unittest.TestCase):
+    def test_report_exposes_detection_coverage_and_fixed_cap_contradiction(self):
+        fixture_dir = Path(__file__).resolve().parent / "fixtures"
+        with (fixture_dir / "reference-demand-trace.json").open(encoding="utf-8") as handle:
+            demand = json.load(handle)
+        with (fixture_dir / "reference-write-wait-trace.json").open(encoding="utf-8") as handle:
+            waits = json.load(handle)
+        with (fixture_dir / "reference-incident-evidence.json").open(encoding="utf-8") as handle:
+            incident = json.load(handle)
+        report = run_poc(demand, waits, incident)
+        assessment = report["observedIncidentAssessment"]
+        self.assertEqual(assessment["detection"]["pressureDetectionOffsetSeconds"], 1)
+        self.assertFalse(assessment["detection"]["advanceWarningProven"])
+        self.assertEqual(
+            assessment["fieldValidation"]["productionFallbackStatus"],
+            "rejected_by_observed_field_check",
+        )
+        self.assertTrue(report["selectionGate"]["productionPromotionBlocked"])
+        self.assertEqual(report["selectionGate"]["fixed20Role"], "model_comparator_only")
+
     def test_recommended_candidate_is_no_less_safe_than_fixed_in_every_model(self):
         fixture_dir = Path(__file__).resolve().parent / "fixtures"
         with (fixture_dir / "reference-demand-trace.json").open(encoding="utf-8") as handle:
             demand = json.load(handle)
         with (fixture_dir / "reference-write-wait-trace.json").open(encoding="utf-8") as handle:
             waits = json.load(handle)
-        report = run_poc(demand, waits)
+        with (fixture_dir / "reference-incident-evidence.json").open(encoding="utf-8") as handle:
+            incident = json.load(handle)
+        report = run_poc(demand, waits, incident)
         candidate = report["selectionGate"]["recommendedShadowCandidate"]
         self.assertEqual(candidate, "aimd_poc_tuned")
         for scenario in report["counterfactual"].values():
@@ -86,7 +107,9 @@ class ReportGateTests(unittest.TestCase):
             demand = json.load(handle)
         with (fixture_dir / "reference-write-wait-trace.json").open(encoding="utf-8") as handle:
             waits = json.load(handle)
-        report = run_poc(demand, waits)
+        with (fixture_dir / "reference-incident-evidence.json").open(encoding="utf-8") as handle:
+            incident = json.load(handle)
+        report = run_poc(demand, waits, incident)
         rows = report["parameterSensitivity"]["rows"]
         self.assertEqual(len(rows), 18)
         selected_rows = [row for row in rows if row["selectedValue"]]

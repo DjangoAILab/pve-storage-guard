@@ -9,6 +9,7 @@
   "pool": "reference-node/bulk-pool",
   "metric": "zfs.pool.write_total_wait",
   "units": "milliseconds",
+  "sampleIntervalSeconds": 1,
   "samples": [
     99.848624,
     89.302025,

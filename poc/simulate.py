@@ -15,6 +15,7 @@ from pathlib import Path
 from statistics import quantiles
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
+from incident_evidence import assess_incident_evidence
 from storage_control import AimdController, Feedback, FixedController, PoolPolicy, StepController
 
 
@@ -422,9 +423,14 @@ def analyze_parameter_sensitivity(
     }
 
 
-def run_poc(demand_fixture: Dict[str, object], wait_fixture: Dict[str, object]) -> Dict[str, object]:
+def run_poc(
+    demand_fixture: Dict[str, object],
+    wait_fixture: Dict[str, object],
+    incident_evidence: Dict[str, object],
+) -> Dict[str, object]:
     trace = build_demand_trace(demand_fixture)
     observed_waits = [float(value) for value in wait_fixture["samples"]]
+    incident_assessment = assess_incident_evidence(wait_fixture, incident_evidence)
     models = [
         PoolModel("conservative", 12, 15, 1.2),
         PoolModel("nominal", 10, 20, 0.9),
@@ -514,6 +520,7 @@ def run_poc(demand_fixture: Dict[str, object], wait_fixture: Dict[str, object]) 
             "incidentSeconds": sum(sample.incident_override for sample in trace),
         },
         "observedShadowReplay": replay_observed_wait(shadow_controller, observed_waits),
+        "observedIncidentAssessment": incident_assessment,
         "counterfactual": scenarios,
         "parameterSearch": tuning_evidence,
         "parameterSensitivity": parameter_sensitivity,
@@ -526,9 +533,13 @@ def run_poc(demand_fixture: Dict[str, object], wait_fixture: Dict[str, object]) 
             "eligibleAdaptiveStrategies": eligible_names,
             "rejectedAdaptiveStrategies": rejected,
             "recommendedShadowCandidate": recommended,
+            "fixed20Role": "model_comparator_only",
+            "productionPromotionBlocked": incident_assessment["productionPromotionBlocked"],
         },
         "limitations": [
             "Observed replay says what the controller would decide; it does not alter captured wait values.",
+            "Retained write-wait telemetry starts after the management failure marker, so advance warning is not proven.",
+            "The fixed-20 field check is aggregate, same-episode, and non-replayable; it rejects a production fallback claim but is not an independent trace.",
             "Counterfactual wait values come from explicit monotonic models, not causal production measurements.",
             "One incident cannot establish a globally optimal policy; the recommendation is shadow-only.",
         ],
@@ -548,9 +559,44 @@ def render_markdown(report: Dict[str, object]) -> str:
         "- Eligible adaptive strategies: " + ", ".join(report["selectionGate"]["eligibleAdaptiveStrategies"]),
         "- Rejected adaptive strategies: " + (", ".join(report["selectionGate"]["rejectedAdaptiveStrategies"]) or "none"),
         "",
-        "## Counterfactual comparison",
+        "## Retained incident detection coverage",
         "",
     ]
+    assessment = report["observedIncidentAssessment"]
+    detection = assessment["detection"]
+    field = assessment["fieldValidation"]
+    lines.extend([
+        "- Write-wait sampling began {lag}s after the retained management-failure marker.".format(
+            lag=detection["samplingStartedAfterFailureSeconds"]
+        ),
+        "- Two consecutive samples above {threshold:g} ms detected pressure {offset}s after sampling began ({after}s after the failure marker).".format(
+            threshold=detection["pressureThresholdMilliseconds"],
+            offset=detection["pressureDetectionOffsetSeconds"],
+            after=detection["pressureDetectionAfterFailureSeconds"],
+        ),
+        "- The first sample at or above {threshold:g} ms appeared at offset {offset}s.".format(
+            threshold=detection["criticalThresholdMilliseconds"],
+            offset=detection["criticalDetectionOffsetSeconds"],
+        ),
+        "- Advance warning: **not proven**; the retained telemetry begins after failure.",
+        "- Missing historical corroboration: " + ", ".join(assessment["corroboration"]["missingSignals"]) + ".",
+        "",
+        "## Observed fixed-cap field check",
+        "",
+        "- A {cap:g} MiB/s cap natural-load baseline had {unsafe}/{total} samples ({percent:.2f}%) above {threshold:g} ms; p99 was {p99:.6f} ms.".format(
+            cap=field["capMiBps"],
+            unsafe=field["unsafeSampleCount"],
+            total=field["sampleCount"],
+            percent=field["unsafeSamplePercent"],
+            threshold=field["unsafeThresholdMilliseconds"],
+            p99=field["p99WriteWaitMilliseconds"],
+        ),
+        "- Controlled load was not started; the cap was rejected and rolled back.",
+        "- This aggregate same-episode result is non-replayable and not independent. Fixed 20 remains a model comparator, not a validated production fallback.",
+        "",
+        "## Counterfactual comparison",
+        "",
+    ])
     for name, scenario in report["counterfactual"].items():
         lines.extend([
             "### " + name,
@@ -596,13 +642,16 @@ def main() -> None:
     fixture_dir = Path(__file__).resolve().parent / "fixtures"
     parser.add_argument("--demand", type=Path, default=fixture_dir / "reference-demand-trace.json")
     parser.add_argument("--wait", type=Path, default=fixture_dir / "reference-write-wait-trace.json")
+    parser.add_argument("--incident-evidence", type=Path, default=fixture_dir / "reference-incident-evidence.json")
     parser.add_argument("--format", choices=("json", "markdown"), default="json")
     args = parser.parse_args()
     with args.demand.open(encoding="utf-8") as handle:
         demand_fixture = json.load(handle)
     with args.wait.open(encoding="utf-8") as handle:
         wait_fixture = json.load(handle)
-    report = run_poc(demand_fixture, wait_fixture)
+    with args.incident_evidence.open(encoding="utf-8") as handle:
+        incident_evidence = json.load(handle)
+    report = run_poc(demand_fixture, wait_fixture, incident_evidence)
     if args.format == "markdown":
         print(render_markdown(report))
     else:

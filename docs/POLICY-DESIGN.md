@@ -165,5 +165,9 @@ search. It does not learn online. A proposed default must:
 - remain stable under parameter-neighbor sensitivity;
 - pass an independent trace and controlled load test.
 
-If these gates fail, keep or tighten the fixed fallback and revise the policy;
-do not promote a visually appealing throughput result.
+The 20 MiB/s comparator is not a production fallback: a same-episode observed
+natural-load check exceeded the latency gate in 22 of 60 samples and was rolled
+back. If promotion gates fail, remain in shadow mode and derive a reviewed
+storage-domain-specific static rollback limit; do not promote a visually
+appealing throughput result or assume that tightening one disk alone protects a
+shared domain.

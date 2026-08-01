@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guard.storage-slo.io/schema/poc/incident-evidence.schema.json",
+  "title": "Sanitized incident evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "source", "timeline", "fieldValidations"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "recoveredFrom", "independenceGroup"],
+      "properties": {
+        "kind": { "const": "observed-summary" },
+        "recoveredFrom": { "type": "string", "minLength": 1 },
+        "independenceGroup": { "type": "string", "minLength": 1 }
+      }
+    },
+    "timeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["writeWaitSeries", "events", "missingSignals"],
+      "properties": {
+        "writeWaitSeries": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["metric", "units", "sampleIntervalSeconds", "sampleCount", "canonicalSamplesSha256"],
+          "properties": {
+            "metric": { "const": "zfs.pool.write_total_wait" },
+            "units": { "const": "milliseconds" },
+            "sampleIntervalSeconds": { "const": 1 },
+            "sampleCount": { "type": "integer", "minimum": 1 },
+            "canonicalSamplesSha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+          }
+        },
+        "events": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "observedAt"],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "durability_degradation_first",
+                  "management_service_restart",
+                  "write_wait_sampling_started"
+                ]
+              },
+              "observedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "missingSignals": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["io_psi", "queue_depth", "management_probe_series"]
+          }
+        }
+      }
+    },
+    "fieldValidations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "independenceGroup",
+          "capMiBps",
+          "controlledLoadStarted",
+          "sampleCount",
+          "unsafeThresholdMilliseconds",
+          "unsafeSampleCount",
+          "p99WriteWaitMilliseconds",
+          "replayable",
+          "outcome"
+        ],
+        "properties": {
+          "kind": { "const": "fixed_cap_natural_load" },
+          "independenceGroup": { "type": "string", "minLength": 1 },
+          "capMiBps": { "type": "number", "exclusiveMinimum": 0 },
+          "controlledLoadStarted": { "const": false },
+          "sampleCount": { "type": "integer", "minimum": 1 },
+          "unsafeThresholdMilliseconds": { "type": "number", "exclusiveMinimum": 0 },
+          "unsafeSampleCount": { "type": "integer", "minimum": 0 },
+          "p99WriteWaitMilliseconds": { "type": "number", "minimum": 0 },
+          "replayable": { "const": false },
+          "outcome": { "const": "rejected_and_rolled_back" }
+        }
+      }
+    }
+  }
+}
