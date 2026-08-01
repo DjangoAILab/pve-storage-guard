@@ -41,6 +41,18 @@ The journal must not share the storage domain being guarded. Slow or failed
 sync intentionally stops shadow output; batching or asynchronous persistence
 would weaken the current persist-before-output boundary and is not enabled.
 
+For audit handoff, first stop or detach the writer, rotate the file under the
+site's approved procedure, and run `pve-storage-guard journal verify --journal
+SEALED.jsonl`. The read-only verifier refuses an active writer, unsafe file,
+oversized or malformed event, forged linkage, inconsistent age, and journals
+containing multiple storage domains. Its versioned output contains counts and
+time bounds but no resource identities.
+
+Verification is structural only. It is not a signature, sanitization result,
+publication approval, or permission to ingest. The current code performs no
+rotation or import; an ITOps persistence adapter remains an explicit future
+approval gate.
+
 This is a local single-writer handoff only. It has no network exporter, ITOps
 callback, rotation manager, actuator, or public-trace sanitization. An approved
 ITOps ingestion/linking adapter remains future work.

@@ -110,6 +110,29 @@ path must not share the storage domain being guarded. A slow or failed journal
 intentionally stops shadow output. Batching or asynchronous writes would change
 that durability boundary and are not enabled implicitly.
 
+### Sealed journal handoff
+
+The audit handoff is intentionally separate from real-time metrics and alerts:
+
+1. Stop or detach the journal writer; do not tail or copy an actively locked
+   file.
+2. Rotate the closed journal with the site's approved local procedure, keeping
+   it private and outside the guarded storage domain.
+3. Run `pve-storage-guard journal verify --journal SEALED.jsonl`. The verifier
+   takes a shared non-blocking lock, enforces the 256 MiB file and 1 MiB event
+   limits, and rejects unsafe files, malformed/unknown fields, forged linkage,
+   inconsistent age, and multiple domains.
+4. Review the identity-free event, changed, policy-version, duplicate, timestamp
+   regression, and time-bound summary. Non-zero anomaly counts are retained for
+   review; the verifier never silently deduplicates or sorts.
+5. Pass the sealed artifact to a separately approved importer only after its
+   authorization, persistence, retention, and incident-linking behavior is
+   reviewed. That importer does not exist in the current public or ITOps draft.
+
+Successful verification proves structural consistency only. It is not a
+signature, tamper-proof provenance, sanitization result, publication approval,
+or permission to ingest the private journal.
+
 The internal ITOps draft now implements the matching pure mapper. Given an
 already-authorized collector target and expected storage domain, it strictly
 validates the complete v1alpha1 event, deterministic event/proposal linkage,

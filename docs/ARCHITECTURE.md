@@ -106,6 +106,14 @@ non-blocking exclusive file lock enforces the single-writer contract. The
 journal stops before 256 MiB and suppresses further proposals until an operator
 rotates it, preventing an unbounded audit file from consuming the filesystem.
 
+The matching read-only verifier is deliberately a sealed-file boundary, not a
+live journal consumer. It takes a non-blocking shared lock, which fails while
+the exclusive writer is active, and validates file safety, size, strict JSONL,
+event/proposal linkage, observation age, and single-domain ownership. Its
+versioned summary contains counts and time bounds but no domain, resource,
+observation, proposal, or event identities. Verification does not rotate,
+persist, transmit, deduplicate, reorder, or authenticate the file.
+
 ## Controller boundary: storage domain first
 
 The primary control key is `(adapter, node, storage-domain)`, not VM or disk.
@@ -128,9 +136,12 @@ controllers, SLOs, capacity baselines, and limit ranges.
    enrollment, desired/effective state, and operating mode.
 6. In observer/shadow mode, an explicitly configured journal is synced before
    the proposal is emitted; neither path can authorize an apply.
-7. In approved canary mode, the constrained actuator snapshots, applies, and
+7. After the writer is stopped or detached, an operator may rotate and verify a
+   sealed journal before a separately approved ITOps import. Active files are
+   never tailed by this handoff.
+8. In approved canary mode, the constrained actuator snapshots, applies, and
    reads back effective state.
-8. Telemetry records the full outcome and ITOps evaluates multi-signal alerts.
+9. Telemetry records the full outcome and ITOps evaluates multi-signal alerts.
 
 ## Deployment modes
 
