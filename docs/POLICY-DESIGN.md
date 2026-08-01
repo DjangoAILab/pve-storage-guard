@@ -88,6 +88,11 @@ Given aggregate budget `B` and enrolled active disks `i`:
 Every control interval uses the p95 write-wait observation for the storage
 domain plus metric freshness and management-plane health:
 
+This is a typed statistic contract, not a generic name for any latency-like
+signal. Average service time or ZFS total-wait requires a separately calibrated
+policy and cannot be substituted for p95. See ADR-0003 and the replay trace
+contract.
+
 - `emergency` or latency >= 100 ms: immediately propose the minimum budget;
 - latency > 25 ms for two consecutive windows: multiply budget by 0.5;
 - latency < 15 ms for twelve consecutive windows: add 0.5 MiB/s;

@@ -109,6 +109,8 @@ as model-assisted estimates and are not presented as measured production gains.
 - [Architecture](docs/ARCHITECTURE.md)
 - [Policy design](docs/POLICY-DESIGN.md)
 - [Offline PoC](docs/POC.md)
+- [Replay trace contract](docs/TRACE-CONTRACT.md)
+- [Performance evidence](docs/PERFORMANCE.md)
 - [Anonymized incident case study](docs/CASE-STUDY.md)
 - [Community context and prior art](docs/PRIOR-ART.md)
 - [ITOps integration](docs/ITOPS-INTEGRATION.md)

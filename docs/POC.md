@@ -27,6 +27,21 @@ The demand trace expands to 1,500 one-second samples and inserts the exact
 its preceding interval. It does not pretend that one-minute counters were
 originally sampled at one second.
 
+### Evidence audit and statistic compatibility
+
+A 2026-08-02 local evidence audit found two other retained storage windows, but
+only aggregate summaries survived: one 30-sample quiet-period gate and one
+60-sample post-change check. Their per-sample series are unavailable, they are
+from the same operational episode, and they cannot be replayed or counted as an
+independent trace.
+
+The twelve incident values are ZFS write total-wait samples. The PoC computes a
+p95 across those sampled values for controller windows; that is not a true p95
+of individual I/O latency. It is valid as an explicitly labeled pressure-proxy
+replay, but it cannot calibrate the online API's p95 thresholds. ADR-0003 and
+the [replay trace contract](TRACE-CONTRACT.md) make this distinction a
+machine-tested promotion gate.
+
 ## Sanitization
 
 Public fixtures replace node, pool, VM, disk, and workload names with semantic
@@ -40,7 +55,8 @@ credentials, guest content, and internal domains are excluded.
 
 Policies consume the exact twelve observed wait values. Decisions do not modify
 the captured series. This lane measures detection time, proposed limits, reason
-codes, and churn only.
+codes, and churn only. Its signal statistic is ZFS total-wait, not a production
+I/O p95.
 
 ### Counterfactual sensitivity replay
 
@@ -123,6 +139,7 @@ or storage-class validation.
 python3 -m unittest discover -s poc -p 'test_*.py' -v
 python3 poc/simulate.py --format markdown
 python3 poc/simulate.py --format json
+python3 poc/trace_contract.py candidate.json --reference-group reference-incident
 ```
 
 Reviewed output snapshots will be stored under `poc/results/`. CI must regenerate
@@ -131,7 +148,9 @@ them and fail on unexplained differences.
 ## Promotion gates
 
 - Reproduced tests and reports from anonymized fixtures.
-- Parameter-neighbor sensitivity and at least one independent trace.
+- Parameter-neighbor sensitivity and at least one independent trace that passes
+  the trace contract's provenance, completeness, independence, and statistic
+  compatibility gates.
 - Several weeks of 1 Hz latency/PSI/queue and management probe history.
 - Controlled non-critical disk load test.
 - Restart, stale metric, lease conflict, apply/read-back mismatch, and rollback

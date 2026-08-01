@@ -55,7 +55,9 @@ limits. Discovery is read-only; actuation is a separate capability.
 
 Collects timestamped pool latency, IOPS, throughput, queue pressure, PSI, disk
 health, and management-plane probes. It normalizes units and reports freshness.
-It does not classify a disk as safe to control.
+It preserves each metric's statistic and provenance: diskstats average service
+time and ZFS total-wait cannot be emitted as an I/O p95. It does not classify a
+disk as safe to control.
 
 ### Policy Engine: `storage-slo-guard`
 

@@ -24,6 +24,8 @@ export default defineConfig({
         ] },
         { label: 'Evidence', items: [
           { label: 'Offline PoC', slug: 'evidence/poc' },
+          { label: 'Replay trace contract', slug: 'evidence/trace-contract' },
+          { label: 'Performance evidence', slug: 'evidence/performance' },
           { label: 'Incident case study', slug: 'evidence/case-study' },
         ] },
         { label: 'Operations', items: [
