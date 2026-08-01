@@ -9,8 +9,9 @@ incident can be useful without being independent production evidence.
 
 Every candidate trace declares its source kind, independence group, storage and
 workload classes, sampling interval, sanitization status, write-wait statistic,
-window aggregation, and provenance. Relative offsets replace host timestamps
-and identities.
+full window duration, window aggregation, and provenance. Relative offsets
+replace host timestamps and identities. Completeness uses the declared window,
+so missing samples at its beginning or end cannot disappear through cropping.
 
 The current controller API consumes a real p95 observation. Diskstats average
 service time and ZFS total-wait must retain those labels; neither can be renamed

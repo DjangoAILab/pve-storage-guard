@@ -11,7 +11,7 @@
     "metadata": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "sourceKind", "independenceGroup", "storageClass", "workloadClass", "sampleIntervalSeconds", "sanitized"],
+      "required": ["name", "sourceKind", "independenceGroup", "storageClass", "workloadClass", "sampleIntervalSeconds", "windowDurationSeconds", "sanitized"],
       "properties": {
         "name": { "type": "string", "minLength": 1, "maxLength": 128 },
         "sourceKind": { "enum": ["observed", "synthetic", "modeled"] },
@@ -19,6 +19,7 @@
         "storageClass": { "enum": ["rotational-hdd", "sata-ssd", "nvme", "network-block", "unknown"] },
         "workloadClass": { "enum": ["bulk-import", "backup", "migration", "build", "database", "mixed", "unknown"] },
         "sampleIntervalSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
+        "windowDurationSeconds": { "type": "integer", "minimum": 1, "maximum": 2678400 },
         "sanitized": { "const": true }
       }
     },

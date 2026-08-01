@@ -14,6 +14,7 @@ def trace_document(source_kind="observed", statistic="p95", aggregation="none", 
             "storageClass": "rotational-hdd",
             "workloadClass": "backup",
             "sampleIntervalSeconds": 1,
+            "windowDurationSeconds": 600,
             "sanitized": True,
         },
         "metricSemantics": {
@@ -66,9 +67,9 @@ class TraceContractTests(unittest.TestCase):
         self.assertTrue(assessment.errors)
         self.assertFalse(assessment.meets_machine_independence_gate)
 
-    def test_sparse_series_is_valid_but_does_not_meet_completeness_gate(self):
+    def test_leading_and_trailing_gaps_count_against_declared_window(self):
         document = trace_document()
-        document["samples"] = document["samples"][::2]
+        document["samples"] = document["samples"][20:-20]
         assessment = assess_trace(document, "reference-incident")
         self.assertEqual(assessment.errors, [])
         self.assertLess(assessment.completeness, 0.95)
