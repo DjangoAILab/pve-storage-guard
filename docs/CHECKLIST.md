@@ -29,7 +29,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [x] Define conservative, nominal, and optimistic storage models.
 - [x] Define a safety-first selection gate and bounded parameter search.
 - [x] Migrate the replay code and anonymized fixtures into this repository.
-- [x] Run all 40 offline Python tests and reproduce Markdown/JSON reports locally.
+- [x] Run all 42 offline Python tests and reproduce Markdown/JSON reports locally.
   Evidence: `poc/results/report.md` and `poc/results/report.json`.
 - [x] Add estimated job completion time and hourly decision churn to the report.
 - [x] Record unavailable historical IOPS, PSI, queue, and management-plane
@@ -231,7 +231,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   validated typed ZFS shadow telemetry `ccbbabd`: quality gates passed in 4m33s
   and the linux/amd64 image build in 5m10s. Internal commits `c2ed208` and
   `db5493b` now
-  persists a staged observer rollout packet with separate merge, probe-write,
+  persist a staged observer rollout packet with separate merge, probe-write,
   application-deploy, alert-arm, journal-registration, and actuation gates. It
   also makes live acceptance verify PSI/diskstats/management provenance,
   detector-v1 labels, the exact 28-rule set, and typed ZFS interval semantics.
@@ -241,7 +241,16 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   [run 158](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/158)
   passed Node quality gates in 4m33s and the linux/amd64 image build in 10m59s;
   the latter recovered through its bounded retry after a transient registry
-  mirror DNS timeout. PR #37 remains Draft and undeployed.
+  mirror DNS timeout. Internal replay-export commits `60b8359` and `8104bb2`
+  now emit v1alpha2, preserve absent management evidence as `unknown`, and type
+  diskstats wait as `block-device`. A compiled-exporter-to-public-assessor
+  synthetic check reported 100% structural/wait/management coverage when both
+  management samples were present and 50% management coverage when one was
+  absent; both correctly remained policy-incompatible and ineligible because
+  average block-device wait is not storage-domain p95. Final internal
+  [run 160](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/160)
+  passed the Node quality gate in 4m38s and linux/amd64 image build in 4m49s.
+  PR #37 remains Draft and undeployed.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite

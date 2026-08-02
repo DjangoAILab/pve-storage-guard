@@ -15,8 +15,12 @@ SUPPORTED_API_VERSIONS = {LEGACY_API_VERSION, API_VERSION}
 MINIMUM_DURATION_SECONDS = 600
 MINIMUM_COMPLETENESS = 0.95
 STORAGE_CLASSES = {"rotational-hdd", "sata-ssd", "nvme", "network-block", "unknown"}
-WORKLOAD_CLASSES = {"bulk-import", "backup", "migration", "build", "database", "mixed", "unknown"}
-MEASUREMENT_LAYERS = {"storage-domain", "block-device", "virtual-disk", "application", "unknown"}
+WORKLOAD_CLASSES = {
+    "bulk-import", "backup", "migration", "build", "database", "mixed", "unknown",
+}
+MEASUREMENT_LAYERS = {
+    "storage-domain", "block-device", "virtual-disk", "application", "unknown",
+}
 
 
 @dataclass(frozen=True)
@@ -39,7 +43,16 @@ def assess_trace(document: Dict[str, object], reference_group: Optional[str] = N
     tests, but it cannot become independent production evidence by naming it so.
     """
     if not isinstance(document, dict):
-        return TraceAssessment(["trace must be an object"], 0, 0, 0.0, 0.0, 0.0, False, False)
+        return TraceAssessment(
+            errors=["trace must be an object"],
+            sample_count=0,
+            duration_seconds=0,
+            completeness=0.0,
+            wait_completeness=0.0,
+            management_plane_completeness=0.0,
+            policy_signal_compatible=False,
+            meets_machine_independence_gate=False,
+        )
 
     errors: List[str] = []
     allowed_top_level = {"apiVersion", "kind", "metadata", "metricSemantics", "samples"}
@@ -164,18 +177,31 @@ def assess_trace(document: Dict[str, object], reference_group: Optional[str] = N
 
     duration = window_duration
     expected = duration // interval if duration and duration % interval == 0 else 0
-    completeness = len(offsets) / expected if expected else 0.0
-    if completeness > 1:
-        errors.append("sample offsets are not aligned to sampleIntervalSeconds")
-        completeness = 0.0
-
-    valid_waits = sum(
-        1 for sample in samples
-        if isinstance(sample, dict) and sample.get("waitValid") is True
-    )
-    known_management = sum(
-        1 for sample in samples
+    eligible_offsets = {
+        sample.get("offsetSeconds")
+        for sample in samples
         if isinstance(sample, dict)
+        and type(sample.get("offsetSeconds")) is int
+        and 0 <= sample["offsetSeconds"] < duration
+        and sample["offsetSeconds"] % interval == 0
+    }
+    completeness = len(eligible_offsets) / expected if expected else 0.0
+
+    valid_wait_offsets = {
+        sample.get("offsetSeconds")
+        for sample in samples
+        if isinstance(sample, dict)
+        and sample.get("offsetSeconds") in eligible_offsets
+        and sample.get("waitValid") is True
+        and type(sample.get("writeWaitMilliseconds")) in (int, float)
+        and math.isfinite(sample["writeWaitMilliseconds"])
+        and sample["writeWaitMilliseconds"] >= 0
+    }
+    known_management_offsets = {
+        sample.get("offsetSeconds")
+        for sample in samples
+        if isinstance(sample, dict)
+        and sample.get("offsetSeconds") in eligible_offsets
         and (
             (api_version == LEGACY_API_VERSION and type(sample.get("managementPlaneHealthy")) is bool)
             or (
@@ -183,12 +209,9 @@ def assess_trace(document: Dict[str, object], reference_group: Optional[str] = N
                 and sample.get("managementPlaneStatus") in {"healthy", "unhealthy"}
             )
         )
-    )
-    wait_completeness = valid_waits / expected if expected else 0.0
-    management_completeness = known_management / expected if expected else 0.0
-    if completeness > 1:
-        wait_completeness = 0.0
-        management_completeness = 0.0
+    }
+    wait_completeness = len(valid_wait_offsets) / expected if expected else 0.0
+    management_completeness = len(known_management_offsets) / expected if expected else 0.0
 
     compatible = (
         api_version == API_VERSION

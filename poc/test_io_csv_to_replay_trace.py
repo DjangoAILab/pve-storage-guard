@@ -105,6 +105,31 @@ class IOCSVToReplayTraceTests(unittest.TestCase):
                 authorized_and_sanitized=True,
             ))
 
+    def test_rejects_ambiguous_headers_and_non_integer_byte_counts(self):
+        duplicate_header = io.StringIO(
+            "timestamp_seconds,operation,size_bytes,size_bytes,response_time_milliseconds\n"
+            "0,write,4096,4096,1\n1,write,4096,4096,1\n"
+        )
+        options = ConversionOptions(
+            name="licensed-sample",
+            source_kind="observed",
+            independence_group="external-study-a",
+            storage_class="rotational-hdd",
+            workload_class="mixed",
+            write_wait_measurement_layer="storage-domain",
+            sample_interval_seconds=1,
+            authorized_and_sanitized=True,
+        )
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            build_trace(duplicate_header, options)
+
+        decimal_size = io.StringIO(
+            "timestamp_seconds,operation,size_bytes,response_time_milliseconds\n"
+            "0,write,4096.0,1\n1,write,4096,1\n"
+        )
+        with self.assertRaisesRegex(ValueError, "decimal integer"):
+            build_trace(decimal_size, options)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -110,6 +110,22 @@ class TraceContractTests(unittest.TestCase):
         self.assertTrue(assessment.errors)
         self.assertFalse(assessment.meets_machine_independence_gate)
 
+    def test_invalid_offsets_and_waits_do_not_inflate_reported_coverage(self):
+        document = trace_document()
+        document["samples"].append({
+            "offsetSeconds": 600,
+            "writeWaitMilliseconds": 10.0,
+            "waitValid": True,
+            "managementPlaneStatus": "healthy",
+        })
+        document["samples"][0]["writeWaitMilliseconds"] = float("nan")
+        assessment = assess_trace(document, "reference-incident")
+        self.assertTrue(assessment.errors)
+        self.assertEqual(assessment.completeness, 1.0)
+        self.assertLess(assessment.wait_completeness, 1.0)
+        self.assertEqual(assessment.management_plane_completeness, 1.0)
+        self.assertFalse(assessment.meets_machine_independence_gate)
+
     def test_leading_and_trailing_gaps_count_against_declared_window(self):
         document = trace_document()
         document["samples"] = document["samples"][20:-20]

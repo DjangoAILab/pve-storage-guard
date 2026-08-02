@@ -13,9 +13,14 @@ import math
 import re
 import sys
 from dataclasses import dataclass
-from typing import Dict, List, TextIO
+from typing import Dict, List, TextIO, Tuple
 
-from trace_contract import API_VERSION, MEASUREMENT_LAYERS, STORAGE_CLASSES, WORKLOAD_CLASSES
+from trace_contract import (
+    API_VERSION,
+    MEASUREMENT_LAYERS,
+    STORAGE_CLASSES,
+    WORKLOAD_CLASSES,
+)
 
 
 REQUIRED_COLUMNS = {
@@ -40,7 +45,8 @@ class ConversionOptions:
 def _validate_options(options: ConversionOptions) -> None:
     if options.authorized_and_sanitized is not True:
         raise ValueError("authorized-and-sanitized confirmation is required")
-    for label, value in (("name", options.name), ("independence group", options.independence_group)):
+    aliases = (("name", options.name), ("independence group", options.independence_group))
+    for label, value in aliases:
         if not SAFE_SLUG.fullmatch(value):
             raise ValueError(f"{label} must be a non-identifying safe slug")
     if options.source_kind not in {"observed", "synthetic", "modeled"}:
@@ -51,9 +57,12 @@ def _validate_options(options: ConversionOptions) -> None:
         raise ValueError("workload class is invalid")
     if options.write_wait_measurement_layer not in MEASUREMENT_LAYERS:
         raise ValueError("write-wait measurement layer is invalid")
-    if not 1 <= options.sample_interval_seconds <= 60:
+    if (
+        type(options.sample_interval_seconds) is not int
+        or not 1 <= options.sample_interval_seconds <= 60
+    ):
         raise ValueError("sample interval must be between 1 and 60 seconds")
-    if options.window_duration_seconds < 0:
+    if type(options.window_duration_seconds) is not int or options.window_duration_seconds < 0:
         raise ValueError("window duration must be non-negative")
     if options.window_duration_seconds % options.sample_interval_seconds:
         raise ValueError("window duration must be divisible by sample interval")
@@ -69,6 +78,12 @@ def _finite_number(value: str, label: str, line: int) -> float:
     return parsed
 
 
+def _nonnegative_integer(value: str, label: str, line: int) -> int:
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9]+", value.strip()):
+        raise ValueError(f"line {line} {label} must be a non-negative decimal integer")
+    return int(value)
+
+
 def _nearest_rank_p95(values: List[float]) -> float:
     ordered = sorted(values)
     return ordered[max(0, math.ceil(0.95 * len(ordered)) - 1)]
@@ -81,6 +96,8 @@ def build_trace(source: TextIO, options: ConversionOptions) -> Dict[str, object]
     if reader.fieldnames is None or not REQUIRED_COLUMNS.issubset(reader.fieldnames):
         missing = sorted(REQUIRED_COLUMNS - set(reader.fieldnames or []))
         raise ValueError(f"CSV is missing required columns: {', '.join(missing)}")
+    if len(reader.fieldnames) != len(set(reader.fieldnames)):
+        raise ValueError("CSV contains duplicate column names")
 
     origin = None
     previous_timestamp = None
@@ -88,7 +105,7 @@ def build_trace(source: TextIO, options: ConversionOptions) -> Dict[str, object]
     current_latencies: List[float] = []
     current_bytes = 0
     last_bucket_index = 0
-    write_summaries = {}
+    write_summaries: Dict[int, Tuple[float, int, int]] = {}
     for line, row in enumerate(reader, start=2):
         operation = (row.get("operation") or "").strip().lower()
         if operation not in {"read", "r", "write", "w"}:
@@ -97,9 +114,7 @@ def build_trace(source: TextIO, options: ConversionOptions) -> Dict[str, object]
         response = _finite_number(
             row.get("response_time_milliseconds", ""), "response time", line,
         )
-        size_value = _finite_number(row.get("size_bytes", ""), "size", line)
-        if not size_value.is_integer():
-            raise ValueError(f"line {line} size must be an integer number of bytes")
+        size_value = _nonnegative_integer(row.get("size_bytes", ""), "size", line)
         if previous_timestamp is not None and timestamp < previous_timestamp:
             raise ValueError(f"line {line} timestamp is earlier than the preceding row")
         if origin is None:
@@ -117,7 +132,7 @@ def build_trace(source: TextIO, options: ConversionOptions) -> Dict[str, object]
         last_bucket_index = bucket_index
         if operation in {"write", "w"}:
             current_latencies.append(response)
-            current_bytes += int(size_value)
+            current_bytes += size_value
 
     if origin is None:
         raise ValueError("CSV must contain at least one I/O row")
