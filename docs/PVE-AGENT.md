@@ -88,10 +88,12 @@ fail closed.
 ## Deployment caveat
 
 The existing distroless controller image does not contain PVE/OpenZFS host
-tools and should not be described as a drop-in host collector. For v0.1 use a
-locally built host binary in a reviewed test environment. A dedicated package
-or minimal host-integrated image, live least-privilege permission validation,
-and a broader version compatibility matrix remain promotion gates.
+tools and should not be described as a drop-in host collector. The
+`v0.1.0-rc.2` host binary has passed the bounded production read-only
+compatibility check, but it remains evidence-only: do not install it as a
+production service until the explicit write checkpoint. A dedicated package or
+minimal host-integrated image, live least-privilege permission validation, and
+a broader version compatibility matrix remain promotion gates.
 
 ## Non-production evidence gate
 
@@ -203,8 +205,9 @@ The first sanitized real-host source-format fixture covers PVE 9.2 with
 OpenZFS 2.4. It validates the JSON and histogram shapes consumed by the parser,
 but all public operational values are synthetic and the fixture is ineligible
 for policy or performance claims. Public topology/cardinality is synthetic as
-well. The compiled binary has not been installed or executed on that production
-host. See the
+well. The `v0.1.0-rc.2` binary has executed only through the approved transient,
+read-only compatibility check; it was not installed on that production host.
+See the
 [compatibility matrix](COMPATIBILITY.md) for the exact evidence boundary.
 
 ## Triage
