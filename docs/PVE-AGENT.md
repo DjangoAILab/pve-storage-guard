@@ -129,6 +129,40 @@ safe for actuation. Review the summary before retaining or sharing it. A local
 fake pass tests the validator only; the checklist gate closes only with a real
 non-production PVE result plus live service/rollback evidence.
 
+## Production read-only compatibility
+
+If a non-production PVE host is unavailable, an operator may run the separate
+compatibility validator after the production dry-run checkpoint is approved:
+
+```sh
+python3 scripts/validate_prod_observer_compatibility.py \
+  --binary /absolute/path/pve-storage-guard \
+  --config /absolute/private/path/agent.json \
+  --expected-sha256 sha256:APPROVED_RELEASE_DIGEST
+```
+
+Root execution fails closed unless the operator also supplies `--allow-root`.
+Use that explicit acknowledgement only when no least-privilege observer account
+exists and the exact reviewed binary digest is approved for this narrow dry-run;
+the resulting evidence records `nonRoot: false` and remains ineligible.
+
+The binary, config, and both validator modules may be staged in a random
+owner-only directory on `/dev/shm` and removed by an EXIT trap, so this flow
+does not require a persistent installation. The private config should mark all
+resources root and critical unless an independent enrollment review proves
+otherwise. Do not create an account, ACL, service, package, journal, cgroup, or
+I/O limit for this check.
+
+The command runs the same digest-bound `version`, `inventory`, `observe`, and
+two-record `watch` sequence and applies the same identity-leak and cancellation
+checks as the non-production validator. Its output is a separate
+`PVEHostObserverCompatibility` document matching
+`api/v1/schema/pve-host-observer-compatibility.schema.json`. It records root
+execution as a limitation, always sets `promotionEligible: false`, and cannot
+close non-root permissions, systemd isolation, controlled-load, sustained
+sampling, rollback, alert, or actuation gates. Production deployment and every
+control write remain separate approval points.
+
 ## Proposed systemd boundary
 
 `deploy/systemd/pve-storage-guard-observer.service` is a reviewable

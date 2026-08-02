@@ -27,12 +27,15 @@ jobs:
         run: go test -race -coverprofile=coverage.out ./...
       - name: Verify hardened observer unit
         run: sh scripts/verify-systemd-unit.sh
-      - name: Validate non-production observer evidence gate
+      - name: Validate observer evidence gates
         run: |
           go build -trimpath -o /tmp/pve-storage-guard ./cmd/pve-storage-guard
           PVE_STORAGE_GUARD_TEST_BINARY=/tmp/pve-storage-guard \
             PYTHONWARNINGS=error::ResourceWarning \
-            python3 -m unittest scripts.test_validate_nonprod_observer -v
+            python3 -m unittest \
+              scripts.test_validate_nonprod_observer \
+              scripts.test_validate_prod_observer_compatibility \
+              -v
       - name: Performance smoke benchmarks
         run: go test -run '^$' -bench . -benchtime=100ms -benchmem ./internal/policy ./internal/allocator ./internal/safety ./internal/adapter/pve ./cmd/pve-storage-guard
       - name: Install staticcheck

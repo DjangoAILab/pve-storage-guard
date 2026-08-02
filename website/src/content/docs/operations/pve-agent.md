@@ -93,16 +93,37 @@ This validates a short observer execution only. It does not install the unit,
 prove 24-hour stability, validate restart/rollback, or authorize production.
 Fake/CI passes test the evidence mechanism and never count as PVE host evidence.
 
+## Production read-only compatibility
+
+Where no non-production PVE host exists, the separately approved production
+dry-run may use `scripts/validate_prod_observer_compatibility.py` with the same
+binary, private config, and approved digest arguments. A random owner-only
+`/dev/shm` directory can hold those inputs for the duration of the command and
+must be removed afterward. The procedure installs no service and must not
+create an account, ACL, journal, cgroup, or I/O limit.
+
+Root execution requires the additional explicit `--allow-root` acknowledgement
+and is always surfaced as a failed hardening boundary in the result.
+
+The result has the distinct kind `PVEHostObserverCompatibility`, records root
+execution as a limitation, and always sets `promotionEligible: false`. It can
+prove only compiled read compatibility, bounded identity-safe output, repeated
+sampling, and clean SIGTERM cancellation. It cannot replace non-root
+permissions, systemd, controlled-load, sustained-sampling, rollback, alert, or
+actuation evidence.
+
 ## Compatibility evidence
 
 | PVE | OpenZFS | Proven | Still gated |
 | --- | --- | --- | --- |
-| 9.2 | 2.4 | PVE JSON, ZFS wait-header and 37-bucket/12-column histogram shapes, PSI, diskstats, portable cancellation, static unit analysis, tested host-evidence mechanism | compiled binary on PVE, reviewed validator result, live ACL/device/unit behavior, sustained sampling, policy thresholds, actuation |
+| 9.2 | 2.4 | Source-bound compiled inventory/observe/two-record watch, SIGTERM zero exit, PVE/ZFS/PSI/diskstats formats, portable cancellation, static unit analysis | release containing the agent, non-root ACL/device/unit behavior, sustained sampling, controlled load, policy thresholds, actuation |
 
 The fixture retains observed field and histogram shape but uses fixed aliases,
 synthetic topology/cardinality, and synthetic operational values. It is
-explicitly ineligible for performance or policy claims. The reference
-production host received no file, package, service, or configuration write.
+explicitly ineligible for performance or policy claims. The approved
+compatibility run used only a short-lived owner-only `/dev/shm` directory and
+left no process, account, service unit, or RAM artifact. Its anonymous result
+is permanently promotion-ineligible.
 Read the full
 [compatibility evidence](https://github.com/DjangoAILab/pve-storage-guard/blob/main/docs/COMPATIBILITY.md).
 

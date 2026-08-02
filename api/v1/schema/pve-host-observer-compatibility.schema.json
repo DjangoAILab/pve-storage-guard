@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/pve-host-observer-compatibility.json",
+  "title": "PVE Storage Guard production read-only observer compatibility",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "validatorVersion",
+    "evidenceScope",
+    "binarySha256",
+    "binaryVersion",
+    "platformClass",
+    "checks",
+    "promotionEligible",
+    "limitations",
+    "requestedMutations"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "kind": { "const": "PVEHostObserverCompatibility" },
+    "validatorVersion": { "const": "v1alpha1" },
+    "evidenceScope": { "const": "production-read-only-compatibility" },
+    "binarySha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "binaryVersion": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$" },
+    "platformClass": { "const": "pve-openzfs-host" },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hostPlatformVerified",
+        "nonRoot",
+        "configOwnerOnly",
+        "binaryDigestMatch",
+        "inventoryValid",
+        "observationValid",
+        "watchSamples",
+        "sigtermExitZero",
+        "privateIdentityLeakDetected",
+        "rawOutputPersisted"
+      ],
+      "properties": {
+        "hostPlatformVerified": { "const": true },
+        "nonRoot": { "type": "boolean" },
+        "configOwnerOnly": { "const": true },
+        "binaryDigestMatch": { "const": true },
+        "inventoryValid": { "const": true },
+        "observationValid": { "const": true },
+        "watchSamples": { "const": 2 },
+        "sigtermExitZero": { "const": true },
+        "privateIdentityLeakDetected": { "const": false },
+        "rawOutputPersisted": { "const": false }
+      }
+    },
+    "promotionEligible": { "const": false },
+    "limitations": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "non-root-not-validated",
+          "service-isolation-not-validated",
+          "controlled-load-not-validated",
+          "actuation-not-validated"
+        ]
+      }
+    },
+    "requestedMutations": { "const": 0 }
+  }
+}
