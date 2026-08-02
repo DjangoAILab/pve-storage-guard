@@ -92,7 +92,11 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   2.4 management, storage, histogram, PSI, and diskstats shapes, then emitted
   only fixed aliases and synthetic values. Evidence:
   `internal/adapter/pve/testdata/pve-9.2-openzfs-2.4/`, its privacy/parser test,
-  and [compatibility evidence](COMPATIBILITY.md).
+  [compatibility evidence](COMPATIBILITY.md), and public
+  [PR #32](https://github.com/DjangoAILab/pve-storage-guard/pull/32). Final PR
+  validation passed [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30727736537),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30727736533),
+  and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30727736532).
 - [ ] Execute the compiled agent in a non-production PVE environment and
   validate Unix permissions, repeated sampling, process cancellation, and
   systemd/container hardening. No binary was uploaded to or run on the
