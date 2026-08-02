@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/pve-host-observer-validation.json",
+  "title": "PVE Storage Guard non-production host observer validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "validatorVersion",
+    "evidenceScope",
+    "binarySha256",
+    "binaryVersion",
+    "platformClass",
+    "checks",
+    "requestedMutations"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "kind": { "const": "PVEHostObserverValidation" },
+    "validatorVersion": { "const": "v1alpha1" },
+    "evidenceScope": { "const": "non-production-read-only" },
+    "binarySha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "binaryVersion": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$" },
+    "platformClass": { "const": "pve-openzfs-host" },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hostPlatformVerified",
+        "nonRoot",
+        "configOwnerOnly",
+        "binaryDigestMatch",
+        "inventoryValid",
+        "observationValid",
+        "watchSamples",
+        "sigtermExitZero",
+        "privateIdentityLeakDetected",
+        "rawOutputPersisted"
+      ],
+      "properties": {
+        "hostPlatformVerified": { "const": true },
+        "nonRoot": { "const": true },
+        "configOwnerOnly": { "const": true },
+        "binaryDigestMatch": { "const": true },
+        "inventoryValid": { "const": true },
+        "observationValid": { "const": true },
+        "watchSamples": { "const": 2 },
+        "sigtermExitZero": { "const": true },
+        "privateIdentityLeakDetected": { "const": false },
+        "rawOutputPersisted": { "const": false }
+      }
+    },
+    "requestedMutations": { "const": 0 }
+  }
+}
