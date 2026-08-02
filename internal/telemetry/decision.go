@@ -41,13 +41,13 @@ func NewShadowDecisionEvent(observation v1.Observation, proposal v1.Proposal) (v
 	diskSignals := append([]v1.DiskSignal(nil), observation.DiskSignals...)
 	var waitEvidence *v1.WaitEvidence
 	if observation.WaitEvidence != nil {
-		copy := *observation.WaitEvidence
-		waitEvidence = &copy
+		evidenceCopy := *observation.WaitEvidence
+		waitEvidence = &evidenceCopy
 	}
 	var ioPressure *v1.IOPressure
 	if observation.IOPressure != nil {
-		copy := *observation.IOPressure
-		ioPressure = &copy
+		pressureCopy := *observation.IOPressure
+		ioPressure = &pressureCopy
 	}
 
 	event := v1.DecisionEvent{

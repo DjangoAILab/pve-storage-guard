@@ -1,6 +1,7 @@
 package pve
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -27,7 +28,7 @@ func BenchmarkParseHistogramP95(b *testing.B) {
 func FuzzParseHistogramP95NeverPanics(f *testing.F) {
 	f.Add([]byte("pool\n1048575 1 1 0 0 0 0 0 0\n"), "pool")
 	f.Add([]byte(""), "pool")
-	f.Fuzz(func(t *testing.T, payload []byte, pool string) {
+	f.Fuzz(func(_ *testing.T, payload []byte, pool string) {
 		_, _, _, _ = parseHistogramP95(payload, pool)
 	})
 }
@@ -84,7 +85,7 @@ func TestParseHistogramP95FailsClosed(t *testing.T) {
 
 func TestParseHistogramP95ReportsNoWrites(t *testing.T) {
 	_, _, _, err := parseHistogramP95([]byte("pool\n1048575 1 0 0 0 0 0 0 0\n"), "pool")
-	if err != errNoWriteSamples {
+	if !errors.Is(err, errNoWriteSamples) {
 		t.Fatalf("err=%v", err)
 	}
 }
