@@ -98,7 +98,10 @@ The internal integration draft includes the restricted read-only storage probe,
 multi-signal detector, disabled alert seeds, dashboard, and a pure replay-trace
 builder. The builder accepts only already-authorized metric samples and emits
 relative offsets, numeric evidence, and coarse classes. Its diskstats semantics
-are fixed to `average` / `derived`; callers cannot label them `p95`.
+are fixed to `average` / `derived`; callers cannot label them `p95`. It emits
+ReplayTrace v1alpha2 with a fixed `block-device` measurement layer and preserves a storage sample with absent management
+evidence as `managementPlaneStatus=unknown`, so the public assessor can measure
+the two coverage dimensions separately.
 
 The storage probe now optionally runs the fixed argv `zpool iostat -lpH 1 2`,
 discards the since-boot row, and maps only a complete one-second interval.

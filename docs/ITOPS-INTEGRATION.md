@@ -298,7 +298,10 @@ evidence, and coarse storage/workload classes; internal target, resource, node,
 and absolute sample-time fields are selection inputs and never become public
 trace fields. Its wait semantics are fixed to `average`, aggregation to `none`,
 and provenance to `derived`, so a caller cannot relabel diskstats evidence as
-`p95`. Gaps remain gaps against the declared window. This builder has no route,
+`p95`. Its v1alpha2 form preserves a valid storage sample when its matching
+management probe is absent and marks the management status `unknown`; the
+assessor reports both coverage dimensions and rejects the gap at the production
+promotion gate. This builder has no route,
 API, file writer, scheduler, or deployment path and therefore does not publish
 data by itself.
 
@@ -339,6 +342,18 @@ Node quality gates passed in 4m33s and the linux/amd64 image build passed in
 timeout. The preceding run 157 failed closed because a shifted synthetic-secret
 fixture no longer matched its exact scan fingerprint; the correction preserved
 the fixture location rather than broadening the ignore policy.
+
+Replay-export commits `60b8359` and `8104bb2` now emit v1alpha2, preserve valid
+wait evidence with missing management status `unknown`, and type diskstats wait
+as `block-device`. Final internal
+[run 160](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/160)
+passed the Node quality gate in 4m38s and the linux/amd64 image build in 4m49s.
+A cross-repository synthetic check passed the compiled ITOps output through the
+public assessor: the complete case reported 100% structural, wait, and
+management coverage; omitting one of two management samples reported 50%
+management coverage. Both remained ineligible as designed because diskstats
+average block-device wait is not storage-domain p95. No event content or
+production identity was used or printed.
 
 The internal rollout packet separates repository merge, restricted-probe write,
 immutable application deployment, alert arming, journal registration, and any

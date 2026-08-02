@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/replay-trace/v1alpha2.json",
+  "title": "PVE Storage Guard sanitized replay trace v1alpha2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "metricSemantics", "samples"],
+  "properties": {
+    "apiVersion": { "const": "guard.storage-slo.io/replay-trace/v1alpha2" },
+    "kind": { "const": "ReplayTrace" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "sourceKind", "independenceGroup", "storageClass", "workloadClass", "sampleIntervalSeconds", "windowDurationSeconds", "sanitized"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "sourceKind": { "enum": ["observed", "synthetic", "modeled"] },
+        "independenceGroup": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "storageClass": { "enum": ["rotational-hdd", "sata-ssd", "nvme", "network-block", "unknown"] },
+        "workloadClass": { "enum": ["bulk-import", "backup", "migration", "build", "database", "mixed", "unknown"] },
+        "sampleIntervalSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
+        "windowDurationSeconds": { "type": "integer", "minimum": 1, "maximum": 2678400 },
+        "sanitized": { "const": true }
+      }
+    },
+    "metricSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["writeWaitStatistic", "writeWaitMeasurementLayer", "controlWindowAggregation", "provenance"],
+      "properties": {
+        "writeWaitStatistic": { "enum": ["p95", "average", "total-wait"] },
+        "writeWaitMeasurementLayer": { "enum": ["storage-domain", "block-device", "virtual-disk", "application", "unknown"] },
+        "controlWindowAggregation": { "enum": ["none", "p95"] },
+        "provenance": { "enum": ["observed", "derived", "modeled"] }
+      }
+    },
+    "samples": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["offsetSeconds", "writeWaitMilliseconds", "waitValid", "managementPlaneStatus"],
+        "properties": {
+          "offsetSeconds": { "type": "integer", "minimum": 0 },
+          "writeWaitMilliseconds": { "type": "number", "minimum": 0 },
+          "waitValid": { "type": "boolean" },
+          "managementPlaneStatus": { "enum": ["healthy", "unhealthy", "unknown"] },
+          "writeIops": { "type": "number", "minimum": 0 },
+          "writeThroughputMiBps": { "type": "number", "minimum": 0 },
+          "queueDepth": { "type": "number", "minimum": 0 },
+          "psiSomePercent": { "type": "number", "minimum": 0, "maximum": 100 },
+          "psiFullPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+          "taskProgressBytes": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

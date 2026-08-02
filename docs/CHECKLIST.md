@@ -29,7 +29,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [x] Define conservative, nominal, and optimistic storage models.
 - [x] Define a safety-first selection gate and bounded parameter search.
 - [x] Migrate the replay code and anonymized fixtures into this repository.
-- [x] Run all 30 offline Python tests and reproduce Markdown/JSON reports locally.
+- [x] Run all 42 offline Python tests and reproduce Markdown/JSON reports locally.
   Evidence: `poc/results/report.md` and `poc/results/report.json`.
 - [x] Add estimated job completion time and hourly decision churn to the report.
 - [x] Record unavailable historical IOPS, PSI, queue, and management-plane
@@ -37,7 +37,13 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [ ] Add at least one independent trace before considering active control. A
   strict replay-trace schema and dependency-free assessor now reject synthetic,
   same-group, incomplete, unknown-class, and non-p95 evidence; the local audit
-  found only same-episode aggregates without replayable samples.
+  found only same-episode aggregates without replayable samples. External trace
+  research found useful observed storage datasets but no synchronized management
+  evidence. v1alpha2 now represents management `unknown` and the wait
+  measurement layer explicitly, and requires at least 95% valid wait and
+  known-management coverage, preventing a
+  storage-only trace from falsely closing this gate. Evidence:
+  [external trace research](EXTERNAL-TRACE-RESEARCH.md) and [ADR-0006](adr/0006-separate-storage-research-from-promotion-evidence.md).
 - [x] Capture and sanitize a synchronized read-only live window without a host
   install. The 30-second result records ZFS interval-mean `total_wait`, pool
   IOPS/throughput, member-disk average wait/queue/utilization, PSI, and four
@@ -50,7 +56,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [ ] Add independent storage-class and workload-shape traces; do not relabel
   the three counterfactual capacity models as observed storage classes.
   ADR-0003 now makes metric statistic, provenance, and independence group
-  mandatory trace fields.
+  mandatory trace fields. A tested local converter can aggregate authorized
+  per-I/O CSV into identity-free, layer-typed v1alpha2 research traces without
+  downloading or bundling third-party data; license clearance and an eligible trace remain
+  pending.
 - [!] Promote an adaptive policy beyond shadow mode only after PoC and live
   evidence gates pass.
 
@@ -182,9 +191,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   as one-second interval means, remain outside detector v1, and cannot be
   relabeled as disk average wait or I/O p95. A live stdin-only probe check
   succeeded without installation or remote writes. A pure sanitized replay-trace builder now preserves
-  fixed `average`/`derived` diskstats semantics, relative offsets, declared
-  gaps, and excludes internal selection identifiers; it has no route, writer,
-  or deployment path. Merge, deployment, true p95 telemetry, trace review,
+  fixed `average`/`derived` block-device diskstats semantics, relative offsets, declared
+  gaps, and excludes internal selection identifiers. Its v1alpha2 form keeps a
+  valid wait sample while marking absent management evidence `unknown`; it has
+  no route, writer, or deployment path. Merge, deployment, true p95 telemetry, trace review,
   approved runtime invocation and incident linking remain.
   The public controller provides a tested opt-in private JSONL decision journal
   plus a read-only sealed-file verifier and bounded content-addressed private
@@ -221,7 +231,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   validated typed ZFS shadow telemetry `ccbbabd`: quality gates passed in 4m33s
   and the linux/amd64 image build in 5m10s. Internal commits `c2ed208` and
   `db5493b` now
-  persists a staged observer rollout packet with separate merge, probe-write,
+  persist a staged observer rollout packet with separate merge, probe-write,
   application-deploy, alert-arm, journal-registration, and actuation gates. It
   also makes live acceptance verify PSI/diskstats/management provenance,
   detector-v1 labels, the exact 28-rule set, and typed ZFS interval semantics.
@@ -231,7 +241,16 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   [run 158](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/158)
   passed Node quality gates in 4m33s and the linux/amd64 image build in 10m59s;
   the latter recovered through its bounded retry after a transient registry
-  mirror DNS timeout. PR #37 remains Draft and undeployed.
+  mirror DNS timeout. Internal replay-export commits `60b8359` and `8104bb2`
+  now emit v1alpha2, preserve absent management evidence as `unknown`, and type
+  diskstats wait as `block-device`. A compiled-exporter-to-public-assessor
+  synthetic check reported 100% structural/wait/management coverage when both
+  management samples were present and 50% management coverage when one was
+  absent; both correctly remained policy-incompatible and ineligible because
+  average block-device wait is not storage-domain p95. Final internal
+  [run 160](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/160)
+  passed the Node quality gate in 4m38s and linux/amd64 image build in 4m49s.
+  PR #37 remains Draft and undeployed.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
