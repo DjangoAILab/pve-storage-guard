@@ -172,7 +172,11 @@ read surface. A serial `watch` mode adds bounded repeated sampling and clean
 context cancellation without adding a listener or actuator. The proposed
 systemd observer runs as a static non-root account with no capabilities,
 network namespace, or writable filesystem path; actual PVE permissions remain
-a non-production host validation gate. See ADR 0007.
+a non-production host validation gate. A separate dependency-free validator
+binds that future run to an approved binary digest, checks fixed one-shot/watch
+operations in memory, exercises SIGTERM, and emits only an identity-free
+summary. It is outside the product binary so the observer does not define its
+own success. See ADR 0007.
 
 ### Split production topology
 

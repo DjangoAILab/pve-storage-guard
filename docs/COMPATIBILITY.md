@@ -67,10 +67,15 @@ identifiers without storing those identifiers in the repository.
   and Ubuntu 24.04 `systemd-analyze` gives the proposed observer unit a 0.8
   exposure score. Neither result validates PVE ACLs, `/dev/zfs` access, output
   retention, or supervision on PVE.
+- The external non-production validator is tested against success and failure
+  fakes plus a compiled-binary negative path. Until it produces a reviewed
+  result on an actual non-production PVE node, it proves the evidence mechanism,
+  not host compatibility.
 - One PVE/OpenZFS combination is not a general support claim.
 - No SSH availability, guest task completion, notification, canary, rollback,
   or actuator behavior was exercised.
 
-The next compatibility gate is a compiled-binary dry-run in a non-production
-PVE environment, followed by reviewed packaging and permission tests. A
-production-host install remains an explicit write checkpoint.
+The next compatibility gate is a compiled-binary run through
+`scripts/validate_nonprod_observer.py` in a non-production PVE environment,
+followed by live systemd, sustained sampling, permission, and rollback tests.
+A production-host install remains an explicit write checkpoint.
