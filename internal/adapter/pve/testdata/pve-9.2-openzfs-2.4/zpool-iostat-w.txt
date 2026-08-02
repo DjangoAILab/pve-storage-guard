@@ -1,0 +1,2 @@
+fixturepool total_wait disk_wait syncq_wait asyncq_wait
+latency read write read write read write read write scrub trim rebuild

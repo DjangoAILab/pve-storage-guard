@@ -62,5 +62,18 @@ The current distroless controller image does not contain host `pvesh` or
 a test environment until host packaging, hardening, and a PVE/OpenZFS version
 compatibility matrix pass their gates.
 
+## Compatibility evidence
+
+| PVE | OpenZFS | Proven | Still gated |
+| --- | --- | --- | --- |
+| 9.2 | 2.4 | PVE JSON, ZFS wait-header and 37-bucket/12-column histogram shapes, PSI, diskstats | compiled host binary, permissions, service packaging, sustained sampling, policy thresholds, actuation |
+
+The fixture retains observed field and histogram shape but uses fixed aliases,
+synthetic topology/cardinality, and synthetic operational values. It is
+explicitly ineligible for performance or policy claims. The reference
+production host received no file, package, service, or configuration write.
+Read the full
+[compatibility evidence](https://github.com/DjangoAILab/pve-storage-guard/blob/main/docs/COMPATIBILITY.md).
+
 Read the repository's full [agent runbook](https://github.com/DjangoAILab/pve-storage-guard/blob/main/docs/PVE-AGENT.md)
 and [ADR-0007](https://github.com/DjangoAILab/pve-storage-guard/blob/main/docs/adr/0007-local-read-only-pve-agent.md).

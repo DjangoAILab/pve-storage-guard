@@ -86,9 +86,17 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   `api/v1/schema/pve-inventory.schema.json`, and ADR-0007. The adapter uses
   OpenZFS write total-wait histograms for typed p95 upper-bound evidence;
   diskstats and PSI cannot substitute for it.
-- [ ] Validate the concrete adapter against a reviewed, sanitized real-PVE ZFS
-  fixture and compatibility matrix before any host installation. Local macOS
-  development has no `zpool` binary and is not production evidence.
+- [x] Validate the concrete adapter parsers against a reviewed, sanitized
+  real-PVE ZFS source-format fixture and compatibility matrix before any host
+  installation. A remote in-memory, read-only probe validated PVE 9.2 / OpenZFS
+  2.4 management, storage, histogram, PSI, and diskstats shapes, then emitted
+  only fixed aliases and synthetic values. Evidence:
+  `internal/adapter/pve/testdata/pve-9.2-openzfs-2.4/`, its privacy/parser test,
+  and [compatibility evidence](COMPATIBILITY.md).
+- [ ] Execute the compiled agent in a non-production PVE environment and
+  validate Unix permissions, repeated sampling, process cancellation, and
+  systemd/container hardening. No binary was uploaded to or run on the
+  reference production host.
 - [x] Implement the versioned JSONL shadow stream, strict configuration
   decoding, exact enrollment, telemetry-age checks, and non-actuating proposal
   output. An opt-in private append/sync decision journal now records the

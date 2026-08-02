@@ -166,6 +166,7 @@ as model-assisted estimates and are not presented as measured production gains.
 - [Execution checklist](docs/CHECKLIST.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Read-only PVE agent](docs/PVE-AGENT.md)
+- [Compatibility evidence](docs/COMPATIBILITY.md)
 - [Policy design](docs/POLICY-DESIGN.md)
 - [Offline PoC](docs/POC.md)
 - [Replay trace contract](docs/TRACE-CONTRACT.md)
