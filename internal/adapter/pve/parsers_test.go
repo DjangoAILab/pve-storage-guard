@@ -1,9 +1,14 @@
 package pve
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
+	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -110,6 +115,77 @@ func TestParsePVEAndProcSignals(t *testing.T) {
 	signals, err := parseDiskstats([]byte("8 16 private-disk 1 2 3 4 5 6 7 8 9 10 11 0 0 0\n"), map[string]string{"private-disk": "resource-a"})
 	if err != nil || len(signals) != 1 || signals[0].ResourceKey != "resource-a" || signals[0].ReadsCompletedTotal != 1 || signals[0].WritesCompletedTotal != 5 || signals[0].ReadSectorsTotal != 3 || signals[0].WrittenSectorsTotal != 7 || signals[0].InFlightIO != 9 || signals[0].IOTimeMillisecondsTotal != 10 || signals[0].WeightedIOMillisecondsTotal != 11 {
 		t.Fatalf("signals=%+v err=%v", signals, err)
+	}
+}
+
+func TestSanitizedRealPVECompatibilityFixture(t *testing.T) {
+	directory := filepath.Join("testdata", "pve-9.2-openzfs-2.4")
+	read := func(name string) []byte {
+		t.Helper()
+		payload, err := os.ReadFile(filepath.Join(directory, name))
+		if err != nil {
+			t.Fatalf("read %s: %v", name, err)
+		}
+		return payload
+	}
+
+	var manifest struct {
+		SchemaVersion                string `json:"schemaVersion"`
+		Kind                         string `json:"kind"`
+		PVEMajorMinor                string `json:"pveMajorMinor"`
+		OpenZFSMajorMinor            string `json:"openzfsMajorMinor"`
+		Capture                      string `json:"capture"`
+		Shape                        string `json:"shape"`
+		Values                       string `json:"values"`
+		Topology                     string `json:"topology"`
+		Identities                   string `json:"identities"`
+		PolicyEvidenceEligible       *bool  `json:"policyEvidenceEligible"`
+		BucketCount                  int    `json:"bucketCount"`
+		ColumnCountIncludingBoundary int    `json:"columnCountIncludingBoundary"`
+		RemoteWrites                 *int   `json:"remoteWrites"`
+	}
+	decoder := json.NewDecoder(bytes.NewReader(read("manifest.json")))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&manifest); err != nil {
+		t.Fatalf("decode manifest: %v", err)
+	}
+	if manifest.SchemaVersion != "guard.storage-slo.io/compatibility-fixture/v1alpha1" || manifest.Kind != "PVECompatibilityFixtureBundle" || manifest.PVEMajorMinor != "9.2" || manifest.OpenZFSMajorMinor != "2.4" || manifest.Capture != "remote-in-memory" || manifest.Shape != "observed" || manifest.Values != "synthetic" || manifest.Topology != "synthetic" || manifest.Identities != "fixed-aliases" || manifest.PolicyEvidenceEligible == nil || *manifest.PolicyEvidenceEligible || manifest.BucketCount != 37 || manifest.ColumnCountIncludingBoundary != 12 || manifest.RemoteWrites == nil || *manifest.RemoteWrites != 0 {
+		t.Fatalf("unexpected compatibility provenance: %+v", manifest)
+	}
+
+	healthy, err := parseClusterHealthy(read("cluster-status.json"), "fixture-node")
+	if err != nil || !healthy {
+		t.Fatalf("cluster fixture healthy=%v err=%v", healthy, err)
+	}
+	binding, err := parseStorageConfig(read("storage-config.json"))
+	if err != nil || binding.StorageType != "zfspool" || validatePoolBinding("fixturepool", binding.Pool) != nil {
+		t.Fatalf("storage fixture binding=%+v err=%v", binding, err)
+	}
+	active, storageType, err := parseStorageActive(read("storage-status.json"))
+	if err != nil || !active || storageType != "zfspool" {
+		t.Fatalf("storage fixture active=%v type=%q err=%v", active, storageType, err)
+	}
+	if err := parseHistogramLayout(read("zpool-iostat-w.txt"), "fixturepool"); err != nil {
+		t.Fatalf("layout fixture: %v", err)
+	}
+	wait, weight, upper, err := parseHistogramP95(read("zpool-iostat-wpH.txt"), "fixturepool")
+	if err != nil || math.Abs(wait-2.097151) > 0.000001 || weight != 100 || upper != 2097151 {
+		t.Fatalf("histogram fixture wait=%f weight=%f upper=%d err=%v", wait, weight, upper, err)
+	}
+	pressure, err := parsePSI(read("psi-io.txt"))
+	if err != nil || pressure.SomeAvg10 != 1.25 || pressure.FullAvg10 != 0.25 {
+		t.Fatalf("PSI fixture=%+v err=%v", pressure, err)
+	}
+	signals, err := parseDiskstats(read("diskstats.txt"), map[string]string{"fixture-disk": "fixture-resource"})
+	if err != nil || len(signals) != 1 || signals[0].ResourceKey != "fixture-resource" {
+		t.Fatalf("diskstats fixture=%+v err=%v", signals, err)
+	}
+
+	forbidden := regexp.MustCompile(`(?i)(private-|internal-|/users/|/etc/pve/priv|(?:10|127)\.(?:[0-9]{1,3}\.){2}[0-9]{1,3}|192\.168\.(?:[0-9]{1,3}\.)[0-9]{1,3}|172\.(?:1[6-9]|2[0-9]|3[01])\.(?:[0-9]{1,3}\.)[0-9]{1,3}|[0-9a-f]{2}(?::[0-9a-f]{2}){5})`)
+	for _, name := range []string{"manifest.json", "cluster-status.json", "storage-config.json", "storage-status.json", "zpool-iostat-w.txt", "zpool-iostat-wpH.txt", "psi-io.txt", "diskstats.txt"} {
+		if match := forbidden.Find(read(name)); match != nil {
+			t.Fatalf("fixture %s contains forbidden identity pattern %q", name, match)
+		}
 	}
 }
 

@@ -86,6 +86,16 @@ locally built host binary in a reviewed test environment. A dedicated package
 or minimal host-integrated image, systemd hardening, least-privilege command
 authorization, and version compatibility matrix remain promotion gates.
 
+## Compatibility status
+
+The first sanitized real-host source-format fixture covers PVE 9.2 with
+OpenZFS 2.4. It validates the JSON and histogram shapes consumed by the parser,
+but all public operational values are synthetic and the fixture is ineligible
+for policy or performance claims. Public topology/cardinality is synthetic as
+well. The compiled binary has not been installed or executed on that production
+host. See the
+[compatibility matrix](COMPATIBILITY.md) for the exact evidence boundary.
+
 ## Triage
 
 | Symptom | Meaning | Safe response |

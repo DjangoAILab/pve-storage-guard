@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "guard.storage-slo.io/compatibility-fixture/v1alpha1",
+  "kind": "PVECompatibilityFixtureBundle",
+  "pveMajorMinor": "9.2",
+  "openzfsMajorMinor": "2.4",
+  "capture": "remote-in-memory",
+  "shape": "observed",
+  "values": "synthetic",
+  "topology": "synthetic",
+  "identities": "fixed-aliases",
+  "policyEvidenceEligible": false,
+  "bucketCount": 37,
+  "columnCountIncludingBoundary": 12,
+  "remoteWrites": 0
+}

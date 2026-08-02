@@ -1,0 +1,11 @@
+[
+  {
+    "type": "cluster",
+    "quorate": true
+  },
+  {
+    "type": "node",
+    "name": "fixture-node",
+    "online": true
+  }
+]
