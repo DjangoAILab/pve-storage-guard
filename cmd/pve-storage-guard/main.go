@@ -43,6 +43,9 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	}
 	if len(args) > 0 && args[0] == "agent" {
 		if err := runAgent(args[1:], stdout, stderr); err != nil {
+			if errors.Is(err, context.Canceled) {
+				return 0
+			}
 			_, _ = fmt.Fprintf(stderr, "agent: %v\n", err)
 			return 1
 		}
@@ -77,31 +80,56 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 }
 
 func runAgent(args []string, stdout, stderr io.Writer) error {
-	if len(args) == 0 || (args[0] != "inventory" && args[0] != "observe") {
-		return errors.New("expected agent inventory or agent observe")
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	return runAgentWithContext(ctx, args, stdout, stderr, func(document config.PVEAgentConfig) (pveAgentReader, error) {
+		return pveadapter.NewLocalReader(document)
+	})
+}
+
+type pveAgentReader interface {
+	InventorySnapshot(context.Context) (v1.PVEInventory, error)
+	Observe(context.Context, string, time.Time) (v1.Observation, error)
+}
+
+type pveAgentReaderFactory func(config.PVEAgentConfig) (pveAgentReader, error)
+
+const (
+	minimumWatchPeriod = time.Second
+	maximumWatchPeriod = time.Hour
+)
+
+func runAgentWithContext(ctx context.Context, args []string, stdout, stderr io.Writer, factory pveAgentReaderFactory) error {
+	if len(args) == 0 || (args[0] != "inventory" && args[0] != "observe" && args[0] != "watch") {
+		return errors.New("expected agent inventory, agent observe, or agent watch")
 	}
 	operation := args[0]
 	flags := flag.NewFlagSet("agent "+operation, flag.ContinueOnError)
 	flags.SetOutput(stderr)
 	configPath := flags.String("config", "", "private local PVE agent JSON config")
+	var period *time.Duration
+	if operation == "watch" {
+		period = flags.Duration("period", 10*time.Second, "delay between completed observations (1s-1h)")
+	}
 	if err := flags.Parse(args[1:]); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 || *configPath == "" {
 		return errors.New("--config is required and positional arguments are not accepted")
 	}
+	if period != nil && (*period < minimumWatchPeriod || *period > maximumWatchPeriod) {
+		return errors.New("--period must be between 1s and 1h")
+	}
 	document, err := config.ReadPVEAgentConfig(*configPath)
 	if err != nil {
 		return err
 	}
-	reader, err := pveadapter.NewLocalReader(document)
+	reader, err := factory(document)
 	if err != nil {
 		return err
 	}
 	encoder := json.NewEncoder(stdout)
 	encoder.SetEscapeHTML(false)
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
 	if operation == "inventory" {
 		inventory, err := reader.InventorySnapshot(ctx)
 		if err != nil {
@@ -109,11 +137,46 @@ func runAgent(args []string, stdout, stderr io.Writer) error {
 		}
 		return encoder.Encode(inventory)
 	}
-	observation, err := reader.Observe(ctx, document.Spec.DomainKey, time.Time{})
-	if err != nil {
-		return err
+	if operation == "observe" {
+		observation, err := reader.Observe(ctx, document.Spec.DomainKey, time.Time{})
+		if err != nil {
+			return err
+		}
+		return encoder.Encode(observation)
 	}
-	return encoder.Encode(observation)
+	return watchAgent(ctx, reader, document.Spec.DomainKey, *period, stdout)
+}
+
+func watchAgent(ctx context.Context, reader pveAgentReader, domainKey string, period time.Duration, stdout io.Writer) error {
+	encoder := json.NewEncoder(stdout)
+	encoder.SetEscapeHTML(false)
+	for {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		observation, err := reader.Observe(ctx, domainKey, time.Time{})
+		if err != nil {
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
+			return fmt.Errorf("observe: %w", err)
+		}
+		if err := encoder.Encode(observation); err != nil {
+			return fmt.Errorf("write observation: %w", err)
+		}
+		timer := time.NewTimer(period)
+		select {
+		case <-ctx.Done():
+			if !timer.Stop() {
+				select {
+				case <-timer.C:
+				default:
+				}
+			}
+			return ctx.Err()
+		case <-timer.C:
+		}
+	}
 }
 
 func runJournalVerify(args []string, stdout, stderr io.Writer) error {
@@ -279,13 +342,16 @@ Usage:
   pve-storage-guard version
   pve-storage-guard agent inventory --config PRIVATE-AGENT.json
   pve-storage-guard agent observe --config PRIVATE-AGENT.json
+  pve-storage-guard agent watch --config PRIVATE-AGENT.json [--period 10s]
   pve-storage-guard shadow --policy POLICY.json --enrollment RESOURCE.json [--enrollment ...] [--journal DECISIONS.jsonl]
   pve-storage-guard journal verify --journal SEALED-DECISIONS.jsonl
   pve-storage-guard journal batch --journal SEALED-DECISIONS.jsonl --expected-digest sha256:... [--offset N] [--limit 64]
 
-The agent commands perform one read-only local PVE/OpenZFS sample. Their private
-config binds host identities to opaque output keys; neither command actuates,
-opens a listener, or sends data over the network.
+The agent inventory and observe commands perform one read-only local
+PVE/OpenZFS operation. Watch performs the same observation serially with a
+bounded delay between completed samples. Their private config binds host
+identities to opaque output keys; no agent command actuates, opens a listener,
+or sends data over the network.
 
 The shadow command reads newline-delimited observations from stdin and writes
 newline-delimited proposals to stdout. An explicit --journal appends and syncs

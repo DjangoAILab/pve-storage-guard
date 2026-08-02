@@ -59,7 +59,11 @@ func (r localCommandRunner) Run(parent context.Context, op operation, request co
 	if err != nil {
 		return nil, err
 	}
-	ctx, cancel := context.WithTimeout(parent, r.timeout)
+	return runBoundedCommand(parent, r.timeout, op, path, args)
+}
+
+func runBoundedCommand(parent context.Context, timeout time.Duration, op operation, path string, args []string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(parent, timeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, path, args...)
 	cmd.Env = []string{"PATH=/usr/sbin:/usr/bin:/sbin:/bin", "LC_ALL=C", "LANG=C", "TZ=UTC"}
@@ -71,6 +75,9 @@ func (r localCommandRunner) Run(parent context.Context, op operation, request co
 	if err := cmd.Run(); err != nil {
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			return nil, fmt.Errorf("%s timed out", op)
+		}
+		if errors.Is(ctx.Err(), context.Canceled) {
+			return nil, fmt.Errorf("%s cancelled: %w", op, context.Canceled)
 		}
 		if stdout.exceeded || stderr.exceeded {
 			return nil, fmt.Errorf("%s output exceeded safety limit", op)

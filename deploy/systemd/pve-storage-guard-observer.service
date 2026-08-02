@@ -1,0 +1,71 @@
+[Unit]
+Description=PVE Storage Guard read-only host observer
+Documentation=https://djangoailab.github.io/pve-storage-guard/operations/pve-agent/
+After=pve-cluster.service zfs.target
+Wants=pve-cluster.service zfs.target
+StartLimitIntervalSec=5min
+StartLimitBurst=3
+ConditionFileIsExecutable=/usr/local/bin/pve-storage-guard
+
+[Service]
+Type=simple
+User=pve-storage-guard
+Group=pve-storage-guard
+UMask=0077
+Environment=HOME=/nonexistent
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
+Environment=TZ=UTC
+ExecStartPre=/usr/local/bin/pve-storage-guard agent inventory --config /etc/pve-storage-guard/agent.json
+ExecStart=/usr/local/bin/pve-storage-guard agent watch --config /etc/pve-storage-guard/agent.json --period 10s
+Restart=on-failure
+RestartSec=30s
+TimeoutStartSec=2min
+TimeoutStopSec=10s
+KillSignal=SIGTERM
+KillMode=mixed
+SendSIGKILL=yes
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pve-storage-guard-observer
+
+# The observer has no write path and cannot reach a network namespace.
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+SecureBits=noroot-locked
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateNetwork=yes
+RestrictAddressFamilies=AF_UNIX
+IPAddressDeny=any
+ReadOnlyPaths=/etc/pve
+ReadOnlyPaths=/etc/pve-storage-guard/agent.json
+ReadOnlyPaths=/proc/pressure/io
+ReadOnlyPaths=/proc/diskstats
+DevicePolicy=closed
+# libzfs opens the control device read/write even for the fixed read-only
+# `zpool iostat` operations. No block device is exposed to this unit.
+DeviceAllow=/dev/zfs rw
+ProtectHostname=yes
+ProtectClock=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectProc=invisible
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RemoveIPC=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+TasksMax=64
+LimitNOFILE=128
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target
