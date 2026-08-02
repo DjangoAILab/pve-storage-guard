@@ -25,6 +25,8 @@ jobs:
         run: go vet ./...
       - name: Test with race detector
         run: go test -race -coverprofile=coverage.out ./...
+      - name: Verify hardened observer unit
+        run: sh scripts/verify-systemd-unit.sh
       - name: Performance smoke benchmarks
         run: go test -run '^$' -bench . -benchtime=100ms -benchmem ./internal/policy ./internal/allocator ./internal/safety ./internal/adapter/pve ./cmd/pve-storage-guard
       - name: Install staticcheck

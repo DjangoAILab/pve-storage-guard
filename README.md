@@ -63,11 +63,12 @@ printf '{"schemaVersion":"guard.storage-slo.io/v1alpha1","id":"quickstart-1","ob
 ```
 
 On a PVE test host, the concrete read-only ZFS adapter can verify an explicitly
-bound inventory and emit one observation:
+bound inventory and emit one observation or a serial JSONL stream:
 
 ```sh
 pve-storage-guard agent inventory --config /private/path/agent.json
 pve-storage-guard agent observe --config /private/path/agent.json
+pve-storage-guard agent watch --config /private/path/agent.json --period 10s
 ```
 
 The private config maps real PVE identifiers to opaque output keys. The agent
@@ -75,6 +76,11 @@ uses fixed `pvesh` and `zpool` read operations, reads only the two documented
 procfs files, opens no listener, and has no actuator. See the
 [agent guide](docs/PVE-AGENT.md) before using it; production installation is
 not yet authorized by the project status.
+
+The repository includes a proposed observer-only systemd unit for review and
+static analysis. It is not an installer and does not create a service account,
+PVE ACL, private config, binary, or enabled service. Actual non-root PVE and
+OpenZFS permissions plus sustained supervision remain non-production gates.
 
 Decision journaling is explicit and remains local. Add `--journal FILE` to
 append a versioned JSONL event before each corresponding proposal reaches
@@ -110,8 +116,8 @@ explicitly authorized local consumer; do not log, publish, or attach it to an
 issue. Neither journal command rotates, signs, imports, or delivers data over a
 network.
 
-Host service installation instructions will be published only after their
-safety gates pass. Until then, see [the goal](docs/GOAL.md),
+Host service installation remains blocked until its live safety gates pass.
+Until then, see [the goal](docs/GOAL.md),
 [architecture](docs/ARCHITECTURE.md), [policy design](docs/POLICY-DESIGN.md),
 and [PoC protocol](docs/POC.md).
 
@@ -127,10 +133,11 @@ flowchart LR
     Actuator -->|effective-state read-back| Safety
 ```
 
-The current binary exposes `version`, read-only `agent inventory` and
-`agent observe` commands for explicitly bound PVE ZFS storage, a non-actuating `shadow` command with an
-optional private decision journal, identity-free sealed-journal verification,
-and content-addressed bounded local batch reading.
+The current binary exposes `version`, read-only `agent inventory`, `agent
+observe`, and serial `agent watch` commands for explicitly bound PVE ZFS
+storage, a non-actuating `shadow` command with an optional private decision
+journal, identity-free sealed-journal verification, and content-addressed
+bounded local batch reading.
 Policy validation and approved enforcement modes remain roadmap work.
 The release workflow uploaded the signed, attested multi-architecture
 `v0.1.0-rc.1` image to `ghcr.io/djangoailab/pve-storage-guard`, but the GitHub

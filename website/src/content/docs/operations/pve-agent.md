@@ -3,9 +3,10 @@ title: Read-only PVE agent
 description: Collect identity-safe PVE and OpenZFS evidence without actuation.
 ---
 
-The v0.1 agent is a one-shot, same-host observer for an explicitly bound
-Proxmox VE `zfspool`. It has no listener, credential input, network exporter,
-or actuator. Production installation remains a separate safety checkpoint.
+The v0.1 agent is a same-host observer for an explicitly bound Proxmox VE
+`zfspool`. It supports one-shot and serial observation, but has no listener,
+credential input, network exporter, or actuator. Production installation
+remains a separate safety checkpoint.
 
 ## Evidence semantics
 
@@ -41,12 +42,15 @@ On a reviewed PVE test host:
 ```sh
 pve-storage-guard agent inventory --config /private/path/agent.json
 pve-storage-guard agent observe --config /private/path/agent.json
+pve-storage-guard agent watch --config /private/path/agent.json --period 10s
 ```
 
 Inventory must prove the node is healthy, the PVE storage is active ZFS, its
 dataset belongs to the configured top-level pool, and every explicitly enrolled
 device exists. Observation then emits one JSON sample. An interval with no
 writes emits an invalid wait rather than a false zero-latency percentile.
+Watch emits JSONL, never overlaps collectors, and exits cleanly when SIGTERM
+cancels a sample or its bounded inter-sample wait.
 
 ## Fixed local surface
 
@@ -58,15 +62,18 @@ an executable path or free-form argv from configuration. Each command has a
 deadline, fixed environment, and bounded output; unknown formats fail closed.
 
 The current distroless controller image does not contain host `pvesh` or
-`zpool` tools and is not a drop-in PVE collector. Use a locally built binary in
-a test environment until host packaging, hardening, and a PVE/OpenZFS version
-compatibility matrix pass their gates.
+`zpool` tools and is not a drop-in PVE collector. A proposed observer-only
+systemd unit runs under a static non-root account with no capabilities, network
+namespace, or writable filesystem path. Repository tests and Ubuntu 24.04
+`systemd-analyze` validate its static contract (0.8 exposure), not real PVE
+permissions or runtime behavior. Use a locally built binary only in a reviewed
+test environment until those host gates pass.
 
 ## Compatibility evidence
 
 | PVE | OpenZFS | Proven | Still gated |
 | --- | --- | --- | --- |
-| 9.2 | 2.4 | PVE JSON, ZFS wait-header and 37-bucket/12-column histogram shapes, PSI, diskstats | compiled host binary, permissions, service packaging, sustained sampling, policy thresholds, actuation |
+| 9.2 | 2.4 | PVE JSON, ZFS wait-header and 37-bucket/12-column histogram shapes, PSI, diskstats, portable cancellation, static unit analysis | compiled binary on PVE, live ACL/device/unit behavior, sustained sampling, policy thresholds, actuation |
 
 The fixture retains observed field and histogram shape but uses fixed aliases,
 synthetic topology/cardinality, and synthetic operational values. It is

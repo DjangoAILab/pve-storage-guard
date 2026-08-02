@@ -2,17 +2,177 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	v1 "github.com/DjangoAILab/pve-storage-guard/api/v1"
+	"github.com/DjangoAILab/pve-storage-guard/internal/config"
 	"github.com/DjangoAILab/pve-storage-guard/internal/telemetry"
 )
+
+type fakeAgentReader struct {
+	mu           sync.Mutex
+	observations []v1.Observation
+	observeErr   error
+	started      chan struct{}
+	release      chan struct{}
+	calls        int
+}
+
+func (f *fakeAgentReader) InventorySnapshot(context.Context) (v1.PVEInventory, error) {
+	return v1.PVEInventory{}, nil
+}
+
+func (f *fakeAgentReader) Observe(ctx context.Context, _ string, _ time.Time) (v1.Observation, error) {
+	f.mu.Lock()
+	f.calls++
+	index := f.calls - 1
+	f.mu.Unlock()
+	if f.started != nil {
+		select {
+		case f.started <- struct{}{}:
+		default:
+		}
+	}
+	if f.release != nil {
+		select {
+		case <-ctx.Done():
+			return v1.Observation{}, ctx.Err()
+		case <-f.release:
+		}
+	}
+	if f.observeErr != nil {
+		return v1.Observation{}, f.observeErr
+	}
+	if len(f.observations) == 0 {
+		return v1.Observation{SchemaVersion: v1.SchemaVersion, ID: "observation-watch", DomainKey: "reference-pool"}, nil
+	}
+	return f.observations[index%len(f.observations)], nil
+}
+
+func (f *fakeAgentReader) callCount() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.calls
+}
+
+func TestAgentWatchEmitsSerialJSONLAndStopsWhileWaiting(t *testing.T) {
+	reader := &fakeAgentReader{observations: []v1.Observation{
+		{SchemaVersion: v1.SchemaVersion, ID: "observation-watch-1", DomainKey: "reference-pool"},
+		{SchemaVersion: v1.SchemaVersion, ID: "observation-watch-2", DomainKey: "reference-pool"},
+	}}
+	ctx, cancel := context.WithCancel(context.Background())
+	var stdout bytes.Buffer
+	done := make(chan error, 1)
+	go func() {
+		done <- watchAgent(ctx, reader, "reference-pool", 20*time.Millisecond, &stdout)
+	}()
+	deadline := time.Now().Add(time.Second)
+	for reader.callCount() < 2 && time.Now().Before(deadline) {
+		time.Sleep(time.Millisecond)
+	}
+	cancel()
+	if err := <-done; !errors.Is(err, context.Canceled) {
+		t.Fatalf("watch: %v", err)
+	}
+	lines := strings.Split(strings.TrimSpace(stdout.String()), "\n")
+	if len(lines) != 2 || !strings.Contains(lines[0], `"id":"observation-watch-1"`) || !strings.Contains(lines[1], `"id":"observation-watch-2"`) {
+		t.Fatalf("unexpected JSONL: %q", stdout.String())
+	}
+}
+
+func TestAgentWatchCancelsAnInFlightObservation(t *testing.T) {
+	reader := &fakeAgentReader{started: make(chan struct{}, 1), release: make(chan struct{})}
+	ctx, cancel := context.WithCancel(context.Background())
+	var stdout bytes.Buffer
+	done := make(chan error, 1)
+	go func() {
+		done <- watchAgent(ctx, reader, "reference-pool", time.Second, &stdout)
+	}()
+	select {
+	case <-reader.started:
+	case <-time.After(time.Second):
+		t.Fatal("observation did not start")
+	}
+	cancel()
+	select {
+	case err := <-done:
+		if !errors.Is(err, context.Canceled) || stdout.Len() != 0 {
+			t.Fatalf("err=%v stdout=%q", err, stdout.String())
+		}
+	case <-time.After(time.Second):
+		t.Fatal("watch did not stop after cancellation")
+	}
+}
+
+func TestAgentWatchFailsClosedOnObservationOrOutputError(t *testing.T) {
+	reader := &fakeAgentReader{observeErr: errors.New("unavailable")}
+	if err := watchAgent(context.Background(), reader, "reference-pool", time.Second, &bytes.Buffer{}); err == nil || !strings.Contains(err.Error(), "observe") {
+		t.Fatalf("unexpected observation error: %v", err)
+	}
+	reader = &fakeAgentReader{}
+	if err := watchAgent(context.Background(), reader, "reference-pool", time.Second, failingWriter{}); err == nil || !strings.Contains(err.Error(), "write observation") {
+		t.Fatalf("unexpected output error: %v", err)
+	}
+}
+
+func TestAgentWatchCLIValidatesCadenceBeforeReaderCreation(t *testing.T) {
+	for _, period := range []string{"999ms", "1h1s", "invalid"} {
+		var stdout, stderr bytes.Buffer
+		factoryCalled := false
+		err := runAgentWithContext(context.Background(), []string{"watch", "--config", "unused", "--period", period}, &stdout, &stderr, func(config.PVEAgentConfig) (pveAgentReader, error) {
+			factoryCalled = true
+			return &fakeAgentReader{}, nil
+		})
+		if err == nil || factoryCalled || stdout.Len() != 0 {
+			t.Fatalf("period=%q err=%v factoryCalled=%v stdout=%q", period, err, factoryCalled, stdout.String())
+		}
+	}
+}
+
+func TestAgentWatchCLIWiresPrivateConfigAndCancellation(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), "agent.json")
+	payload := []byte(`{"apiVersion":"guard.storage-slo.io/v1alpha1","kind":"PVEAgentConfig","spec":{"domainKey":"reference-pool","node":"node-a","storage":"storage-a","zpool":"pool-a","sampleIntervalSeconds":1,"commandTimeoutSeconds":5,"emergencyWaitMilliseconds":100,"resources":[{"resourceKey":"resource-a","kernelDevice":"sdb","root":false,"critical":false}]}}`)
+	if err := os.WriteFile(configPath, payload, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	reader := &fakeAgentReader{started: make(chan struct{}, 1)}
+	ctx, cancel := context.WithCancel(context.Background())
+	var stdout, stderr bytes.Buffer
+	done := make(chan error, 1)
+	go func() {
+		done <- runAgentWithContext(ctx, []string{"watch", "--config", configPath, "--period", "1s"}, &stdout, &stderr, func(document config.PVEAgentConfig) (pveAgentReader, error) {
+			if document.Spec.DomainKey != "reference-pool" {
+				return nil, fmt.Errorf("unexpected domain %q", document.Spec.DomainKey)
+			}
+			return reader, nil
+		})
+	}()
+	select {
+	case <-reader.started:
+	case <-time.After(time.Second):
+		t.Fatal("watch did not start")
+	}
+	cancel()
+	if err := <-done; !errors.Is(err, context.Canceled) {
+		t.Fatalf("watch: %v; stderr=%q", err, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), `"id":"observation-watch"`) {
+		t.Fatalf("unexpected stdout: %q", stdout.String())
+	}
+}
+
+type failingWriter struct{}
+
+func (failingWriter) Write([]byte) (int, error) { return 0, errors.New("closed") }
 
 func TestShadowCommandEmitsNonActuatingProposal(t *testing.T) {
 	root := filepath.Join("..", "..")

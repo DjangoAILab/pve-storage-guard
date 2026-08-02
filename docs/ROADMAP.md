@@ -9,7 +9,9 @@ until its safety criteria pass.
 - Deterministic `storage-slo-guard` AIMD and bounded allocator.
 - PVE read-only discovery/metrics adapter (initial explicit OpenZFS binding
   implemented; sanitized PVE 9.2 / OpenZFS 2.4 source-format compatibility
-  passed, while compiled-host and packaging validation remain gated).
+  passed; serial watch, cancellation tests, and a statically verified hardened
+  observer unit are implemented, while compiled-PVE permission/runtime
+  validation remains gated).
 - Offline replay with anonymized fixtures and golden reports.
 - Prometheus metrics, structured decisions, ITOps integration examples.
 - Local dry-run and shadow mode only.

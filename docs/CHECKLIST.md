@@ -97,10 +97,24 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   validation passed [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30727736537),
   [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30727736533),
   and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30727736532).
+- [x] Add serial continuous observation, portable in-flight child cancellation,
+  and a proposed observer-only systemd boundary without expanding the command,
+  network, device, or write surface. Repository contract tests pin the unit's
+  non-root identity, fixed inventory/watch commands, empty capabilities,
+  read-only filesystem, private network, closed device policy, restart/stop
+  bounds, and lack of an actuator. Disposable Ubuntu 24.04
+  `systemd-analyze verify` passed and the security exposure was 0.8 (SAFE),
+  below the enforced 1.0 ceiling. Evidence: `cmd/pve-storage-guard`,
+  `internal/adapter/pve/runner_test.go`, `deploy/systemd/`,
+  `scripts/verify-systemd-unit.sh`, and the
+  [host-hardening plan](plans/2026-08-02-host-observer-hardening.md). Public
+  review: [PR #33](https://github.com/DjangoAILab/pve-storage-guard/pull/33).
+  This is portable/static evidence only and caused no PVE or ITOps write.
 - [ ] Execute the compiled agent in a non-production PVE environment and
   validate Unix permissions, repeated sampling, process cancellation, and
-  systemd/container hardening. No binary was uploaded to or run on the
-  reference production host.
+  live systemd behavior. No binary was uploaded to or run on the reference
+  production host; static unit analysis and portable cancellation tests do not
+  close this host-runtime gate.
 - [x] Implement the versioned JSONL shadow stream, strict configuration
   decoding, exact enrollment, telemetry-age checks, and non-actuating proposal
   output. An opt-in private append/sync decision journal now records the

@@ -33,8 +33,8 @@ management health ─────────┘              │               
 The intended artifact is one Go binary, `pve-storage-guard`, with isolated
 runtime modes:
 
-- `agent`: local PVE inventory and metrics collection; a separately enabled,
-  tightly constrained actuator surface.
+- `agent`: local PVE inventory and one-shot/serial metrics collection; a
+  separately enabled, tightly constrained actuator surface remains future work.
 - `controller`: unprivileged policy actors, allocation, safety checks, state,
   and decision journal; preferably outside the PVE storage failure domain.
 - `replay`: deterministic offline replay and strategy comparison.
@@ -164,11 +164,15 @@ inputs. No actuator is enabled.
 Separate system users/services run collector and controller. The controller has
 no mutation permission. This mode validates discovery, timing, and telemetry.
 
-The concrete v0.1 slice is one-shot and OpenZFS-only. It validates explicit
+The concrete v0.1 slice is observer-only and OpenZFS-only. It validates explicit
 private PVE node/storage/pool/device bindings, emits only opaque public keys,
 and obtains a conservative p95 upper bound from the interval `total_wait` write
 histogram. Fixed `pvesh`/`zpool` argv and two exact procfs paths form its entire
-read surface. It has no listener or actuator; see ADR 0007.
+read surface. A serial `watch` mode adds bounded repeated sampling and clean
+context cancellation without adding a listener or actuator. The proposed
+systemd observer runs as a static non-root account with no capabilities,
+network namespace, or writable filesystem path; actual PVE permissions remain
+a non-production host validation gate. See ADR 0007.
 
 ### Split production topology
 
