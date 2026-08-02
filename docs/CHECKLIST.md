@@ -372,6 +372,17 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   remains undeployed: no collector,
   runtime registration, journal import, dashboard, alert, notification, or
   control path was enabled.
+  A documentation-only follow-up corrected four internal rollout fact sources
+  so that checkpoint A is recorded as complete while deployment checkpoints
+  B/C and all later alert, notification, journal-registration, and actuation
+  gates remain explicitly unapproved. Internal
+  [PR #39](https://gitea.wj2015.com/PEM/itops-agent-platform/pulls/39)
+  merged as `055b092` after branch
+  [run 168](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/168)
+  and post-merge main
+  [run 169](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/169)
+  passed the Node 22 quality gate and linux/amd64 image build. The merge itself
+  caused no runtime or production change.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
