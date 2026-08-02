@@ -20,6 +20,12 @@ func TestNewShadowDecisionEventMapsEvidenceAndProposal(t *testing.T) {
 		WaitValid:                true,
 		Emergency:                false,
 		ManagementPlaneHealthy:   true,
+		WaitEvidence: &v1.WaitEvidence{
+			MeasurementLayer: "storage-domain", Statistic: "p95-upper-bound", Source: "openzfs-total-wait-histogram", Provenance: "observed",
+			SampleIntervalSeconds: 1, SampleWeight: 100, BucketUpperBoundNanoseconds: 42_000_000,
+		},
+		IOPressure:  &v1.IOPressure{SomeAvg10: 12.5, FullAvg10: 2.5},
+		DiskSignals: []v1.DiskSignal{{ResourceKey: "resource-opaque-1", ReadsCompletedTotal: 1, WritesCompletedTotal: 2, ReadSectorsTotal: 3, WrittenSectorsTotal: 4, InFlightIO: 2, IOTimeMillisecondsTotal: 3, WeightedIOMillisecondsTotal: 4}},
 	}
 	proposal := v1.Proposal{
 		SchemaVersion:       v1.SchemaVersion,
@@ -50,6 +56,9 @@ func TestNewShadowDecisionEventMapsEvidenceAndProposal(t *testing.T) {
 	}
 	if event.Observation.ID != observation.ID || !event.Observation.ObservedAt.Equal(observedAt) || event.Observation.AgeSeconds != 1.2 || event.Observation.WriteWaitP95Milliseconds != 42 || !event.Observation.WaitValid || !event.Observation.ManagementPlaneHealthy {
 		t.Fatalf("unexpected observation evidence: %+v", event.Observation)
+	}
+	if event.Observation.WaitEvidence == observation.WaitEvidence || !reflect.DeepEqual(event.Observation.WaitEvidence, observation.WaitEvidence) || event.Observation.IOPressure == observation.IOPressure || !reflect.DeepEqual(event.Observation.DiskSignals, observation.DiskSignals) {
+		t.Fatalf("observation evidence was not safely copied: %+v", event.Observation)
 	}
 	if event.Decision.ProposalID != proposal.ID || event.Decision.Reason != proposal.Reason || event.Decision.PreviousBudgetMiBPS != 20 || event.Decision.DesiredBudgetMiBPS != 10 || !event.Decision.Changed || !reflect.DeepEqual(event.Decision.Allocations, proposal.Allocations) {
 		t.Fatalf("unexpected decision: %+v", event.Decision)

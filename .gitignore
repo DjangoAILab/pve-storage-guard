@@ -21,6 +21,7 @@ coverage.out
 /website/node_modules/
 /website/dist/
 /website/.astro/
+/website/public/schema/
 
 # Local configuration, secrets, and runtime state
 .env

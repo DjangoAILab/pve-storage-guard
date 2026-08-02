@@ -3,8 +3,8 @@ title: Getting started
 description: Reproduce the observer-only offline policy evaluation.
 ---
 
-The current release surface is deliberately read-only. It has no PVE actuator
-integration.
+The current release surface is deliberately read-only. It includes a local PVE
+ZFS observer but has no PVE actuator integration.
 
 ## Run the reference replay
 
@@ -46,6 +46,20 @@ printf '{"schemaVersion":"guard.storage-slo.io/v1alpha1","id":"quickstart-1","ob
 Only explicitly enrolled, non-critical resources can appear in an allocation.
 Unknown fields, unsupported schemas, and mismatched storage domains are
 rejected; stale observations cannot increase a budget.
+
+## Test the PVE ZFS observer
+
+After fixture tests pass, a reviewed PVE test host can run the concrete
+read-only adapter:
+
+```sh
+pve-storage-guard agent inventory --config /private/path/agent.json
+pve-storage-guard agent observe --config /private/path/agent.json
+```
+
+The config is private and owner-only; stdout contains opaque keys. Read the
+[agent guide](/pve-storage-guard/operations/pve-agent/) before using it. These
+commands are not authorization to install on a production node.
 
 ## Optional private decision journal
 

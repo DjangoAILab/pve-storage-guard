@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/v1alpha1/pve-agent-config.json",
+  "title": "PVE Storage Guard private local agent configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "spec"],
+  "properties": {
+    "apiVersion": { "const": "guard.storage-slo.io/v1alpha1" },
+    "kind": { "const": "PVEAgentConfig" },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domainKey", "node", "storage", "zpool", "sampleIntervalSeconds", "commandTimeoutSeconds", "emergencyWaitMilliseconds", "resources"],
+      "properties": {
+        "domainKey": { "$ref": "#/$defs/opaqueKey" },
+        "node": { "$ref": "#/$defs/privateId" },
+        "storage": { "$ref": "#/$defs/privateId" },
+        "zpool": { "$ref": "#/$defs/privateId" },
+        "sampleIntervalSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
+        "commandTimeoutSeconds": { "type": "integer", "minimum": 3, "maximum": 120 },
+        "emergencyWaitMilliseconds": { "type": "number", "exclusiveMinimum": 0 },
+        "resources": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["resourceKey", "kernelDevice", "root", "critical"],
+            "properties": {
+              "resourceKey": { "$ref": "#/$defs/opaqueKey" },
+              "kernelDevice": { "$ref": "#/$defs/privateId" },
+              "root": { "type": "boolean" },
+              "critical": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "opaqueKey": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,62}$" },
+    "privateId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$", "not": { "pattern": "\\.\\." } }
+  }
+}

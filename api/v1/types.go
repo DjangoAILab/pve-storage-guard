@@ -17,18 +17,69 @@ const (
 	DecisionJournalVerificationKind = "DecisionJournalVerification"
 	// DecisionJournalBatchKind identifies one private, content-addressed journal page.
 	DecisionJournalBatchKind = "DecisionJournalBatch"
+	// PVEInventoryKind identifies an identity-safe PVE inventory snapshot.
+	PVEInventoryKind = "PVEInventory"
 )
 
 // Observation is a normalized, read-only storage-domain sample.
 type Observation struct {
-	SchemaVersion            string    `json:"schemaVersion"`
-	ID                       string    `json:"id"`
-	ObservedAt               time.Time `json:"observedAt"`
-	DomainKey                string    `json:"domainKey"`
-	WriteWaitP95Milliseconds float64   `json:"writeWaitP95Milliseconds"`
-	WaitValid                bool      `json:"waitValid"`
-	Emergency                bool      `json:"emergency"`
-	ManagementPlaneHealthy   bool      `json:"managementPlaneHealthy"`
+	SchemaVersion            string        `json:"schemaVersion"`
+	ID                       string        `json:"id"`
+	ObservedAt               time.Time     `json:"observedAt"`
+	DomainKey                string        `json:"domainKey"`
+	WriteWaitP95Milliseconds float64       `json:"writeWaitP95Milliseconds"`
+	WaitValid                bool          `json:"waitValid"`
+	Emergency                bool          `json:"emergency"`
+	ManagementPlaneHealthy   bool          `json:"managementPlaneHealthy"`
+	WaitEvidence             *WaitEvidence `json:"waitEvidence,omitempty"`
+	IOPressure               *IOPressure   `json:"ioPressure,omitempty"`
+	DiskSignals              []DiskSignal  `json:"diskSignals,omitempty"`
+}
+
+// WaitEvidence preserves the layer, statistic, and provenance of a wait value.
+type WaitEvidence struct {
+	MeasurementLayer            string  `json:"measurementLayer"`
+	Statistic                   string  `json:"statistic"`
+	Source                      string  `json:"source"`
+	Provenance                  string  `json:"provenance"`
+	SampleIntervalSeconds       int     `json:"sampleIntervalSeconds"`
+	SampleWeight                float64 `json:"sampleWeight"`
+	BucketUpperBoundNanoseconds uint64  `json:"bucketUpperBoundNanoseconds"`
+}
+
+// IOPressure is a typed Linux PSI snapshot. Values are percentages.
+type IOPressure struct {
+	SomeAvg10 float64 `json:"someAvg10Percent"`
+	FullAvg10 float64 `json:"fullAvg10Percent"`
+}
+
+// DiskSignal exposes identity-safe cumulative diskstats corroboration.
+type DiskSignal struct {
+	ResourceKey                 string `json:"resourceKey"`
+	ReadsCompletedTotal         uint64 `json:"readsCompletedTotal"`
+	WritesCompletedTotal        uint64 `json:"writesCompletedTotal"`
+	ReadSectorsTotal            uint64 `json:"readSectorsTotal"`
+	WrittenSectorsTotal         uint64 `json:"writtenSectorsTotal"`
+	InFlightIO                  uint64 `json:"inFlightIo"`
+	IOTimeMillisecondsTotal     uint64 `json:"ioTimeMillisecondsTotal"`
+	WeightedIOMillisecondsTotal uint64 `json:"weightedIoMillisecondsTotal"`
+}
+
+// PVEInventory is a normalized inventory that omits private PVE identifiers.
+type PVEInventory struct {
+	SchemaVersion string             `json:"schemaVersion"`
+	Kind          string             `json:"kind"`
+	ObservedAt    time.Time          `json:"observedAt"`
+	DomainKey     string             `json:"domainKey"`
+	StorageType   string             `json:"storageType"`
+	Resources     []PVEInventoryDisk `json:"resources"`
+}
+
+// PVEInventoryDisk is one explicitly enrolled opaque resource.
+type PVEInventoryDisk struct {
+	ResourceKey string `json:"resourceKey"`
+	Root        bool   `json:"root"`
+	Critical    bool   `json:"critical"`
 }
 
 // Proposal is a non-mutating desired allocation emitted by the policy engine.
@@ -66,13 +117,16 @@ type DecisionEvent struct {
 
 // DecisionEventObservation captures the normalized evidence used by shadow.
 type DecisionEventObservation struct {
-	ID                       string    `json:"id"`
-	ObservedAt               time.Time `json:"observedAt"`
-	AgeSeconds               float64   `json:"ageSeconds"`
-	WriteWaitP95Milliseconds float64   `json:"writeWaitP95Milliseconds"`
-	WaitValid                bool      `json:"waitValid"`
-	Emergency                bool      `json:"emergency"`
-	ManagementPlaneHealthy   bool      `json:"managementPlaneHealthy"`
+	ID                       string        `json:"id"`
+	ObservedAt               time.Time     `json:"observedAt"`
+	AgeSeconds               float64       `json:"ageSeconds"`
+	WriteWaitP95Milliseconds float64       `json:"writeWaitP95Milliseconds"`
+	WaitValid                bool          `json:"waitValid"`
+	Emergency                bool          `json:"emergency"`
+	ManagementPlaneHealthy   bool          `json:"managementPlaneHealthy"`
+	WaitEvidence             *WaitEvidence `json:"waitEvidence,omitempty"`
+	IOPressure               *IOPressure   `json:"ioPressure,omitempty"`
+	DiskSignals              []DiskSignal  `json:"diskSignals,omitempty"`
 }
 
 // DecisionEventDecision records the bounded desired allocation.

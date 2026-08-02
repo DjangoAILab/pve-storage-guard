@@ -3,16 +3,20 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	v1 "github.com/DjangoAILab/pve-storage-guard/api/v1"
+	pveadapter "github.com/DjangoAILab/pve-storage-guard/internal/adapter/pve"
 	"github.com/DjangoAILab/pve-storage-guard/internal/allocator"
 	"github.com/DjangoAILab/pve-storage-guard/internal/config"
 	"github.com/DjangoAILab/pve-storage-guard/internal/controller"
@@ -33,6 +37,13 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	if len(args) > 0 && args[0] == "shadow" {
 		if err := runShadow(args[1:], stdin, stdout, stderr); err != nil {
 			_, _ = fmt.Fprintf(stderr, "shadow: %v\n", err)
+			return 1
+		}
+		return 0
+	}
+	if len(args) > 0 && args[0] == "agent" {
+		if err := runAgent(args[1:], stdout, stderr); err != nil {
+			_, _ = fmt.Fprintf(stderr, "agent: %v\n", err)
 			return 1
 		}
 		return 0
@@ -63,6 +74,46 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 0
 	}
 	return 2
+}
+
+func runAgent(args []string, stdout, stderr io.Writer) error {
+	if len(args) == 0 || (args[0] != "inventory" && args[0] != "observe") {
+		return errors.New("expected agent inventory or agent observe")
+	}
+	operation := args[0]
+	flags := flag.NewFlagSet("agent "+operation, flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	configPath := flags.String("config", "", "private local PVE agent JSON config")
+	if err := flags.Parse(args[1:]); err != nil {
+		return err
+	}
+	if flags.NArg() != 0 || *configPath == "" {
+		return errors.New("--config is required and positional arguments are not accepted")
+	}
+	document, err := config.ReadPVEAgentConfig(*configPath)
+	if err != nil {
+		return err
+	}
+	reader, err := pveadapter.NewLocalReader(document)
+	if err != nil {
+		return err
+	}
+	encoder := json.NewEncoder(stdout)
+	encoder.SetEscapeHTML(false)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	if operation == "inventory" {
+		inventory, err := reader.InventorySnapshot(ctx)
+		if err != nil {
+			return err
+		}
+		return encoder.Encode(inventory)
+	}
+	observation, err := reader.Observe(ctx, document.Spec.DomainKey, time.Time{})
+	if err != nil {
+		return err
+	}
+	return encoder.Encode(observation)
 }
 
 func runJournalVerify(args []string, stdout, stderr io.Writer) error {
@@ -226,9 +277,15 @@ Status: pre-release; observer/shadow only
 
 Usage:
   pve-storage-guard version
+  pve-storage-guard agent inventory --config PRIVATE-AGENT.json
+  pve-storage-guard agent observe --config PRIVATE-AGENT.json
   pve-storage-guard shadow --policy POLICY.json --enrollment RESOURCE.json [--enrollment ...] [--journal DECISIONS.jsonl]
   pve-storage-guard journal verify --journal SEALED-DECISIONS.jsonl
   pve-storage-guard journal batch --journal SEALED-DECISIONS.jsonl --expected-digest sha256:... [--offset N] [--limit 64]
+
+The agent commands perform one read-only local PVE/OpenZFS sample. Their private
+config binds host identities to opaque output keys; neither command actuates,
+opens a listener, or sends data over the network.
 
 The shadow command reads newline-delimited observations from stdin and writes
 newline-delimited proposals to stdout. An explicit --journal appends and syncs

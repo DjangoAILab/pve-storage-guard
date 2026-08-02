@@ -4,7 +4,9 @@
   "type": "module",
   "version": "0.0.0",
   "scripts": {
+    "predev": "node scripts/sync-schemas.mjs",
     "dev": "astro dev",
+    "prebuild": "node scripts/sync-schemas.mjs",
     "build": "astro check && astro build",
     "preview": "astro preview"
   },

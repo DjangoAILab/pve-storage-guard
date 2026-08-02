@@ -79,10 +79,16 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   tests under `internal/policy` and `internal/allocator`.
 - [x] Implement read-only adapter and constrained actuator contracts without
   production mutation under `internal/adapter/pve` and `internal/actuator/pve`.
-- [ ] Implement the concrete public PVE inventory/metrics adapter and `agent`
-  mode behind those contracts. The current public binary accepts normalized
-  JSONL observations only; the internal ITOps Draft collector does not satisfy
-  this public v0.1 distribution requirement.
+- [x] Implement the concrete public PVE ZFS inventory/metrics adapter and
+  read-only `agent inventory` / `agent observe` modes behind those contracts.
+  Evidence: `internal/adapter/pve`, `cmd/pve-storage-guard`,
+  `api/v1/schema/pve-agent-config.schema.json`,
+  `api/v1/schema/pve-inventory.schema.json`, and ADR-0007. The adapter uses
+  OpenZFS write total-wait histograms for typed p95 upper-bound evidence;
+  diskstats and PSI cannot substitute for it.
+- [ ] Validate the concrete adapter against a reviewed, sanitized real-PVE ZFS
+  fixture and compatibility matrix before any host installation. Local macOS
+  development has no `zpool` binary and is not production evidence.
 - [x] Implement the versioned JSONL shadow stream, strict configuration
   decoding, exact enrollment, telemetry-age checks, and non-actuating proposal
   output. An opt-in private append/sync decision journal now records the
@@ -136,6 +142,16 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   local shadow-command batches with and without real per-event journal sync.
   Default shadow measured 4.048–4.155 µs/observation and the opt-in private
   journal measured 3.770–3.827 ms/observation on the documented local machine;
+  concrete PVE adapter tests now cover fixed shell-free argv, strict owner-only
+  config, PVE/ZFS binding, histogram semantics, empty/malformed samples,
+  PSI/diskstats parsing, opaque output, and journal evidence preservation. The
+  40-bucket histogram parser measured 3.867–4.005 µs/op on the same local
+  machine. On 2026-08-02, full tests and race tests, vet, staticcheck,
+  govulncheck, Gitleaks, JSON/schema checks, and the 15-page Astro build passed;
+  public [PR #31](https://github.com/DjangoAILab/pve-storage-guard/pull/31)
+  then passed the final [CI run](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30726851178),
+  [CodeQL run](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30726851185),
+  and [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30726851172);
   the internal pure replay exporter now also has a no-global-rescan regression
   gate and deterministic 1/7/14-day benchmark. Five 14-day runs exported 20,160
   intervals from 141,120 metrics in 80.472–82.093 ms with identical output

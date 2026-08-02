@@ -164,6 +164,12 @@ inputs. No actuator is enabled.
 Separate system users/services run collector and controller. The controller has
 no mutation permission. This mode validates discovery, timing, and telemetry.
 
+The concrete v0.1 slice is one-shot and OpenZFS-only. It validates explicit
+private PVE node/storage/pool/device bindings, emits only opaque public keys,
+and obtains a conservative p95 upper bound from the interval `total_wait` write
+histogram. Fixed `pvesh`/`zpool` argv and two exact procfs paths form its entire
+read surface. It has no listener or actuator; see ADR 0007.
+
 ### Split production topology
 
 The controller and journal run outside the PVE storage failure domain. A small
