@@ -148,6 +148,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   40-bucket histogram parser measured 3.867–4.005 µs/op on the same local
   machine. On 2026-08-02, full tests and race tests, vet, staticcheck,
   govulncheck, Gitleaks, JSON/schema checks, and the 15-page Astro build passed;
+  public [PR #31](https://github.com/DjangoAILab/pve-storage-guard/pull/31)
+  then passed the final [CI run](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30726851178),
+  [CodeQL run](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30726851185),
+  and [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30726851172);
   the internal pure replay exporter now also has a no-global-rescan regression
   gate and deterministic 1/7/14-day benchmark. Five 14-day runs exported 20,160
   intervals from 141,120 metrics in 80.472–82.093 ms with identical output
