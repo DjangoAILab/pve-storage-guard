@@ -107,8 +107,9 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   below the enforced 1.0 ceiling. Evidence: `cmd/pve-storage-guard`,
   `internal/adapter/pve/runner_test.go`, `deploy/systemd/`,
   `scripts/verify-systemd-unit.sh`, and the
-  [host-hardening plan](plans/2026-08-02-host-observer-hardening.md). This is
-  portable/static evidence only and caused no PVE or ITOps write.
+  [host-hardening plan](plans/2026-08-02-host-observer-hardening.md). Public
+  review: [PR #33](https://github.com/DjangoAILab/pve-storage-guard/pull/33).
+  This is portable/static evidence only and caused no PVE or ITOps write.
 - [ ] Execute the compiled agent in a non-production PVE environment and
   validate Unix permissions, repeated sampling, process cancellation, and
   live systemd behavior. No binary was uploaded to or run on the reference
