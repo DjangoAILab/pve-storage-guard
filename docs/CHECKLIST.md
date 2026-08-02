@@ -137,7 +137,13 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   artifacts, observer processes, service accounts, or units. The first attempt
   with the verified `v0.1.0-rc.1` asset failed closed at inventory because that
   older release predates the agent CLI; a successor release remains required.
-  Evidence: [compatibility evidence](COMPATIBILITY.md#production-read-only-compiled-compatibility).
+  Evidence: [compatibility evidence](COMPATIBILITY.md#production-read-only-compiled-compatibility)
+  and public [PR #35](https://github.com/DjangoAILab/pve-storage-guard/pull/35).
+  Post-merge public main passed
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30731900106),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30731900131),
+  and [Pages](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30731900122);
+  the deployed agent guide and compatibility schema both returned HTTPS 200.
 - [ ] Validate actual non-root PVE ACL/device permissions, live systemd
   behavior, sustained supervision, and rollback. The production compatibility
   result cannot close these gates.
@@ -339,7 +345,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   [run 163](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/163)
   validated exact head `62cc3e1`: the Node 22 quality gate and dependent
   linux/amd64 image build passed. PR #37 then merged to internal main as
-  `1a94834` after explicit approval. It remains undeployed: no collector,
+  `1a94834` after explicit approval. Post-merge
+  [run 164](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/164)
+  then passed both the Node 22 quality gate and linux/amd64 image build. It
+  remains undeployed: no collector,
   runtime registration, journal import, dashboard, alert, notification, or
   control path was enabled.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
