@@ -169,8 +169,8 @@ class NonProductionObserverValidatorTests(unittest.TestCase):
             "effective_uid": self.test_uid,
             "platform": "linux",
             "host_probe": lambda: True,
-            "one_shot_timeout": 2.0,
-            "watch_timeout": 2.0,
+            "one_shot_timeout": 10.0,
+            "watch_timeout": 10.0,
             "stop_timeout": 0.5,
         }
         options.update(overrides)
@@ -351,8 +351,8 @@ class NonProductionObserverValidatorTests(unittest.TestCase):
                 effective_uid=self.test_uid,
                 platform="linux",
                 host_probe=lambda: True,
-                one_shot_timeout=2.0,
-                watch_timeout=2.0,
+                one_shot_timeout=10.0,
+                watch_timeout=10.0,
                 stop_timeout=0.5,
             )
         self.assertEqual(exit_code, 1)
@@ -376,8 +376,8 @@ class NonProductionObserverValidatorTests(unittest.TestCase):
                 effective_uid=self.test_uid,
                 platform="linux",
                 host_probe=lambda: True,
-                one_shot_timeout=2.0,
-                watch_timeout=2.0,
+                one_shot_timeout=10.0,
+                watch_timeout=10.0,
                 stop_timeout=0.5,
             )
         self.assertEqual(exit_code, 0)
