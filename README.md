@@ -71,6 +71,11 @@ pve-storage-guard agent observe --config /private/path/agent.json
 pve-storage-guard agent watch --config /private/path/agent.json --period 10s
 ```
 
+These commands are present on current `main` but not in the earlier
+`v0.1.0-rc.1` binary release. Until a successor release is published, build
+from a reviewed commit and retain its source revision and binary digest as
+non-promotion compatibility evidence only.
+
 The private config maps real PVE identifiers to opaque output keys. The agent
 uses fixed `pvesh` and `zpool` read operations, reads only the two documented
 procfs files, opens no listener, and has no actuator. See the
@@ -86,6 +91,13 @@ Once those inputs are staged on a test node, the separate
 SHA-256, validates fixed read-only commands and SIGTERM in memory, and emits an
 identity-free summary. A local fake pass is never host evidence; follow the
 [agent guide](docs/PVE-AGENT.md#non-production-evidence-gate).
+
+When no non-production PVE host exists, the separate
+`scripts/validate_prod_observer_compatibility.py` command may collect a narrowly
+scoped production **read-only compatibility** result. It never makes that
+result promotion-eligible and cannot replace non-root permission, systemd,
+controlled-load, or actuation evidence. It is a dry-run validator, not an
+installer; see the [production compatibility boundary](docs/PVE-AGENT.md#production-read-only-compatibility).
 
 Decision journaling is explicit and remains local. Add `--journal FILE` to
 append a versioned JSONL event before each corresponding proposal reaches

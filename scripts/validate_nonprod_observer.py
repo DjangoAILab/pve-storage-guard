@@ -621,11 +621,12 @@ def _default_host_probe():
     )
 
 
-def validate(
+def _collect_observer_evidence(
     binary_path,
     config_path,
     expected_digest,
     *,
+    require_non_root,
     effective_uid=None,
     platform=None,
     host_probe=None,
@@ -637,7 +638,7 @@ def validate(
     effective_uid = os.geteuid() if effective_uid is None else effective_uid
     platform = sys.platform if platform is None else platform
     host_probe = _default_host_probe if host_probe is None else host_probe
-    if effective_uid == 0:
+    if require_non_root and effective_uid == 0:
         raise ValidationError("root execution is forbidden")
     if platform != "linux" or not host_probe():
         raise ValidationError("PVE host prerequisites are unavailable")
@@ -692,21 +693,55 @@ def validate(
         stop_timeout,
     )
     return {
+        "binarySha256": identity[6],
+        "binaryVersion": binary_version,
+        "nonRoot": effective_uid != 0,
+        "watchSamples": watch_samples,
+    }
+
+
+def validate(
+    binary_path,
+    config_path,
+    expected_digest,
+    *,
+    effective_uid=None,
+    platform=None,
+    host_probe=None,
+    launch_hook=None,
+    one_shot_timeout=None,
+    watch_timeout=None,
+    stop_timeout=10,
+):
+    evidence = _collect_observer_evidence(
+        binary_path,
+        config_path,
+        expected_digest,
+        require_non_root=True,
+        effective_uid=effective_uid,
+        platform=platform,
+        host_probe=host_probe,
+        launch_hook=launch_hook,
+        one_shot_timeout=one_shot_timeout,
+        watch_timeout=watch_timeout,
+        stop_timeout=stop_timeout,
+    )
+    return {
         "schemaVersion": SCHEMA_VERSION,
         "kind": "PVEHostObserverValidation",
         "validatorVersion": VALIDATOR_VERSION,
         "evidenceScope": "non-production-read-only",
-        "binarySha256": identity[6],
-        "binaryVersion": binary_version,
+        "binarySha256": evidence["binarySha256"],
+        "binaryVersion": evidence["binaryVersion"],
         "platformClass": "pve-openzfs-host",
         "checks": {
             "hostPlatformVerified": True,
-            "nonRoot": True,
+            "nonRoot": evidence["nonRoot"],
             "configOwnerOnly": True,
             "binaryDigestMatch": True,
             "inventoryValid": True,
             "observationValid": True,
-            "watchSamples": watch_samples,
+            "watchSamples": evidence["watchSamples"],
             "sigtermExitZero": True,
             "privateIdentityLeakDetected": False,
             "rawOutputPersisted": False,

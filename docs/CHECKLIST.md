@@ -123,12 +123,24 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   `api/v1/schema/pve-host-observer-validation.schema.json`, and the
   [validator design](plans/2026-08-02-nonprod-host-validator-design.md).
   Public review: [PR #34](https://github.com/DjangoAILab/pve-storage-guard/pull/34).
-- [ ] Execute the compiled agent in a non-production PVE environment and
-  validate Unix permissions, repeated sampling, process cancellation, and
-  live systemd behavior. Run the digest-bound validator first and retain only
-  its reviewed identity-free summary. No binary was uploaded to or run on the
-  reference production host; fake validation, static unit analysis, and
-  portable cancellation tests do not close this host-runtime gate.
+- [x] Execute the compiled agent through an explicitly approved production
+  read-only compatibility dry-run because no non-production PVE environment is
+  available. A clean, source-bound linux/amd64 build of public main `bfab0fb`
+  (`v0.1.0-dev.bfab0fb`, SHA-256
+  `b12b3be070c70ed87685c93c6e768f04ad23576e430b809e465a56936ac7e96e`)
+  ran from an owner-only random `/dev/shm` directory. Digest-bound inventory,
+  one observation, two serial watch samples, and SIGTERM zero exit passed;
+  private-identity leakage and raw-output persistence were false and requested
+  mutations were zero. The identity-free result explicitly records root
+  execution, `promotionEligible: false`, and unvalidated non-root, service,
+  controlled-load, and actuation boundaries. Post-run checks found zero RAM
+  artifacts, observer processes, service accounts, or units. The first attempt
+  with the verified `v0.1.0-rc.1` asset failed closed at inventory because that
+  older release predates the agent CLI; a successor release remains required.
+  Evidence: [compatibility evidence](COMPATIBILITY.md#production-read-only-compiled-compatibility).
+- [ ] Validate actual non-root PVE ACL/device permissions, live systemd
+  behavior, sustained supervision, and rollback. The production compatibility
+  result cannot close these gates.
 - [x] Implement the versioned JSONL shadow stream, strict configuration
   decoding, exact enrollment, telemetry-age checks, and non-actuating proposal
   output. An opt-in private append/sync decision journal now records the
@@ -224,12 +236,15 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   container/CodeQL checks, resolved conversations, linear history, and disabled
   force-push/deletion. Administrator bypass remains available for documented
   emergency recovery in this single-maintainer bootstrap phase.
-- [!] Make the tagged GHCR image publicly readable. The validated
+- [!] Make the tagged GHCR image publicly readable. Visibility change is now
+  operator-approved, but the current `gh` token lacks package scope and the
+  only available browser session is not authenticated. The validated
   `v0.1.0-rc.1` release successfully built, signed, attested, and uploaded the
   `linux/amd64` and `linux/arm64` image, but GitHub still reports the package as
-  private. Changing package visibility requires an authenticated owner browser
-  session and is irreversible; an isolated no-credential manifest check still
-  returned `unauthorized` on 2026-08-02.
+  private. An isolated no-credential manifest check still returned
+  `unauthorized` on 2026-08-02. Complete the approved change only through an
+  authenticated owner session or a narrowly scoped package token, then verify
+  an anonymous OCI pull.
 
 ## 6. Local practice and ITOps
 

@@ -8,7 +8,7 @@ performance, or actuation have been validated.
 
 | Proxmox VE | OpenZFS | Evidence level | Validated surfaces | Not validated |
 | --- | --- | --- | --- | --- |
-| 9.2 | 2.4 | Source-format compatible | cluster status JSON; ZFS storage config/status JSON; `total_wait` header semantics; 37-bucket/12-column scripted histogram; PSI; diskstats; portable child-cancellation and static systemd checks | compiled binary on PVE; PVE Unix/ACL/device permissions; live systemd behavior; sustained sampling; alerts; policy calibration; actuation |
+| 9.2 | 2.4 | Compiled production read-compatible; not promotion-eligible | cluster status JSON; ZFS storage config/status JSON; `total_wait` header semantics; 37-bucket/12-column scripted histogram; PSI; diskstats; source-bound compiled inventory/observe/two-record watch; SIGTERM zero exit; portable cancellation; static systemd checks | release artifact containing the agent; non-root PVE Unix/ACL/device permissions; live systemd behavior; sustained sampling; controlled load; alerts; policy calibration; actuation |
 
 The fixture is under
 `internal/adapter/pve/testdata/pve-9.2-openzfs-2.4/`. Its manifest labels the
@@ -48,6 +48,34 @@ markers, local paths, and MAC-like values across every fixture file. A separate
 pre-publication scan checked the fixture for the reference environment's known
 identifiers without storing those identifiers in the repository.
 
+## Production read-only compiled compatibility
+
+No separate non-production PVE host is available. After an explicit dry-run
+approval, a clean linux/amd64 build from public main `bfab0fb` ran on the
+reference production PVE host through
+`scripts/validate_prod_observer_compatibility.py`. The build identified itself
+as `v0.1.0-dev.bfab0fb`; its SHA-256 was
+`b12b3be070c70ed87685c93c6e768f04ad23576e430b809e465a56936ac7e96e`.
+The binary, two validator modules, and a conservative private config existed
+only in a random owner-only `/dev/shm` directory for the command duration. All
+discovered leaf resources were marked root and critical.
+
+The identity-free result validated the binary digest, inventory, one
+observation, two serial watch samples, and a zero-exit SIGTERM. It reported no
+private-identity leak, no raw-output persistence, and zero requested mutations.
+Because the existing SSH execution identity was root, the result records
+`nonRoot: false`, includes `non-root-not-validated`, and always sets
+`promotionEligible: false`. No raw metric, topology, capacity, path, node,
+storage, pool, or device value was retained. A post-run categorical check found
+no remaining RAM staging directory, observer process, service account, or
+systemd unit.
+
+The previously published `v0.1.0-rc.1` linux/amd64 archive and checksum were
+also verified, but its source revision predates the `agent` CLI. Its
+compatibility attempt therefore failed closed at inventory and is not presented
+as host evidence. A successor release with CI provenance is required before a
+release artifact can replace the source-bound build in this result.
+
 ## What this proves
 
 - PVE 9.2 returned the JSON fields and types consumed by the current parser.
@@ -61,21 +89,20 @@ identifiers without storing those identifiers in the repository.
 
 - The synthetic fixture cannot calibrate latency thresholds or demonstrate a
   production benefit.
-- Source-format compatibility does not prove the compiled binary has the
-  required host permissions or behaves correctly under a live systemd sandbox.
+- Compiled read compatibility does not prove the binary has least-privilege
+  host permissions or behaves correctly under a live systemd sandbox.
 - Portable integration tests prove SIGTERM/context cancellation reaps a child,
   and Ubuntu 24.04 `systemd-analyze` gives the proposed observer unit a 0.8
   exposure score. Neither result validates PVE ACLs, `/dev/zfs` access, output
   retention, or supervision on PVE.
 - The external non-production validator is tested against success and failure
-  fakes plus a compiled-binary negative path. Until it produces a reviewed
-  result on an actual non-production PVE node, it proves the evidence mechanism,
-  not host compatibility.
+  fakes plus a compiled-binary negative path. The production compatibility
+  result does not turn it into non-production permission or promotion evidence.
 - One PVE/OpenZFS combination is not a general support claim.
 - No SSH availability, guest task completion, notification, canary, rollback,
   or actuator behavior was exercised.
 
-The next compatibility gate is a compiled-binary run through
-`scripts/validate_nonprod_observer.py` in a non-production PVE environment,
-followed by live systemd, sustained sampling, permission, and rollback tests.
-A production-host install remains an explicit write checkpoint.
+The next artifact gate is a successor release that actually contains the agent
+CLI and reproduces the compiled compatibility result. The next promotion gates
+remain non-root permissions, live systemd, sustained sampling, controlled load,
+and rollback. A production-host install remains an explicit write checkpoint.
