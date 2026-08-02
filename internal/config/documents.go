@@ -7,11 +7,18 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 
 	v1 "github.com/DjangoAILab/pve-storage-guard/api/v1"
 	"github.com/DjangoAILab/pve-storage-guard/internal/allocator"
 	"github.com/DjangoAILab/pve-storage-guard/internal/policy"
+)
+
+var (
+	opaqueKeyPattern = regexp.MustCompile(`^[a-z][a-z0-9-]{0,62}$`)
+	privateIDPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`)
 )
 
 // StorageDomainPolicy is the v1alpha1 JSON policy document.
@@ -64,6 +71,99 @@ type DiskEnrollment struct {
 			Weight       float64 `json:"weight"`
 		} `json:"envelope"`
 	} `json:"spec"`
+}
+
+// PVEAgentConfig is the strict v1alpha1 local read-only agent document.
+type PVEAgentConfig struct {
+	APIVersion string `json:"apiVersion"`
+	Kind       string `json:"kind"`
+	Spec       struct {
+		DomainKey                 string  `json:"domainKey"`
+		Node                      string  `json:"node"`
+		Storage                   string  `json:"storage"`
+		ZPool                     string  `json:"zpool"`
+		SampleIntervalSeconds     int     `json:"sampleIntervalSeconds"`
+		CommandTimeoutSeconds     int     `json:"commandTimeoutSeconds"`
+		EmergencyWaitMilliseconds float64 `json:"emergencyWaitMilliseconds"`
+		Resources                 []struct {
+			ResourceKey  string `json:"resourceKey"`
+			KernelDevice string `json:"kernelDevice"`
+			Root         bool   `json:"root"`
+			Critical     bool   `json:"critical"`
+		} `json:"resources"`
+	} `json:"spec"`
+}
+
+// ReadPVEAgentConfig strictly decodes and validates a local agent file.
+func ReadPVEAgentConfig(path string) (PVEAgentConfig, error) {
+	var document PVEAgentConfig
+	if err := readStrictPrivateJSON(path, &document); err != nil {
+		return document, fmt.Errorf("read PVE agent config: %w", err)
+	}
+	if err := document.Validate(); err != nil {
+		return document, err
+	}
+	return document, nil
+}
+
+func readStrictPrivateJSON(path string, value any) error {
+	before, err := os.Lstat(path)
+	if err != nil {
+		return err
+	}
+	if !before.Mode().IsRegular() || before.Mode().Perm()&0o077 != 0 || before.Size() > 64*1024 {
+		return errors.New("private config must be a regular owner-only file no larger than 64 KiB")
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = file.Close() }()
+	after, err := file.Stat()
+	if err != nil || !os.SameFile(before, after) {
+		return errors.New("private config changed while opening")
+	}
+	return decodeStrictJSON(file, value)
+}
+
+// Validate checks command-injection, identity, and resource bounds.
+func (d PVEAgentConfig) Validate() error {
+	if d.APIVersion != v1.SchemaVersion || d.Kind != "PVEAgentConfig" {
+		return errors.New("PVE agent apiVersion or kind is unsupported")
+	}
+	if !opaqueKeyPattern.MatchString(d.Spec.DomainKey) {
+		return errors.New("PVE agent domainKey must be a lowercase opaque key")
+	}
+	for _, value := range []string{d.Spec.Node, d.Spec.Storage, d.Spec.ZPool} {
+		if !privateIDPattern.MatchString(value) || value == "." || value == ".." || strings.Contains(value, "..") {
+			return errors.New("PVE agent private binding is invalid")
+		}
+	}
+	if d.Spec.SampleIntervalSeconds < 1 || d.Spec.SampleIntervalSeconds > 60 {
+		return errors.New("PVE agent sample interval must be between 1 and 60 seconds")
+	}
+	if d.Spec.CommandTimeoutSeconds < d.Spec.SampleIntervalSeconds+1 || d.Spec.CommandTimeoutSeconds > 120 {
+		return errors.New("PVE agent command timeout must exceed the sample interval and be at most 120 seconds")
+	}
+	if d.Spec.EmergencyWaitMilliseconds <= 0 || len(d.Spec.Resources) == 0 || len(d.Spec.Resources) > 64 {
+		return errors.New("PVE agent emergency threshold and 1-64 resources are required")
+	}
+	keys := make(map[string]struct{}, len(d.Spec.Resources))
+	devices := make(map[string]struct{}, len(d.Spec.Resources))
+	for _, resource := range d.Spec.Resources {
+		if !opaqueKeyPattern.MatchString(resource.ResourceKey) || !privateIDPattern.MatchString(resource.KernelDevice) || strings.Contains(resource.KernelDevice, "..") {
+			return errors.New("PVE agent resource binding is invalid")
+		}
+		if _, exists := keys[resource.ResourceKey]; exists {
+			return errors.New("PVE agent resourceKey values must be unique")
+		}
+		if _, exists := devices[resource.KernelDevice]; exists {
+			return errors.New("PVE agent kernelDevice values must be unique")
+		}
+		keys[resource.ResourceKey] = struct{}{}
+		devices[resource.KernelDevice] = struct{}{}
+	}
+	return nil
 }
 
 // ReadPolicy strictly decodes and validates a policy file.
@@ -148,7 +248,11 @@ func readStrictJSON(path string, value any) error {
 		return err
 	}
 	defer func() { _ = file.Close() }()
-	decoder := json.NewDecoder(file)
+	return decodeStrictJSON(file, value)
+}
+
+func decodeStrictJSON(reader io.Reader, value any) error {
+	decoder := json.NewDecoder(reader)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(value); err != nil {
 		return err

@@ -169,6 +169,33 @@ func validateDecisionEvent(event v1.DecisionEvent) error {
 	if !validString(event.Observation.ID, 256) || event.Observation.ObservedAt.IsZero() || !finite(event.Observation.AgeSeconds) || !finiteNonNegative(event.Observation.WriteWaitP95Milliseconds) {
 		return errors.New("decision event observation is invalid")
 	}
+	if evidence := event.Observation.WaitEvidence; evidence != nil {
+		if !event.Observation.WaitValid || evidence.MeasurementLayer != "storage-domain" || evidence.Statistic != "p95-upper-bound" || evidence.Source != "openzfs-total-wait-histogram" || evidence.Provenance != "observed" || evidence.SampleIntervalSeconds < 1 || evidence.SampleIntervalSeconds > 60 || !finite(evidence.SampleWeight) || evidence.SampleWeight <= 0 || evidence.BucketUpperBoundNanoseconds == 0 {
+			return errors.New("decision event wait evidence is invalid")
+		}
+		expectedWait := float64(evidence.BucketUpperBoundNanoseconds) / 1_000_000
+		if math.Abs(expectedWait-event.Observation.WriteWaitP95Milliseconds) > 0.000001 {
+			return errors.New("decision event wait evidence is inconsistent")
+		}
+	}
+	if pressure := event.Observation.IOPressure; pressure != nil {
+		if !finite(pressure.SomeAvg10) || !finite(pressure.FullAvg10) || pressure.SomeAvg10 < 0 || pressure.SomeAvg10 > 100 || pressure.FullAvg10 < 0 || pressure.FullAvg10 > 100 {
+			return errors.New("decision event PSI evidence is invalid")
+		}
+	}
+	if len(event.Observation.DiskSignals) > 64 {
+		return errors.New("decision event has too many disk signals")
+	}
+	diskKeys := make(map[string]struct{}, len(event.Observation.DiskSignals))
+	for _, signal := range event.Observation.DiskSignals {
+		if !validString(signal.ResourceKey, 63) {
+			return errors.New("decision event disk signal is invalid")
+		}
+		if _, exists := diskKeys[signal.ResourceKey]; exists {
+			return errors.New("decision event disk signal is duplicated")
+		}
+		diskKeys[signal.ResourceKey] = struct{}{}
+	}
 	if !proposalIDPattern.MatchString(event.Decision.ProposalID) || !validString(event.Decision.Reason, 128) || !finiteNonNegative(event.Decision.PreviousBudgetMiBPS) || !finiteNonNegative(event.Decision.DesiredBudgetMiBPS) || len(event.Decision.Allocations) == 0 {
 		return errors.New("decision event decision is invalid")
 	}

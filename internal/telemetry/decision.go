@@ -38,6 +38,17 @@ func NewShadowDecisionEvent(observation v1.Observation, proposal v1.Proposal) (v
 		}
 		allocations[resourceKey] = allocation
 	}
+	diskSignals := append([]v1.DiskSignal(nil), observation.DiskSignals...)
+	var waitEvidence *v1.WaitEvidence
+	if observation.WaitEvidence != nil {
+		copy := *observation.WaitEvidence
+		waitEvidence = &copy
+	}
+	var ioPressure *v1.IOPressure
+	if observation.IOPressure != nil {
+		copy := *observation.IOPressure
+		ioPressure = &copy
+	}
 
 	event := v1.DecisionEvent{
 		SchemaVersion: v1.SchemaVersion,
@@ -55,6 +66,9 @@ func NewShadowDecisionEvent(observation v1.Observation, proposal v1.Proposal) (v
 			WaitValid:                observation.WaitValid,
 			Emergency:                observation.Emergency,
 			ManagementPlaneHealthy:   observation.ManagementPlaneHealthy,
+			WaitEvidence:             waitEvidence,
+			IOPressure:               ioPressure,
+			DiskSignals:              diskSignals,
 		},
 		Decision: v1.DecisionEventDecision{
 			ProposalID:          proposal.ID,

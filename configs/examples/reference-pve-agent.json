@@ -1,0 +1,21 @@
+{
+  "apiVersion": "guard.storage-slo.io/v1alpha1",
+  "kind": "PVEAgentConfig",
+  "spec": {
+    "domainKey": "reference-bulk-pool",
+    "node": "replace-with-private-node",
+    "storage": "replace-with-private-storage",
+    "zpool": "replace-with-private-zpool",
+    "sampleIntervalSeconds": 1,
+    "commandTimeoutSeconds": 5,
+    "emergencyWaitMilliseconds": 100,
+    "resources": [
+      {
+        "resourceKey": "resource-a",
+        "kernelDevice": "replace-with-kernel-device",
+        "root": false,
+        "critical": false
+      }
+    ]
+  }
+}

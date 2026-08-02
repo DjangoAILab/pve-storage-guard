@@ -62,6 +62,20 @@ printf '{"schemaVersion":"guard.storage-slo.io/v1alpha1","id":"quickstart-1","ob
       --enrollment configs/examples/reference-enrollment.json
 ```
 
+On a PVE test host, the concrete read-only ZFS adapter can verify an explicitly
+bound inventory and emit one observation:
+
+```sh
+pve-storage-guard agent inventory --config /private/path/agent.json
+pve-storage-guard agent observe --config /private/path/agent.json
+```
+
+The private config maps real PVE identifiers to opaque output keys. The agent
+uses fixed `pvesh` and `zpool` read operations, reads only the two documented
+procfs files, opens no listener, and has no actuator. See the
+[agent guide](docs/PVE-AGENT.md) before using it; production installation is
+not yet authorized by the project status.
+
 Decision journaling is explicit and remains local. Add `--journal FILE` to
 append a versioned JSONL event before each corresponding proposal reaches
 stdout. A new journal is created as `0600`; symlinks, non-regular targets, and
@@ -113,10 +127,11 @@ flowchart LR
     Actuator -->|effective-state read-back| Safety
 ```
 
-The current binary exposes `version`, a non-actuating `shadow` command with an
+The current binary exposes `version`, read-only `agent inventory` and
+`agent observe` commands for explicitly bound PVE ZFS storage, a non-actuating `shadow` command with an
 optional private decision journal, identity-free sealed-journal verification,
 and content-addressed bounded local batch reading.
-Agent, policy validation, and approved enforcement modes remain roadmap work.
+Policy validation and approved enforcement modes remain roadmap work.
 The release workflow uploaded the signed, attested multi-architecture
 `v0.1.0-rc.1` image to `ghcr.io/djangoailab/pve-storage-guard`, but the GitHub
 package is still private pending an owner visibility checkpoint. Do not assume
@@ -150,6 +165,7 @@ as model-assisted estimates and are not presented as measured production gains.
 - [Goal and success criteria](docs/GOAL.md)
 - [Execution checklist](docs/CHECKLIST.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [Read-only PVE agent](docs/PVE-AGENT.md)
 - [Policy design](docs/POLICY-DESIGN.md)
 - [Offline PoC](docs/POC.md)
 - [Replay trace contract](docs/TRACE-CONTRACT.md)

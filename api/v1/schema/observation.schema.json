@@ -13,6 +13,53 @@
     "writeWaitP95Milliseconds": { "type": "number", "minimum": 0 },
     "waitValid": { "type": "boolean" },
     "emergency": { "type": "boolean" },
-    "managementPlaneHealthy": { "type": "boolean" }
+    "managementPlaneHealthy": { "type": "boolean" },
+    "waitEvidence": { "$ref": "#/$defs/waitEvidence" },
+    "ioPressure": { "$ref": "#/$defs/ioPressure" },
+    "diskSignals": {
+      "type": "array",
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/diskSignal" }
+    }
+  },
+  "$defs": {
+    "waitEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["measurementLayer", "statistic", "source", "provenance", "sampleIntervalSeconds", "sampleWeight", "bucketUpperBoundNanoseconds"],
+      "properties": {
+        "measurementLayer": { "const": "storage-domain" },
+        "statistic": { "const": "p95-upper-bound" },
+        "source": { "const": "openzfs-total-wait-histogram" },
+        "provenance": { "const": "observed" },
+        "sampleIntervalSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
+        "sampleWeight": { "type": "number", "exclusiveMinimum": 0 },
+        "bucketUpperBoundNanoseconds": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "ioPressure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["someAvg10Percent", "fullAvg10Percent"],
+      "properties": {
+        "someAvg10Percent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "fullAvg10Percent": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "diskSignal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resourceKey", "readsCompletedTotal", "writesCompletedTotal", "readSectorsTotal", "writtenSectorsTotal", "inFlightIo", "ioTimeMillisecondsTotal", "weightedIoMillisecondsTotal"],
+      "properties": {
+        "resourceKey": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,62}$" },
+        "readsCompletedTotal": { "type": "integer", "minimum": 0 },
+        "writesCompletedTotal": { "type": "integer", "minimum": 0 },
+        "readSectorsTotal": { "type": "integer", "minimum": 0 },
+        "writtenSectorsTotal": { "type": "integer", "minimum": 0 },
+        "inFlightIo": { "type": "integer", "minimum": 0 },
+        "ioTimeMillisecondsTotal": { "type": "integer", "minimum": 0 },
+        "weightedIoMillisecondsTotal": { "type": "integer", "minimum": 0 }
+      }
+    }
   }
 }

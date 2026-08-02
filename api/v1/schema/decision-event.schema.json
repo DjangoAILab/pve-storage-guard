@@ -24,7 +24,14 @@
         "writeWaitP95Milliseconds": { "type": "number", "minimum": 0 },
         "waitValid": { "type": "boolean" },
         "emergency": { "type": "boolean" },
-        "managementPlaneHealthy": { "type": "boolean" }
+        "managementPlaneHealthy": { "type": "boolean" },
+        "waitEvidence": { "$ref": "observation.json#/$defs/waitEvidence" },
+        "ioPressure": { "$ref": "observation.json#/$defs/ioPressure" },
+        "diskSignals": {
+          "type": "array",
+          "maxItems": 64,
+          "items": { "$ref": "observation.json#/$defs/diskSignal" }
+        }
       }
     },
     "decision": {

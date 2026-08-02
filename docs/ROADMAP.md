@@ -7,7 +7,8 @@ until its safety criteria pass.
 
 - Versioned observation, policy, decision, and event schemas.
 - Deterministic `storage-slo-guard` AIMD and bounded allocator.
-- PVE read-only discovery/metrics adapter.
+- PVE read-only discovery/metrics adapter (initial explicit OpenZFS binding
+  implemented; sanitized real-host compatibility evidence remains gated).
 - Offline replay with anonymized fixtures and golden reports.
 - Prometheus metrics, structured decisions, ITOps integration examples.
 - Local dry-run and shadow mode only.

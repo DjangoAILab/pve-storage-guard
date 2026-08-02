@@ -30,6 +30,7 @@ export default defineConfig({
           { label: 'Incident case study', slug: 'evidence/case-study' },
         ] },
         { label: 'Operations', items: [
+          { label: 'Read-only PVE agent', slug: 'operations/pve-agent' },
           { label: 'ITOps integration', slug: 'operations/itops' },
           { label: 'Safety gates', slug: 'operations/safety-gates' },
         ] },
