@@ -51,6 +51,45 @@ journal remains opt-in; it must not be placed on the guarded storage domain.
 Batching or asynchronous persistence would change failure and durability
 semantics and is not part of this result.
 
+### ITOps replay export window
+
+The internal ITOps Draft integration includes a pure, route-free builder that
+joins already-authorized diskstats and management samples into a sanitized
+ReplayTrace. A performance audit found that its first implementation repeatedly
+scanned the complete caller array for every interval. It now builds
+request-scoped, first-match indexes in one pass and sorts only the qualifying
+write-wait series. A regression test rejects any return to global `find` scans,
+while a separate compatibility test preserves the previous duplicate-input
+semantics.
+
+Five local runs on the same Apple M4 Pro, using Node.js 22.21.1 on
+Darwin/arm64, generated deterministic 60-second samples before timing only the
+in-memory export:
+
+| Window | Input samples | Output intervals | Export time range | GC-retained heap delta |
+| --- | ---: | ---: | ---: | ---: |
+| 1 day | 10,080 | 1,440 | 7.164–7.563 ms | 354,400–355,776 B |
+| 7 days | 70,560 | 10,080 | 42.294–46.537 ms | 1,838,536–1,838,680 B |
+| 14 days | 141,120 | 20,160 | 80.472–82.093 ms | 3,583,840 B |
+
+Every repeated case produced the same output SHA-256 for its scale and passed
+interval, audit-count, coverage, and fixed `average` / `derived` block-device
+semantic checks. The heap figure is measured after explicit garbage collection
+with the returned trace still live; it is retained output memory, not peak
+allocation.
+
+Internal Draft PR #37
+[CI run 161](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/161)
+independently executed the one-day smoke inside the complete Node quality gate;
+that gate passed in 4m34s and its dependent linux/amd64 image build passed in
+4m45s. The integration remains Draft and undeployed.
+
+This is not a collector or host benchmark. It excludes fixture generation,
+probe execution, SSH, PVE REST, SQLite, network delivery, dashboard queries,
+and storage-device behavior. It only shows that the pure export stage is no
+longer the expected bottleneck for the planned 24-hour acceptance and 7–14-day
+calibration windows.
+
 ## Reproduction
 
 ```sh
@@ -59,8 +98,15 @@ go test -run '^$' -bench . -benchtime=500ms -benchmem -count=5 \
   ./cmd/pve-storage-guard
 ```
 
+The internal ITOps Draft reproduces its identity-free export cases with:
+
+```sh
+npm --prefix backend run benchmark:storage-replay
+```
+
 CI runs shorter smoke benchmarks to ensure all benchmark paths compile and
 execute. It does not enforce absolute nanosecond thresholds on shared runners.
 A regression gate should be added only with a stable runner, repeated samples,
-and a reviewed tolerance. Collector, adapter, persistent ITOps, and controlled
-host latency remain canary prerequisites.
+and a reviewed tolerance. Restricted-probe/SSH execution, PVE REST adapter,
+persistent ITOps, real host storage, and controlled-load latency remain canary
+prerequisites.

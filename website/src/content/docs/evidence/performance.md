@@ -37,11 +37,46 @@ disabled by default and must not share the guarded storage domain. Batching or
 asynchronous writes would weaken its current persist-before-output semantics and
 are not represented here.
 
+## ITOps replay export window
+
+The internal ITOps Draft also has a pure builder that joins authorized
+diskstats and management samples into a sanitized ReplayTrace. Its first
+implementation repeatedly scanned the complete caller array for each interval;
+the audited implementation now builds request-scoped, first-match indexes in
+one pass and sorts only the qualifying wait series. Tests forbid global array
+rescans and preserve the previous first-match behavior.
+
+Five Node.js 22.21.1 Darwin/arm64 runs on the same local machine timed only the
+in-memory export after deterministic fixture generation:
+
+| Window | Input samples | Output intervals | Export range | Retained heap delta |
+| --- | ---: | ---: | ---: | ---: |
+| 1 day | 10,080 | 1,440 | 7.164–7.563 ms | 354,400–355,776 B |
+| 7 days | 70,560 | 10,080 | 42.294–46.537 ms | 1,838,536–1,838,680 B |
+| 14 days | 141,120 | 20,160 | 80.472–82.093 ms | 3,583,840 B |
+
+Each repeated scale produced an identical SHA-256 output checksum and retained
+the fixed average/derived block-device semantics. The heap value is measured
+after explicit garbage collection while the output remains live; it is not a
+peak-allocation number. These figures exclude sample generation, the probe,
+SSH, PVE REST, SQLite, network, dashboards, and real storage behavior.
+
+Internal Draft PR #37
+[CI run 161](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/161)
+independently ran the one-day smoke: the complete Node quality gate passed in
+4m34s and the dependent linux/amd64 image build passed in 4m45s. Nothing was
+merged or deployed.
+
+```sh
+# In the reviewed internal ITOps Draft branch
+npm --prefix backend run benchmark:storage-replay
+```
+
 ```sh
 go test -run '^$' -bench . -benchtime=500ms -benchmem -count=5 \
   ./internal/policy ./internal/allocator ./internal/safety \
   ./cmd/pve-storage-guard
 ```
 
-Collector, adapter, persistent ITOps, and controlled-host latency remain
-promotion gates.
+Restricted-probe/SSH execution, the PVE REST adapter, persistent ITOps, real
+host storage, and controlled-load latency remain promotion gates.
