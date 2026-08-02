@@ -8,7 +8,7 @@ performance, or actuation have been validated.
 
 | Proxmox VE | OpenZFS | Evidence level | Validated surfaces | Not validated |
 | --- | --- | --- | --- | --- |
-| 9.2 | 2.4 | Compiled production read-compatible; not promotion-eligible | cluster status JSON; ZFS storage config/status JSON; `total_wait` header semantics; 37-bucket/12-column scripted histogram; PSI; diskstats; source-bound compiled inventory/observe/two-record watch; SIGTERM zero exit; portable cancellation; static systemd checks | release artifact containing the agent; non-root PVE Unix/ACL/device permissions; live systemd behavior; sustained sampling; controlled load; alerts; policy calibration; actuation |
+| 9.2 | 2.4 | Release binary production read-compatible; not promotion-eligible | cluster status JSON; ZFS storage config/status JSON; `total_wait` header semantics; 37-bucket/12-column scripted histogram; PSI; diskstats; source-bound and `v0.1.0-rc.2` inventory/observe/two-record watch; SIGTERM zero exit; release checksum/provenance; portable cancellation; static systemd checks | non-root PVE Unix/ACL/device permissions; live systemd behavior; sustained sampling; controlled load; alerts; policy calibration; actuation |
 
 The fixture is under
 `internal/adapter/pve/testdata/pve-9.2-openzfs-2.4/`. Its manifest labels the
@@ -73,8 +73,26 @@ systemd unit.
 The previously published `v0.1.0-rc.1` linux/amd64 archive and checksum were
 also verified, but its source revision predates the `agent` CLI. Its
 compatibility attempt therefore failed closed at inventory and is not presented
-as host evidence. A successor release with CI provenance is required before a
-release artifact can replace the source-bound build in this result.
+as host evidence.
+
+The successor
+[`v0.1.0-rc.2` release](https://github.com/DjangoAILab/pve-storage-guard/releases/tag/v0.1.0-rc.2)
+is bound to public main `412ddcf`. Its release workflow generated four archives,
+four SPDX SBOMs, SHA-256 checksums, GitHub build provenance, a signed
+multi-architecture image, and an automated Linux asset smoke test. All release
+jobs passed in
+[run 30732828939](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30732828939).
+Independent download verification accepted every checksum and the GitHub
+attestations for the linux/amd64 archive and SBOM.
+
+The exact linux/amd64 release binary (`0.1.0-rc.2`, SHA-256
+`5917ab568f94451ba2d125adb5633ab77288885237d41fc14c74971e6012c84a`)
+then repeated the same owner-only, RAM-staged compatibility sequence on the
+reference host. Inventory, one observation, two watch records, and SIGTERM
+passed with no private identity leak, raw-output persistence, or requested
+mutation. The result remains `nonRoot: false` and `promotionEligible: false`.
+Post-run checks again found zero staging artifacts, observer processes, service
+accounts, or units.
 
 ## What this proves
 
@@ -102,7 +120,7 @@ release artifact can replace the source-bound build in this result.
 - No SSH availability, guest task completion, notification, canary, rollback,
   or actuator behavior was exercised.
 
-The next artifact gate is a successor release that actually contains the agent
-CLI and reproduces the compiled compatibility result. The next promotion gates
-remain non-root permissions, live systemd, sustained sampling, controlled load,
-and rollback. A production-host install remains an explicit write checkpoint.
+The release-artifact compatibility gate is closed by `v0.1.0-rc.2`. The next
+promotion gates remain non-root permissions, live systemd, sustained sampling,
+controlled load, and rollback. A production-host install remains an explicit
+write checkpoint.

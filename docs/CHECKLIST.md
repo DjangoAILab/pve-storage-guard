@@ -136,7 +136,18 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   controlled-load, and actuation boundaries. Post-run checks found zero RAM
   artifacts, observer processes, service accounts, or units. The first attempt
   with the verified `v0.1.0-rc.1` asset failed closed at inventory because that
-  older release predates the agent CLI; a successor release remains required.
+  older release predates the agent CLI. The successor `v0.1.0-rc.2` release is
+  bound to main `412ddcf`; all four archives, SPDX SBOMs, checksums, GitHub
+  provenance, Linux agent smoke gate, multi-architecture image build, and
+  keyless signature passed
+  [release run 30732828939](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30732828939).
+  Its exact linux/amd64 binary (`0.1.0-rc.2`, SHA-256
+  `5917ab568f94451ba2d125adb5633ab77288885237d41fc14c74971e6012c84a`)
+  repeated inventory, observation, two-record watch, and SIGTERM successfully
+  through the same RAM-only production compatibility validator. The result
+  remained `promotionEligible: false`, requested zero mutations, leaked no
+  private identity, persisted no raw output, and left zero RAM artifacts,
+  processes, accounts, or units.
   Evidence: [compatibility evidence](COMPATIBILITY.md#production-read-only-compiled-compatibility)
   and public [PR #35](https://github.com/DjangoAILab/pve-storage-guard/pull/35).
   Post-merge public main passed
@@ -218,7 +229,16 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [x] Add pinned GitHub Actions for lint, test/race, replay golden, CodeQL,
   govulncheck, secret scan, OCI build/Trivy, docs build, and Pages.
 - [x] Add multi-architecture release workflow with pinned actions, binary/image
-  SBOM, provenance, checksums, and keyless container signing.
+  SBOM, provenance, checksums, and keyless container signing. Public
+  [PR #37](https://github.com/DjangoAILab/pve-storage-guard/pull/37) further
+  pinned Syft, Buildx, Cosign, and the QEMU image digest; applied per-job least
+  privilege; added GitHub binary provenance; and made container publication
+  wait for downloaded checksum, SPDX SBOM, version, and agent-command checks.
+  PR and post-merge main passed
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30732681360),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30732681361),
+  [main CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30732751753),
+  and [main CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30732751758).
 - [x] Build the GitHub Pages landing/documentation site; local Astro build has
   zero diagnostics and responsive browser review has no horizontal overflow.
 - [~] Add verified architecture and incident/control-loop graphics. The modeled
@@ -245,12 +265,13 @@ Last updated: 2026-08-02 (Asia/Shanghai)
 - [!] Make the tagged GHCR image publicly readable. Visibility change is now
   operator-approved, but the current `gh` token lacks package scope and the
   only available browser session is not authenticated. The validated
-  `v0.1.0-rc.1` release successfully built, signed, attested, and uploaded the
-  `linux/amd64` and `linux/arm64` image, but GitHub still reports the package as
-  private. An isolated no-credential manifest check still returned
-  `unauthorized` on 2026-08-02. Complete the approved change only through an
-  authenticated owner session or a narrowly scoped package token, then verify
-  an anonymous OCI pull.
+  `v0.1.0-rc.2` release successfully built, signed, attested, and uploaded its
+  linux/amd64 and linux/arm64 manifests at digest
+  `sha256:c59935c8c9e90815e9a0d324c66ef63b0e30d76b6a89b3a3fc5a8eb2db4b72c9`,
+  but the package remains private. A fresh no-credential token request returned
+  HTTP 401 after the release on 2026-08-02. Complete the approved change only
+  through an authenticated owner session or a narrowly scoped package token,
+  then verify an anonymous OCI pull.
 
 ## 6. Local practice and ITOps
 

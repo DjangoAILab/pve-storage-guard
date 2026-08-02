@@ -71,10 +71,12 @@ pve-storage-guard agent observe --config /private/path/agent.json
 pve-storage-guard agent watch --config /private/path/agent.json --period 10s
 ```
 
-These commands are present on current `main` but not in the earlier
-`v0.1.0-rc.1` binary release. Until a successor release is published, build
-from a reviewed commit and retain its source revision and binary digest as
-non-promotion compatibility evidence only.
+These commands are present in the
+[`v0.1.0-rc.2` pre-release](https://github.com/DjangoAILab/pve-storage-guard/releases/tag/v0.1.0-rc.2).
+Verify the downloaded archive against `checksums.txt` and its GitHub build
+provenance before use. The release has passed the bounded production read-only
+compatibility check, but production installation and control remain
+unauthorized.
 
 The private config maps real PVE identifiers to opaque output keys. The agent
 uses fixed `pvesh` and `zpool` read operations, reads only the two documented
@@ -157,7 +159,7 @@ journal, identity-free sealed-journal verification, and content-addressed
 bounded local batch reading.
 Policy validation and approved enforcement modes remain roadmap work.
 The release workflow uploaded the signed, attested multi-architecture
-`v0.1.0-rc.1` image to `ghcr.io/djangoailab/pve-storage-guard`, but the GitHub
+`v0.1.0-rc.2` image to `ghcr.io/djangoailab/pve-storage-guard`, but the GitHub
 package is still private pending an owner visibility checkpoint. Do not assume
 anonymous pulls work until the checklist records that change.
 

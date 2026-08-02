@@ -66,8 +66,9 @@ The current distroless controller image does not contain host `pvesh` or
 systemd unit runs under a static non-root account with no capabilities, network
 namespace, or writable filesystem path. Repository tests and Ubuntu 24.04
 `systemd-analyze` validate its static contract (0.8 exposure), not real PVE
-permissions or runtime behavior. Use a locally built binary only in a reviewed
-test environment until those host gates pass.
+permissions or runtime behavior. The `v0.1.0-rc.2` binary passed the bounded
+production read-only compatibility check, but remains evidence-only until
+those host gates pass.
 
 ## Non-production evidence gate
 
@@ -116,7 +117,7 @@ actuation evidence.
 
 | PVE | OpenZFS | Proven | Still gated |
 | --- | --- | --- | --- |
-| 9.2 | 2.4 | Source-bound compiled inventory/observe/two-record watch, SIGTERM zero exit, PVE/ZFS/PSI/diskstats formats, portable cancellation, static unit analysis | release containing the agent, non-root ACL/device/unit behavior, sustained sampling, controlled load, policy thresholds, actuation |
+| 9.2 | 2.4 | Source-bound and `v0.1.0-rc.2` inventory/observe/two-record watch, SIGTERM zero exit, release checksum/provenance, PVE/ZFS/PSI/diskstats formats, portable cancellation, static unit analysis | non-root ACL/device/unit behavior, sustained sampling, controlled load, policy thresholds, actuation |
 
 The fixture retains observed field and histogram shape but uses fixed aliases,
 synthetic topology/cardinality, and synthetic operational values. It is
