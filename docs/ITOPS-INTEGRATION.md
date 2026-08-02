@@ -305,6 +305,14 @@ promotion gate. This builder has no route,
 API, file writer, scheduler, or deployment path and therefore does not publish
 data by itself.
 
+The builder now indexes only the request-scoped approved metric vocabulary in
+one pass instead of rescanning the full sample array for every interval. A
+no-rescan regression test and first-match compatibility test pass. Five local
+Node.js 22.21.1 runs exported a deterministic 14-day, 60-second fixture (141,120
+input metrics and 20,160 output intervals) in 80.472–82.093 ms with identical
+output checksums. This times only the pure in-memory builder; it says nothing
+about probe/SSH, PVE REST, SQLite, network, dashboard, or real-storage latency.
+
 The v1 detector emits a per-disk level only after wait telemetry exists.
 Warning requires target wait plus PSI, queue, or management failure;
 critical requires emergency wait plus full PSI or management failure. The
@@ -321,7 +329,7 @@ from diskstats-derived device averages. It explicitly states that ZFS
 prevents visually similar millisecond values from silently sharing thresholds.
 
 As of 2026-08-02, the integration remains an internal draft PR and has not been
-merged or deployed. Verification covers all 1,266 backend tests across 151
+merged or deployed. Verification covers all 1,268 backend tests across 151
 files, including the approval-to-persistence SQLite handoff, exact-argv reader,
 and deterministic reconciliation tests. TypeScript build/lint and the
 dependency-boundary check also pass locally, as do all 101 frontend tests plus
@@ -354,6 +362,14 @@ management coverage; omitting one of two management samples reported 50%
 management coverage. Both remained ineligible as designed because diskstats
 average block-device wait is not storage-domain p95. No event content or
 production identity was used or printed.
+
+Follow-up replay-export commit `324422f` replaced repeated caller-array scans
+with request-scoped indexes and added the deterministic benchmark described
+above. Internal
+[run 161](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/161)
+ran the one-day smoke inside the complete Node quality gate; it passed in 4m34s
+and the dependent linux/amd64 image build passed in 4m45s. The PR remained
+Draft and no runtime was registered or deployed.
 
 The internal rollout packet separates repository merge, restricted-probe write,
 immutable application deployment, alert arming, journal registration, and any

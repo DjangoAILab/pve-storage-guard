@@ -79,6 +79,10 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   tests under `internal/policy` and `internal/allocator`.
 - [x] Implement read-only adapter and constrained actuator contracts without
   production mutation under `internal/adapter/pve` and `internal/actuator/pve`.
+- [ ] Implement the concrete public PVE inventory/metrics adapter and `agent`
+  mode behind those contracts. The current public binary accepts normalized
+  JSONL observations only; the internal ITOps Draft collector does not satisfy
+  this public v0.1 distribution requirement.
 - [x] Implement the versioned JSONL shadow stream, strict configuration
   decoding, exact enrollment, telemetry-age checks, and non-actuating proposal
   output. An opt-in private append/sync decision journal now records the
@@ -127,12 +131,16 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   exact raw-byte SHA-256, and identity-free CLI output. Content-addressed batch
   tests cover approved-digest matching, active-writer rejection, empty files,
   offset pagination, a 64-event hard bound, and zero stdout on digest failure.
-  Repeated local benchmarks cover policy
-  evaluation, 100-disk allocation, the verified safety gate, and 32-observation
+  Repeated local benchmarks cover policy evaluation, 100-disk allocation, the
+  verified safety gate, and 32-observation
   local shadow-command batches with and without real per-event journal sync.
   Default shadow measured 4.048–4.155 µs/observation and the opt-in private
   journal measured 3.770–3.827 ms/observation on the documented local machine;
-  collector/adapter/storage performance and controlled-load coverage remain.
+  the internal pure replay exporter now also has a no-global-rescan regression
+  gate and deterministic 1/7/14-day benchmark. Five 14-day runs exported 20,160
+  intervals from 141,120 metrics in 80.472–82.093 ms with identical output
+  checksums. Restricted-probe/SSH, PVE REST adapter, persistent ITOps, real
+  storage, and controlled-load performance remain.
 - [x] Add pinned GitHub Actions for lint, test/race, replay golden, CodeQL,
   govulncheck, secret scan, OCI build/Trivy, docs build, and Pages.
 - [x] Add multi-architecture release workflow with pinned actions, binary/image
@@ -218,7 +226,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   has network delivery, runtime registration, alert processing, or production
   deployment. Evidence: public ADR 0005 and public content-addressed batch tests;
   ITOps commits `90b04b0`, `44df889`, `242a7ff`, `c236d06`, `4fe5b97`,
-  `40e7d0a`, `51cc834`, `e7e7997`, and `ccbbabd`; all 1,266 backend tests across 151 files passed
+  `40e7d0a`, `51cc834`, `e7e7997`, and `ccbbabd`; all 1,268 backend tests across 151 files passed
   locally on 2026-08-02, including the SQLite approval-to-import handoff,
   exact-argv reader, and registry-absence tests. Backend build/lint/dependency checks and
   all 101 frontend tests plus build/lint passed. Internal CI run 153 confirmed
@@ -250,6 +258,11 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   average block-device wait is not storage-domain p95. Final internal
   [run 160](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/160)
   passed the Node quality gate in 4m38s and linux/amd64 image build in 4m49s.
+  Internal commit `324422f` then replaced repeated full-array scans in the pure
+  replay exporter with request-scoped indexes and added a deterministic
+  one-day CI smoke plus 1/7/14-day local diagnostics. Final
+  [run 161](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/161)
+  passed the Node quality gate in 4m34s and linux/amd64 image build in 4m45s.
   PR #37 remains Draft and undeployed.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   detector now requires write-wait plus PSI, queue, or management-plane

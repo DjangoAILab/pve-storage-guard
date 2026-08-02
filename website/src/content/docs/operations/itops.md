@@ -103,6 +103,14 @@ ReplayTrace v1alpha2 with a fixed `block-device` measurement layer and preserves
 evidence as `managementPlaneStatus=unknown`, so the public assessor can measure
 the two coverage dimensions separately.
 
+The builder now creates request-scoped metric indexes once rather than scanning
+the full caller array per output interval. A regression test forbids global
+rescans and another preserves first-match compatibility. Five local Node.js
+22.21.1 runs exported a deterministic 14-day, 60-second fixture (141,120 input
+metrics and 20,160 output intervals) in 80.472–82.093 ms with identical output
+checksums. This is pure in-memory evidence only; it excludes the probe, SSH,
+PVE REST, SQLite, network, dashboard, and real storage.
+
 The storage probe now optionally runs the fixed argv `zpool iostat -lpH 1 2`,
 discards the since-boot row, and maps only a complete one-second interval.
 ZFS pool IOPS, throughput, `total_wait`, and `disk_wait` are labeled
@@ -117,7 +125,7 @@ check succeeded without installing or registering anything on the host.
 
 There is no export route, transport, importer runtime registration, actuator,
 probe installation, alert enablement, or production deployment. The public
-batch reader is local, digest-bound, and persistence-free. All 1,266 backend
+batch reader is local, digest-bound, and persistence-free. All 1,268 backend
 tests across 151 files and all 101 frontend tests pass locally; build, lint, and
 dependency boundaries are also clean. Internal CI run 154 validated capability
 commit `51cc834` with a 4m31s quality gate and 4m47s image build. Run 155
@@ -126,3 +134,10 @@ gate and 4m45s image build. Final [run 156](https://gitea.wj2015.com/PEM/itops-a
 validated typed ZFS shadow telemetry `ccbbabd` with a 4m33s quality gate and
 5m10s linux/amd64 image build while PR #37 stays Draft. Production rollout
 remains an explicit approval gate.
+
+Replay-export semantic commits `60b8359` and `8104bb2` were validated by
+[run 160](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/160).
+The indexed exporter and one-day CI smoke in `324422f` were then validated by
+[run 161](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/161):
+the Node quality gate passed in 4m34s and the linux/amd64 image build in 4m45s.
+PR #37 remains Draft and undeployed.
