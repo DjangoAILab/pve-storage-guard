@@ -159,9 +159,11 @@ journal, identity-free sealed-journal verification, and content-addressed
 bounded local batch reading.
 Policy validation and approved enforcement modes remain roadmap work.
 The release workflow uploaded the signed, attested multi-architecture
-`v0.1.0-rc.2` image to `ghcr.io/djangoailab/pve-storage-guard`, but the GitHub
-package is still private pending an owner visibility checkpoint. Do not assume
-anonymous pulls work until the checklist records that change.
+`v0.1.0-rc.2` release image as
+`ghcr.io/djangoailab/pve-storage-guard:0.1.0-rc.2`. The GitHub package is public,
+and an anonymous registry-token and manifest read verified the published OCI
+index digest and its linux/amd64 and linux/arm64 manifests. The leading `v` is
+used by the GitHub Release tag; it is not part of the container image tag.
 
 ## Current replay result
 

@@ -262,16 +262,16 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   container/CodeQL checks, resolved conversations, linear history, and disabled
   force-push/deletion. Administrator bypass remains available for documented
   emergency recovery in this single-maintainer bootstrap phase.
-- [!] Make the tagged GHCR image publicly readable. Visibility change is now
-  operator-approved, but the current `gh` token lacks package scope and the
-  only available browser session is not authenticated. The validated
-  `v0.1.0-rc.2` release successfully built, signed, attested, and uploaded its
-  linux/amd64 and linux/arm64 manifests at digest
-  `sha256:c59935c8c9e90815e9a0d324c66ef63b0e30d76b6a89b3a3fc5a8eb2db4b72c9`,
-  but the package remains private. A fresh no-credential token request returned
-  HTTP 401 after the release on 2026-08-02. Complete the approved change only
-  through an authenticated owner session or a narrowly scoped package token,
-  then verify an anonymous OCI pull.
+- [x] Make the tagged GHCR image publicly readable. On 2026-08-02 an
+  authenticated organization owner enabled the organization policy that
+  permits public packages and changed only `pve-storage-guard` from private to
+  public. A no-credential registry-token request and tag listing returned HTTP
+  200; an anonymous manifest read of image tag `0.1.0-rc.2` returned HTTP 200,
+  linux/amd64 and linux/arm64 manifests, and the exact reviewed OCI index digest
+  `sha256:c59935c8c9e90815e9a0d324c66ef63b0e30d76b6a89b3a3fc5a8eb2db4b72c9`.
+  GitHub Release tag `v0.1.0-rc.2` intentionally retains the leading `v`, while
+  the container image tag does not. Evidence:
+  [public GHCR package](https://github.com/DjangoAILab/pve-storage-guard/pkgs/container/pve-storage-guard).
 
 ## 6. Local practice and ITOps
 
