@@ -4,6 +4,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import stat
 import tempfile
 import textwrap
@@ -217,6 +218,18 @@ class NonProductionObserverValidatorTests(unittest.TestCase):
                 "requestedMutations",
             },
         )
+        schema_path = Path(__file__).parents[1] / "api/v1/schema/pve-host-observer-validation.schema.json"
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        self.assertEqual(set(result), set(schema["required"]))
+        for key, definition in schema["properties"].items():
+            if "const" in definition:
+                self.assertEqual(result[key], definition["const"])
+            if "pattern" in definition:
+                self.assertRegex(result[key], re.compile(definition["pattern"]))
+        checks_schema = schema["properties"]["checks"]
+        self.assertEqual(set(result["checks"]), set(checks_schema["required"]))
+        for key, definition in checks_schema["properties"].items():
+            self.assertEqual(result["checks"][key], definition["const"])
         serialized = json.dumps(result, sort_keys=True)
         for forbidden in (
             *CONFIG["spec"].values(),
