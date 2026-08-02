@@ -110,11 +110,25 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   [host-hardening plan](plans/2026-08-02-host-observer-hardening.md). Public
   review: [PR #33](https://github.com/DjangoAILab/pve-storage-guard/pull/33).
   This is portable/static evidence only and caused no PVE or ITOps write.
+- [x] Add a digest-bound, non-root, non-production host evidence gate without
+  adding a product self-attestation mode. The dependency-free validator uses
+  fixed argv, re-hashes the binary before every launch, keeps bounded child
+  output in memory, rejects duplicate JSON and configured private identities,
+  requires two valid watch records plus a zero-exit SIGTERM, and emits only the
+  versioned identity-free summary schema. Twelve local success/fault cases pass,
+  including an actual compiled product-binary categorical failure; none is
+  labeled as PVE runtime evidence. Evidence:
+  `scripts/validate_nonprod_observer.py`,
+  `scripts/test_validate_nonprod_observer.py`,
+  `api/v1/schema/pve-host-observer-validation.schema.json`, and the
+  [validator design](plans/2026-08-02-nonprod-host-validator-design.md).
+  Public review: [PR #34](https://github.com/DjangoAILab/pve-storage-guard/pull/34).
 - [ ] Execute the compiled agent in a non-production PVE environment and
   validate Unix permissions, repeated sampling, process cancellation, and
-  live systemd behavior. No binary was uploaded to or run on the reference
-  production host; static unit analysis and portable cancellation tests do not
-  close this host-runtime gate.
+  live systemd behavior. Run the digest-bound validator first and retain only
+  its reviewed identity-free summary. No binary was uploaded to or run on the
+  reference production host; fake validation, static unit analysis, and
+  portable cancellation tests do not close this host-runtime gate.
 - [x] Implement the versioned JSONL shadow stream, strict configuration
   decoding, exact enrollment, telemetry-age checks, and non-actuating proposal
   output. An opt-in private append/sync decision journal now records the

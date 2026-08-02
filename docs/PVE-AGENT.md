@@ -93,6 +93,42 @@ locally built host binary in a reviewed test environment. A dedicated package
 or minimal host-integrated image, live least-privilege permission validation,
 and a broader version compatibility matrix remain promotion gates.
 
+## Non-production evidence gate
+
+After an operator has staged a reviewed release binary, its owner-only config,
+and the validator from the same reviewed repository commit on a
+**non-production** PVE host, run it as the intended non-root observer account:
+
+```sh
+python3 scripts/validate_nonprod_observer.py \
+  --binary /absolute/path/pve-storage-guard \
+  --config /absolute/private/path/agent.json \
+  --expected-sha256 sha256:APPROVED_RELEASE_DIGEST
+```
+
+Obtain `APPROVED_RELEASE_DIGEST` from the previously reviewed release checksum
+or provenance, not by trusting a fresh digest calculated from the staged file.
+The validator rejects root, non-Linux hosts, missing PVE/OpenZFS executables,
+relative paths, symlinks, unsafe owners/modes, and a digest mismatch. It
+re-hashes the binary before every fixed child invocation.
+
+The gate runs `version`, `agent inventory`, `agent observe`, and two `agent
+watch` samples with bounded output and time. It parses raw output only in
+memory, rejects duplicate JSON keys and any exact private node/storage/pool/
+device value, sends SIGTERM, and requires a zero exit. Failure writes no stdout
+and only a categorical stderr message. Success emits one identity-free
+`PVEHostObserverValidation` document matching
+`api/v1/schema/pve-host-observer-validation.schema.json`; it contains the
+approved binary digest/version and boolean/count checks, but no host, user,
+path, opaque domain/resource key, timestamp, metric, capacity, or child output.
+
+`requestedMutations: 0` means the validator requested only the compiled
+read-only CLI operations. It is not a syscall audit, release signature check,
+24-hour stability result, systemd start/restart test, or proof that the host is
+safe for actuation. Review the summary before retaining or sharing it. A local
+fake pass tests the validator only; the checklist gate closes only with a real
+non-production PVE result plus live service/rollback evidence.
+
 ## Proposed systemd boundary
 
 `deploy/systemd/pve-storage-guard-observer.service` is a reviewable
@@ -118,10 +154,10 @@ Repository tests pin the execution surface and required hardening directives.
 `systemd-analyze security` exposure score. The current disposable Ubuntu 24.04
 check scored 0.8 (SAFE); that is static sandbox evidence only.
 
-Before any installation, use a non-production PVE node to prove all of the
-following under the dedicated account: `pvesh` read authorization at the
-smallest reviewed scope, `/dev/zfs` access, both procfs reads, inventory, at
-least 24 hours of repeated samples, SIGTERM child reaping, restart backoff,
+Before any installation, use the evidence gate on a non-production PVE node,
+then prove the remaining live service behavior under the dedicated account:
+`pvesh` read authorization at the smallest reviewed scope, `/dev/zfs` access,
+both procfs reads, at least 24 hours of repeated samples, restart backoff,
 journal classification/retention, and full stop/disable/removal. The repository
 does not create the account, PVE ACL, config, binary, unit, or log policy.
 Failure of any check leaves the service disabled. A production host remains an

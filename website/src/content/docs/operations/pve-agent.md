@@ -69,11 +69,35 @@ namespace, or writable filesystem path. Repository tests and Ubuntu 24.04
 permissions or runtime behavior. Use a locally built binary only in a reviewed
 test environment until those host gates pass.
 
+## Non-production evidence gate
+
+After an approved binary, owner-only config, and repository are staged on a
+non-production PVE node, run the external validator as the intended non-root
+observer account:
+
+```sh
+python3 scripts/validate_nonprod_observer.py \
+  --binary /absolute/path/pve-storage-guard \
+  --config /absolute/private/path/agent.json \
+  --expected-sha256 sha256:APPROVED_RELEASE_DIGEST
+```
+
+Use a previously reviewed release digest, not a newly trusted local checksum.
+The gate re-hashes the binary before each fixed command, validates inventory,
+one observation, two watch records, private-identity absence, and a zero-exit
+SIGTERM. Raw child output stays bounded in memory. Failure has zero stdout;
+success is one identity-free versioned summary with no host, path, domain,
+resource, timestamp, or metric.
+
+This validates a short observer execution only. It does not install the unit,
+prove 24-hour stability, validate restart/rollback, or authorize production.
+Fake/CI passes test the evidence mechanism and never count as PVE host evidence.
+
 ## Compatibility evidence
 
 | PVE | OpenZFS | Proven | Still gated |
 | --- | --- | --- | --- |
-| 9.2 | 2.4 | PVE JSON, ZFS wait-header and 37-bucket/12-column histogram shapes, PSI, diskstats, portable cancellation, static unit analysis | compiled binary on PVE, live ACL/device/unit behavior, sustained sampling, policy thresholds, actuation |
+| 9.2 | 2.4 | PVE JSON, ZFS wait-header and 37-bucket/12-column histogram shapes, PSI, diskstats, portable cancellation, static unit analysis, tested host-evidence mechanism | compiled binary on PVE, reviewed validator result, live ACL/device/unit behavior, sustained sampling, policy thresholds, actuation |
 
 The fixture retains observed field and histogram shape but uses fixed aliases,
 synthetic topology/cardinality, and synthetic operational values. It is

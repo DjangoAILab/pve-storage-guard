@@ -81,6 +81,11 @@ The repository includes a proposed observer-only systemd unit for review and
 static analysis. It is not an installer and does not create a service account,
 PVE ACL, private config, binary, or enabled service. Actual non-root PVE and
 OpenZFS permissions plus sustained supervision remain non-production gates.
+Once those inputs are staged on a test node, the separate
+`scripts/validate_nonprod_observer.py` gate binds the run to an approved binary
+SHA-256, validates fixed read-only commands and SIGTERM in memory, and emits an
+identity-free summary. A local fake pass is never host evidence; follow the
+[agent guide](docs/PVE-AGENT.md#non-production-evidence-gate).
 
 Decision journaling is explicit and remains local. Add `--journal FILE` to
 append a versioned JSONL event before each corresponding proposal reaches
