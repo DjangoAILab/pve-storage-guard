@@ -19,8 +19,9 @@ or publish node, pool, storage, VM, container, or device identities.
 ## Decision
 
 - The v0.1 PVE agent runs on the PVE host and exposes one-shot `inventory` and
-  `observe` CLI operations. A supervisor may schedule or stream those calls;
-  the agent itself opens no network socket.
+  `observe` CLI operations plus a serial `watch` stream. Watch waits a bounded
+  period after each completed sample, never overlaps collection, and propagates
+  process cancellation to its active child. The agent opens no network socket.
 - Configuration binds private PVE node, storage, ZFS pool, and kernel-device
   names to public-safe opaque domain and resource keys. Only those opaque keys
   may appear on stdout.
@@ -44,6 +45,10 @@ or publish node, pool, storage, VM, container, or device identities.
   exact path. It does not recursively read `/etc/pve` or access `/etc/pve/priv`.
 - The v0.1 agent has no actuator, mutation endpoint, remote delivery, automatic
   enrollment, or credential handling.
+- The published systemd unit is an observer-only review artifact. It runs as a
+  static non-root identity with no capabilities, host network, or writable
+  filesystem path. Static analysis is not evidence that PVE ACL, procfs, ZFS
+  control-device, journald, or stop/restart behavior works on a real host.
 
 ## Consequences
 
@@ -68,4 +73,3 @@ or publish node, pool, storage, VM, container, or device identities.
 - **User-provided collector scripts:** rejected because arbitrary execution and
   untyped metric output undermine the security and semantics boundaries.
 - **Use diskstats average latency as p95:** rejected as statistically false.
-

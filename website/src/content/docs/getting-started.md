@@ -55,8 +55,10 @@ read-only adapter:
 ```sh
 pve-storage-guard agent inventory --config /private/path/agent.json
 pve-storage-guard agent observe --config /private/path/agent.json
+pve-storage-guard agent watch --config /private/path/agent.json --period 10s
 ```
 
+Watch is serial JSONL collection, not a daemon install or a network service.
 The config is private and owner-only; stdout contains opaque keys. Read the
 [agent guide](/pve-storage-guard/operations/pve-agent/) before using it. These
 commands are not authorization to install on a production node.

@@ -8,7 +8,7 @@ performance, or actuation have been validated.
 
 | Proxmox VE | OpenZFS | Evidence level | Validated surfaces | Not validated |
 | --- | --- | --- | --- | --- |
-| 9.2 | 2.4 | Source-format compatible | cluster status JSON; ZFS storage config/status JSON; `total_wait` header semantics; 37-bucket/12-column scripted histogram; PSI; diskstats | compiled binary on host; Unix permissions; systemd/container packaging; sustained sampling; alerts; policy calibration; actuation |
+| 9.2 | 2.4 | Source-format compatible | cluster status JSON; ZFS storage config/status JSON; `total_wait` header semantics; 37-bucket/12-column scripted histogram; PSI; diskstats; portable child-cancellation and static systemd checks | compiled binary on PVE; PVE Unix/ACL/device permissions; live systemd behavior; sustained sampling; alerts; policy calibration; actuation |
 
 The fixture is under
 `internal/adapter/pve/testdata/pve-9.2-openzfs-2.4/`. Its manifest labels the
@@ -62,8 +62,11 @@ identifiers without storing those identifiers in the repository.
 - The synthetic fixture cannot calibrate latency thresholds or demonstrate a
   production benefit.
 - Source-format compatibility does not prove the compiled binary has the
-  required host permissions or behaves correctly under a systemd/container
-  sandbox.
+  required host permissions or behaves correctly under a live systemd sandbox.
+- Portable integration tests prove SIGTERM/context cancellation reaps a child,
+  and Ubuntu 24.04 `systemd-analyze` gives the proposed observer unit a 0.8
+  exposure score. Neither result validates PVE ACLs, `/dev/zfs` access, output
+  retention, or supervision on PVE.
 - One PVE/OpenZFS combination is not a general support claim.
 - No SSH availability, guest task completion, notification, canary, rollback,
   or actuator behavior was exercised.
