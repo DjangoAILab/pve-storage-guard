@@ -122,6 +122,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   `scripts/test_validate_nonprod_observer.py`,
   `api/v1/schema/pve-host-observer-validation.schema.json`, and the
   [validator design](plans/2026-08-02-nonprod-host-validator-design.md).
+  Public review: [PR #34](https://github.com/DjangoAILab/pve-storage-guard/pull/34).
 - [ ] Execute the compiled agent in a non-production PVE environment and
   validate Unix permissions, repeated sampling, process cancellation, and
   live systemd behavior. Run the digest-bound validator first and retain only
