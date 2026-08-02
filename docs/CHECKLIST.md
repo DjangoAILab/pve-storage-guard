@@ -383,6 +383,28 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   [run 169](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/169)
   passed the Node 22 quality gate and linux/amd64 image build. The merge itself
   caused no runtime or production change.
+  A later redacted preflight rejected that provisional candidate after repeated
+  pre-handshake SSH connection-loss errors escaped a one-shot emitter listener
+  and reached the backend process-level handler. Internal PR #42 kept client and
+  channel error listeners installed for their emitter lifetime, added repeated
+  post-settlement regression tests, classified pre-handshake loss as a stable
+  network failure, passed branch run 175, and merged as `470d9a6` without a
+  deployment. Final immutable ITOps observer candidate `9fab00b` then passed
+  post-merge
+  [run 179](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/179):
+  Node 22 quality gates, linux/amd64 publish/read-back, runtime smoke tests,
+  exact OCI revision/source labels, provenance, and SBOM all passed. Its exact
+  uncompressed source archive self-identified the same commit; its unpacked
+  deployment fault tests and pinned Gitleaks scan also passed. Internal
+  [PR #45](https://gitea.wj2015.com/PEM/itops-agent-platform/pulls/45)
+  merged the access-controlled rollout evidence as `89958bc` after rebased
+  branch
+  [run 183](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/183)
+  passed both jobs. Registry coordinates, credentials, raw logs, and target
+  identity remain outside this public record. The candidate is selected but
+  undeployed: probe installation, source/container replacement, alert arming,
+  notification, journal registration, and actuation still require their
+  separate production checkpoints.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
