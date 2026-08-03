@@ -113,9 +113,12 @@ containers, no deployment journals, and a retained predecessor rollback pair.
 This does not prove the controller is production-ready or that alert thresholds
 are calibrated. It does prove that staged checkpoints, exact backups,
 fail-closed validation, transactional recovery, and immutable retry boundaries
-prevented two rollout defects from becoming a second incident. The 24-hour
-read-only observer acceptance window is still pending; alerts, notifications,
-journal import, and actuation remain disabled. The verified offline database
+prevented two rollout defects from becoming a second incident. The observer
+window was explicitly shortened by the operator after a second read-only
+checkpoint passed. This accepts deployment health with a documented evidence
+limitation; it does not claim 24-hour coverage or calibrated alert thresholds.
+Alerts, notifications, journal import, and actuation remain disabled. The
+verified offline database
 archive also exposed a long maintenance pause, motivating an online-backup or
 snapshot-based improvement before the next application release.
 

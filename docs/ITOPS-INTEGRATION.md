@@ -410,8 +410,12 @@ storage-pressure rules disabled, supported storage-pressure capability, typed
 ZFS and detector evidence, healthy zero-restart candidate containers, absent
 deployment journals, and an intact stopped predecessor rollback pair. No
 notification expectation was configured, and no alert, journal-registration,
-notification, or actuation path was enabled. A 24-hour read-only deployment
-acceptance window is pending.
+notification, or actuation path was enabled. A second read-only checkpoint
+passed with unchanged identity, health, rollback, rule, privacy, and
+notification state. The operator explicitly shortened the deployment-only
+acceptance window after those two checks. This closes deployment acceptance
+with a documented evidence limitation; it is not 24-hour statistical coverage
+and does not calibrate or authorize an alert.
 
 The transactional database archive was private and verified, but the offline
 compression/read-back sequence created an undesirably long maintenance pause.

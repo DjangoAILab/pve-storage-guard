@@ -474,8 +474,12 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   active pair was healthy with zero restarts; deployment journals were absent;
   and the stopped exact predecessor plus a private database archive remained
   available for rollback. No alert, notification, journal-registration, or
-  actuation path was enabled. The 24-hour read-only acceptance window is now
-  pending. The offline archive path was safe but caused a long maintenance
+  actuation path was enabled. A second read-only checkpoint also passed with
+  unchanged identity, health, rollback, rule, privacy, and notification state.
+  The operator explicitly shortened the deployment-acceptance window after
+  those two checks. Deployment acceptance is therefore complete with a recorded
+  evidence limitation; no 24-hour coverage or alert-calibration claim is made.
+  The offline archive path was safe but caused a long maintenance
   pause, so a future release must evaluate SQLite online backup or a storage
   snapshot followed by asynchronous compression without weakening integrity or
   rollback checks.
@@ -486,7 +490,7 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   and one recovery with detector evidence attached. The general recommended-rule
   command now excludes both storage-pressure rules unless a second exact opt-in
   is present, and an idempotent rollback helper disables only those two IDs.
-  A 24-hour window is deployment acceptance only; 7–14 days of representative
+  The operator-shortened window is deployment acceptance only; representative
   shadow data, real notification testing, and explicit enablement remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Merged PR #37 includes a tested PVE-only storage-pressure dashboard for
