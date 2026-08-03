@@ -12,9 +12,11 @@ The source tree also contains a fake-backed QEMU write-limit actuator core for
 offline review. It is not integrated with this agent or any runtime. The core
 binds one opaque resource to one owner-configured disk, requires an existing
 bounded `bps_wr`, rejects conflicting bandwidth/IOPS options, fences the update
-with the PVE config digest, and verifies full unmanaged state on read-back. A
-live backend, controlled-load rehearsal, rollback proof, and production write
-still require separate reviews and approval.
+with the PVE config digest, bounds every backend call with the configured
+deadline, requires an exactly representable rollback target, and verifies full
+unmanaged state on read-back. A live backend, controlled-load rehearsal,
+rollback proof, and production write still require separate reviews and
+approval.
 
 ## Evidence semantics
 

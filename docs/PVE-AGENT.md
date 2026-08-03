@@ -202,7 +202,9 @@ rejects unlimited disks and every other `bps*`, `mbps*`, or `iops*` option. It
 rechecks tags, lock, explicit boot order, storage, writable data-disk role, and
 the full unmanaged disk option set around every digest-fenced update. Limits
 are encoded as integer bytes per second so configured MiB/s is not confused
-with Proxmox decimal MB/s fields.
+with Proxmox decimal MB/s fields. Every backend read and update receives the
+owner-configured command deadline. The explicit rollback target must also be
+exactly representable as integer bytes per second.
 
 Private canary configs created before this core must add a new opaque
 `resourceKey`; strict decoding intentionally rejects an absent key. No such

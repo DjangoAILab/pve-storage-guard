@@ -120,7 +120,11 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   publication-privacy tests, the 106-file/132-URL privacy scan, and the 16-page
   Astro build all passed. Public review:
   [Draft PR #57](https://github.com/DjangoAILab/pve-storage-guard/pull/57),
-  initial implementation commit `94e54af`. The review head passed
+  initial implementation commit `94e54af`. A subsequent safety review found
+  that the offline core had not yet enforced the configured command timeout and
+  that a fractional rollback target could validate despite not being an exact
+  integer `bps_wr` value. Rebased correction commit `b8b60b0` closes both gaps;
+  its exact-head CI is pending. The earlier review head passed
   [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30838801962),
   [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30838802197),
   and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30838802244).
