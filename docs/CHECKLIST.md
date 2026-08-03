@@ -393,8 +393,8 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   linux/amd64 image build passed. PR #37 then merged to internal main as
   `1a94834` after explicit approval. Post-merge
   internal run 164
-  then passed both the Node 22 quality gate and linux/amd64 image build. It
-  remains undeployed: no collector,
+  then passed both the Node 22 quality gate and linux/amd64 image build. At
+  that point it remained undeployed: no collector,
   runtime registration, journal import, dashboard, alert, notification, or
   control path was enabled.
   A documentation-only follow-up corrected four internal rollout fact sources
@@ -459,10 +459,30 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   inputs, unsafe or duplicate archive members, and redacts failure details.
   Twelve binding/negative tests, Bash syntax, ShellCheck, the full deployment
   static and fault-injection suites, whitespace checks, and a pinned tracked-tree
-  secret scan passed locally. The pack contains no registry coordinates and has
-  not been staged on production. The successor candidate remains undeployed;
-  application deployment, alerts, notifications, journal registration, and
-  actuation remain disabled.
+  secret scan passed locally. The pack contains no registry coordinates.
+  Checkpoint C was then separately re-authorized and completed with that exact
+  successor. A fresh preflight first detected one additional predecessor restart
+  and stopped before writes; identity-free correlation matched the already
+  tested SSH lifecycle failure signature. After the reviewed fingerprint was
+  updated, source replacement preserved protected runtime inodes and retained
+  the predecessor rollback anchor. The first image invocation failed safely at
+  missing root registry authentication before database backup, container stop,
+  or cutover. An interactive operator login allowed the exact-digest retry to
+  complete, and registry authentication was removed afterward. Live acceptance
+  passed with all collectors fresh/up, the exact 28-rule set, the existing 22
+  general rules enabled, and all GPU and storage-pressure rules disabled. The
+  active pair was healthy with zero restarts; deployment journals were absent;
+  and the stopped exact predecessor plus a private database archive remained
+  available for rollback. No alert, notification, journal-registration, or
+  actuation path was enabled. A second read-only checkpoint also passed with
+  unchanged identity, health, rollback, rule, privacy, and notification state.
+  The operator explicitly shortened the deployment-acceptance window after
+  those two checks. Deployment acceptance is therefore complete with a recorded
+  evidence limitation; no 24-hour coverage or alert-calibration claim is made.
+  The offline archive path was safe but caused a long maintenance
+  pause, so a future release must evaluate SQLite online backup or a storage
+  snapshot followed by asynchronous compression without weakening integrity or
+  rollback checks.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
@@ -470,7 +490,7 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   and one recovery with detector evidence attached. The general recommended-rule
   command now excludes both storage-pressure rules unless a second exact opt-in
   is present, and an idempotent rollback helper disables only those two IDs.
-  A 24-hour window is deployment acceptance only; 7–14 days of representative
+  The operator-shortened window is deployment acceptance only; representative
   shadow data, real notification testing, and explicit enablement remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Merged PR #37 includes a tested PVE-only storage-pressure dashboard for
