@@ -155,9 +155,11 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30731900131),
   and [Pages](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30731900122);
   the deployed agent guide and compatibility schema both returned HTTPS 200.
-- [ ] Validate actual non-root PVE ACL/device permissions, live systemd
-  behavior, sustained supervision, and rollback. The production compatibility
-  result cannot close these gates.
+- [~] Validate actual non-root PVE ACL/device permissions, live PVE systemd
+  behavior, and sustained supervision. An ephemeral Ubuntu PID-1 rehearsal now
+  closes only the portable non-root systemd start/restart/cold-start and exact
+  artifact rollback mechanics; the production compatibility result and the
+  synthetic rehearsal cannot close real PVE ACL or `/dev/zfs` gates.
 - [x] Implement the versioned JSONL shadow stream, strict configuration
   decoding, exact enrollment, telemetry-age checks, and non-actuating proposal
   output. An opt-in private append/sync decision journal now records the
@@ -471,7 +473,20 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   A real shadow-baseline screenshot, approved transport/runtime registration,
   and incident/runbook links remain. The verifier and importer expose no route,
   scheduler, alert evaluation, or production side effect.
-- [ ] Exercise cold restart and rollback in a non-critical environment.
+- [x] Exercise cold restart and rollback in a non-critical environment. Public
+  PR #46 [run 30791350808](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30791350808)
+  used the production observer unit and real compiled
+  CLI on an ephemeral Ubuntu 24.04 VM with public synthetic PVE/OpenZFS
+  fixtures. It proved non-root initial start with two samples, a SIGKILL-driven
+  supervised restart after the configured 30-second delay, byte-distinct
+  candidate binary/config cold start, and exact baseline binary/config rollback
+  cold start with four unique PIDs. The unit was never enabled; all fixed
+  artifacts and the service identity were removed; the pre-existing
+  `/usr/local/bin` inode/owner/group/mode was restored. The identity-free
+  evidence artifact SHA-256 is
+  `1c23af970801c23d00a0e7d50c02bacc128276c6c6550288dbd4df9366c10bc3`.
+  This is portable lifecycle evidence, not real PVE permission, sustained-load,
+  or policy-effect evidence.
 - [!] Expand production control only after canary evidence is reviewed.
 
 ## Current risks and evidence gaps
