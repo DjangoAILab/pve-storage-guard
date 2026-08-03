@@ -52,7 +52,7 @@ func TestReadPVEAgentConfigRejectsReadableOrNonRegularFile(t *testing.T) {
 }
 
 func TestReadPVECanaryPreflightConfigRequiresPrivateExplicitNonCriticalDataDisk(t *testing.T) {
-	valid := `{"apiVersion":"guard.storage-slo.io/v1alpha1","kind":"PVECanaryPreflightConfig","spec":{"domainKey":"reference-pool","node":"node-a","storage":"storage-a","zpool":"pool-a","workloadKind":"qemu","workloadId":"101","diskKey":"scsi1","requiredTags":["non-critical","pve-storage-guard"],"commandTimeoutSeconds":5,"envelope":{"minimumMiBPS":16,"maximumMiBPS":128,"rollbackMiBPS":32}}}`
+	valid := `{"apiVersion":"guard.storage-slo.io/v1alpha1","kind":"PVECanaryPreflightConfig","spec":{"domainKey":"reference-pool","resourceKey":"resource-a","node":"node-a","storage":"storage-a","zpool":"pool-a","workloadKind":"qemu","workloadId":"101","diskKey":"scsi1","requiredTags":["non-critical","pve-storage-guard"],"commandTimeoutSeconds":5,"envelope":{"minimumMiBPS":16,"maximumMiBPS":128,"rollbackMiBPS":32}}}`
 	path := filepath.Join(t.TempDir(), "canary.json")
 	if err := os.WriteFile(path, []byte(valid), 0o600); err != nil {
 		t.Fatal(err)
@@ -61,7 +61,9 @@ func TestReadPVECanaryPreflightConfigRequiresPrivateExplicitNonCriticalDataDisk(
 		t.Fatalf("read valid config: %v", err)
 	}
 	for name, payload := range map[string]string{
-		"missing tag": strings.Replace(valid, `,"pve-storage-guard"`, "", 1),
+		"missing tag":          strings.Replace(valid, `,"pve-storage-guard"`, "", 1),
+		"missing resource key": strings.Replace(valid, `"resourceKey":"resource-a",`, "", 1),
+		"invalid resource key": strings.Replace(valid, `"resource-a"`, `"Resource/A"`, 1),
 		"boot-like disk is still syntactically allowed": strings.Replace(valid, `"scsi1"`, `"scsi0"`, 1),
 		"workload injection":                            strings.Replace(valid, `"101"`, `"101;touch"`, 1),
 		"rollback below floor":                          strings.Replace(valid, `"rollbackMiBPS":32`, `"rollbackMiBPS":8`, 1),

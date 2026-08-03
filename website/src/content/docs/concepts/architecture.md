@@ -41,4 +41,11 @@ failure domain. A small local agent separates read-only collection from a
 disabled-by-default privileged actuator. Network loss or controller failure can
 never cause a limit increase.
 
+The repository's first PVE actuator core is an offline, injected-backend design
+for one exact QEMU data disk. It can change only an existing bounded `bps_wr`,
+uses the PVE configuration digest as a concurrent-change fence, preserves every
+unmanaged disk option, and returns the actual read-back to the generic Safety
+Gate. There is no live backend, CLI route, listener, service, credential, or
+production configuration, so this core does not create an actuation path.
+
 See the complete [architecture document on GitHub](https://github.com/DjangoAILab/pve-storage-guard/blob/main/docs/ARCHITECTURE.md).

@@ -188,6 +188,37 @@ The 2026-08-03 production inventory audit found no explicitly classified guest,
 so no production disk was selected. This negative result is a safety gate, not
 a reason to infer criticality from a guest name.
 
+## Offline QEMU write-limit actuator core
+
+The repository contains a fake-backed actuator core for design and unit-test
+review only. It is not reachable from `pve-storage-guard`, the observer unit,
+the container, or a network endpoint, and the repository contains no live PVE
+write backend. Merging the core therefore does not authorize or create a host
+write path.
+
+The core maps the private preflight `resourceKey` to exactly one QEMU disk. It
+will manage only an existing positive `bps_wr` rate inside the envelope, and
+rejects unlimited disks and every other `bps*`, `mbps*`, or `iops*` option. It
+rechecks tags, lock, explicit boot order, storage, writable data-disk role, and
+the full unmanaged disk option set around every digest-fenced update. Limits
+are encoded as integer bytes per second so configured MiB/s is not confused
+with Proxmox decimal MB/s fields.
+
+Private canary configs created before this core must add a new opaque
+`resourceKey`; strict decoding intentionally rejects an absent key. No such
+config has been deployed by this project.
+
+The rollback value is a reviewed target, not an automatic action. A future
+rollback must pass the same authoritative lease/approval gate and perform a
+fresh digest-fenced apply. If an update is ambiguous, read-back fails, or any
+other field drifts, the generic Safety Gate freezes the resource instead of
+retrying. See [ADR-0012](adr/0012-bound-the-pve-actuator-to-one-existing-qemu-write-limit.md).
+
+Before a live backend can be proposed, evidence must include a deliberately
+classified non-critical disk, least-privilege PVE permissions, read-back and
+rollback rehearsal under controlled load, restart/reconciliation behavior, and
+a separate production-write approval.
+
 ## Proposed systemd boundary
 
 `deploy/systemd/pve-storage-guard-observer.service` is a reviewable

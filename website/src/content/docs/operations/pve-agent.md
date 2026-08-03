@@ -8,6 +8,14 @@ The v0.1 agent is a same-host observer for an explicitly bound Proxmox VE
 credential input, network exporter, or actuator. Production installation
 remains a separate safety checkpoint.
 
+The source tree also contains a fake-backed QEMU write-limit actuator core for
+offline review. It is not integrated with this agent or any runtime. The core
+binds one opaque resource to one owner-configured disk, requires an existing
+bounded `bps_wr`, rejects conflicting bandwidth/IOPS options, fences the update
+with the PVE config digest, and verifies full unmanaged state on read-back. A
+live backend, controlled-load rehearsal, rollback proof, and production write
+still require separate reviews and approval.
+
 ## Evidence semantics
 
 The controller's wait input is a percentile contract. Linux diskstats cannot

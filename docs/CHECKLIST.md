@@ -104,6 +104,24 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   tests under `internal/policy` and `internal/allocator`.
 - [x] Implement read-only adapter and constrained actuator contracts without
   production mutation under `internal/adapter/pve` and `internal/actuator/pve`.
+- [~] Implement the first PVE QEMU write-limit actuator core without a live
+  backend or runtime wiring. The fake-backed implementation binds one opaque
+  resource to one existing bounded `bps_wr`, rejects other rate fields and
+  unsafe live disk state, uses the PVE config digest as a concurrency fence,
+  preserves unmanaged disk fields, returns actual read-back, and keeps rollback
+  explicit. It has no shell runner, PVE API client, CLI, listener, unit,
+  credential, container entrypoint, or production config. Evidence:
+  `internal/actuator/pve` and proposed
+  [ADR-0012](adr/0012-bound-the-pve-actuator-to-one-existing-qemu-write-limit.md).
+  Local evidence on 2026-08-04: full race tests and vet passed; the actuator
+  package reached 93.5% statement coverage; its bounded parser completed
+  1,377,511 fuzz executions without a failure; golangci-lint, staticcheck,
+  govulncheck call-graph scan, current-tree Gitleaks, 56 replay tests, nine
+  publication-privacy tests, the 105-file/127-URL privacy scan, and the 16-page
+  Astro build all passed. GitHub CI/security/Pages evidence remains pending.
+  This item remains partial until stakeholder review accepts the ADR and a
+  separately reviewed live backend passes non-critical controlled-load and
+  rollback evidence.
 - [x] Implement the concrete public PVE ZFS inventory/metrics adapter and
   read-only `agent inventory` / `agent observe` modes behind those contracts.
   Evidence: `internal/adapter/pve`, `cmd/pve-storage-guard`,
@@ -230,7 +248,8 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   approval at the production-write checkpoint.
 - [!] Enable canary actuation only after explicit approval and a reviewed
   rollback command/state snapshot. A passing read-only preflight still emits
-  `activeControlEligible=false`; the v0.2 actuator does not yet exist.
+  `activeControlEligible=false`; the fake-backed v0.2 actuator core is not
+  reachable from any runtime and is not a production actuator.
 
 ## 5. Open-source engineering
 

@@ -27,7 +27,9 @@ public distribution.
 
 - Read-only exact-resource eligibility preflight with explicit non-critical
   tags, non-boot data-disk proof, and identity-free output (implemented).
-- Minimal structured PVE actuator with least privilege.
+- Minimal structured PVE actuator with least privilege (fake-backed exact
+  QEMU `bps_wr` core implemented; live backend and runtime wiring remain
+  independently gated).
 - Durable desired/effective state, lease, apply/read-back, expiry, and rollback.
 - Non-critical disk canary workflow and fault injection.
 - Policy approval envelope integrated with ITOps task handoff.

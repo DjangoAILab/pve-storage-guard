@@ -104,6 +104,7 @@ type PVECanaryPreflightConfig struct {
 	Kind       string `json:"kind"`
 	Spec       struct {
 		DomainKey             string   `json:"domainKey"`
+		ResourceKey           string   `json:"resourceKey"`
 		Node                  string   `json:"node"`
 		Storage               string   `json:"storage"`
 		ZPool                 string   `json:"zpool"`
@@ -138,7 +139,7 @@ func (d PVECanaryPreflightConfig) Validate() error {
 	if d.APIVersion != v1.SchemaVersion || d.Kind != "PVECanaryPreflightConfig" {
 		return errors.New("PVE canary preflight apiVersion or kind is unsupported")
 	}
-	if !opaqueKeyPattern.MatchString(d.Spec.DomainKey) || d.Spec.WorkloadKind != "qemu" ||
+	if !opaqueKeyPattern.MatchString(d.Spec.DomainKey) || !opaqueKeyPattern.MatchString(d.Spec.ResourceKey) || d.Spec.WorkloadKind != "qemu" ||
 		!workloadIDPattern.MatchString(d.Spec.WorkloadID) || !qemuDiskKeyPattern.MatchString(d.Spec.DiskKey) {
 		return errors.New("PVE canary domain or workload binding is invalid")
 	}
