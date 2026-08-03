@@ -78,11 +78,11 @@ semantic checks. The heap figure is measured after explicit garbage collection
 with the returned trace still live; it is retained output memory, not peak
 allocation.
 
-Internal Draft PR #37
-[CI run 161](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/161)
+Before internal PR #37 merged, internal CI run 161
 independently executed the one-day smoke inside the complete Node quality gate;
 that gate passed in 4m34s and its dependent linux/amd64 image build passed in
-4m45s. The integration remains Draft and undeployed.
+4m45s. The integration later merged after explicit approval but remains
+undeployed.
 
 This is not a collector or host benchmark. It excludes fixture generation,
 probe execution, SSH, PVE REST, SQLite, network delivery, dashboard queries,

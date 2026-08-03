@@ -82,6 +82,29 @@ three sensitivity scenarios. This is a hypothesis for shadow validation, not a
 production effect claim. The observed fixed-cap check also means fixed 20 may
 only be used as a model comparator, not advertised as a validated fallback.
 
+## What the first observer rollout proved
+
+The initial production rollout was deliberately split into independent probe
+and application checkpoints. The restricted read-only probe update completed,
+including an exact rollback-and-retry rehearsal and validation of every allowed
+operation. The application checkpoint then stopped at a protected host-state
+invariant before containers, the database, credentials, alerts, or registry
+state changed. The source transaction and image selector returned to their
+previous values.
+
+The rejected candidate had an incomplete allowlist for an existing protected
+certificate pair. A separate read-only audit also found one pre-existing
+directory whose root mode was broader than the private-tree contract, while all
+descendants were already root-owned and private. These are different failure
+classes: the candidate defect requires reviewed code and regression tests; the
+host drift requires its own exact, non-recursive production approval.
+
+This does not prove the observer or controller is production-ready. It does
+prove that staged checkpoints, exact backups, fail-closed validation, and
+transactional source recovery prevented a monitoring rollout from becoming a
+second incident. The application, alerts, notifications, journal import, and
+actuation remain disabled.
+
 ## Sanitization contract
 
 The public project may include:

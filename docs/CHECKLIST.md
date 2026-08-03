@@ -4,7 +4,7 @@ Status values: `[x]` complete, `[~]` in progress, `[ ]` pending, `[!]` blocked
 by an explicit safety checkpoint. Evidence links are repository-relative unless
 marked as local-only.
 
-Last updated: 2026-08-02 (Asia/Shanghai)
+Last updated: 2026-08-03 (Asia/Shanghai)
 
 ## 1. Current state and data safety
 
@@ -291,7 +291,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   health, and controller state. Merged internal PR #37 contains a
   read-only `pve.storage-pressure` probe and mappings for PSI, in-flight I/O,
   disk counters, derived IOPS/throughput/average wait/queue/utilization, and
-  management-probe health. The draft now also parses one complete fixed-argv
+  management-probe health. The merged integration also parses one complete fixed-argv
   `zpool iostat -lpH 1 2` interval into separately typed ZFS pool
   `total_wait`/`disk_wait`, IOPS, and throughput gauges. ZFS values are labeled
   as one-second interval means, remain outside detector v1, and cannot be
@@ -334,7 +334,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   Internal run 154 then validated `51cc834`: quality gates passed in 4m31s and
   the image build in 4m47s. Run 155 validated follow-up `e7e7997`: quality
   gates passed in 4m34s and the image build in 4m45s. Final internal
-  [run 156](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/156)
+  internal run 156
   validated typed ZFS shadow telemetry `ccbbabd`: quality gates passed in 4m33s
   and the linux/amd64 image build in 5m10s. Internal commits `c2ed208` and
   `db5493b` now
@@ -345,7 +345,7 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   Run 157 correctly failed when an inserted test line invalidated an existing
   synthetic-secret fingerprint; the fix preserved the fixture line numbers and
   did not expand the ignore list. Final internal
-  [run 158](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/158)
+  internal run 158
   passed Node quality gates in 4m33s and the linux/amd64 image build in 10m59s;
   the latter recovered through its bounded retry after a transient registry
   mirror DNS timeout. Internal replay-export commits `60b8359` and `8104bb2`
@@ -355,19 +355,19 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   management samples were present and 50% management coverage when one was
   absent; both correctly remained policy-incompatible and ineligible because
   average block-device wait is not storage-domain p95. Final internal
-  [run 160](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/160)
+  internal run 160
   passed the Node quality gate in 4m38s and linux/amd64 image build in 4m49s.
   Internal commit `324422f` then replaced repeated full-array scans in the pure
   replay exporter with request-scoped indexes and added a deterministic
   one-day CI smoke plus 1/7/14-day local diagnostics. Final
-  [run 161](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/161)
+  internal run 161
   passed the Node quality gate in 4m34s and linux/amd64 image build in 4m45s.
   Final pre-merge
-  [run 163](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/163)
+  internal run 163
   validated exact head `62cc3e1`: the Node 22 quality gate and dependent
   linux/amd64 image build passed. PR #37 then merged to internal main as
   `1a94834` after explicit approval. Post-merge
-  [run 164](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/164)
+  internal run 164
   then passed both the Node 22 quality gate and linux/amd64 image build. It
   remains undeployed: no collector,
   runtime registration, journal import, dashboard, alert, notification, or
@@ -376,11 +376,11 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   so that checkpoint A is recorded as complete while deployment checkpoints
   B/C and all later alert, notification, journal-registration, and actuation
   gates remain explicitly unapproved. Internal
-  [PR #39](https://gitea.wj2015.com/PEM/itops-agent-platform/pulls/39)
+  internal PR #39
   merged as `055b092` after branch
-  [run 168](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/168)
+  internal run 168
   and post-merge main
-  [run 169](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/169)
+  internal run 169
   passed the Node 22 quality gate and linux/amd64 image build. The merge itself
   caused no runtime or production change.
   A later redacted preflight rejected that provisional candidate after repeated
@@ -391,20 +391,35 @@ Last updated: 2026-08-02 (Asia/Shanghai)
   network failure, passed branch run 175, and merged as `470d9a6` without a
   deployment. Final immutable ITOps observer candidate `9fab00b` then passed
   post-merge
-  [run 179](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/179):
+  internal run 179:
   Node 22 quality gates, linux/amd64 publish/read-back, runtime smoke tests,
   exact OCI revision/source labels, provenance, and SBOM all passed. Its exact
   uncompressed source archive self-identified the same commit; its unpacked
   deployment fault tests and pinned Gitleaks scan also passed. Internal
-  [PR #45](https://gitea.wj2015.com/PEM/itops-agent-platform/pulls/45)
+  internal PR #45
   merged the access-controlled rollout evidence as `89958bc` after rebased
   branch
-  [run 183](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/183)
+  internal run 183
   passed both jobs. Registry coordinates, credentials, raw logs, and target
   identity remain outside this public record. The candidate is selected but
-  undeployed: probe installation, source/container replacement, alert arming,
-  notification, journal registration, and actuation still require their
-  separate production checkpoints.
+  was not deployed at that point.
+  Checkpoint B was later explicitly approved and completed. The first
+  acceptance attempt failed because the diagnostic depended on an undeclared
+  host runtime; the exact previous probe boundary was restored and revalidated
+  before retry. A runtime-independent validator then confirmed all nine
+  restricted read-only operations, including bounded PSI, disk, and ZFS
+  envelope evidence. Checkpoint C was separately approved but failed closed
+  during protected host-state validation. The source transaction and image
+  selector were restored before any container, database, registry, credential,
+  or alert change. Review found one candidate allowlist defect and one bounded
+  pre-existing directory-mode drift. The successor source fix passed clean-tree
+  deployment tests, internal full quality gates, and isolated linux/amd64 image
+  smoke in internal run 201;
+  the rebased four-file PR head passed the same gates in
+  internal run 204.
+  The fix remains unmerged and the narrow mode repair remains unapproved.
+  Application deployment, alerts, notifications, journal registration, and
+  actuation remain disabled.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
