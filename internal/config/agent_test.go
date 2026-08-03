@@ -50,3 +50,37 @@ func TestReadPVEAgentConfigRejectsReadableOrNonRegularFile(t *testing.T) {
 		t.Fatal("expected symlink config rejection")
 	}
 }
+
+func TestReadPVECanaryPreflightConfigRequiresPrivateExplicitNonCriticalDataDisk(t *testing.T) {
+	valid := `{"apiVersion":"guard.storage-slo.io/v1alpha1","kind":"PVECanaryPreflightConfig","spec":{"domainKey":"reference-pool","node":"node-a","storage":"storage-a","zpool":"pool-a","workloadKind":"qemu","workloadId":"101","diskKey":"scsi1","requiredTags":["non-critical","pve-storage-guard"],"commandTimeoutSeconds":5,"envelope":{"minimumMiBPS":16,"maximumMiBPS":128,"rollbackMiBPS":32}}}`
+	path := filepath.Join(t.TempDir(), "canary.json")
+	if err := os.WriteFile(path, []byte(valid), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ReadPVECanaryPreflightConfig(path); err != nil {
+		t.Fatalf("read valid config: %v", err)
+	}
+	for name, payload := range map[string]string{
+		"missing tag": strings.Replace(valid, `,"pve-storage-guard"`, "", 1),
+		"boot-like disk is still syntactically allowed": strings.Replace(valid, `"scsi1"`, `"scsi0"`, 1),
+		"workload injection":                            strings.Replace(valid, `"101"`, `"101;touch"`, 1),
+		"rollback below floor":                          strings.Replace(valid, `"rollbackMiBPS":32`, `"rollbackMiBPS":8`, 1),
+	} {
+		t.Run(name, func(t *testing.T) {
+			candidate := filepath.Join(t.TempDir(), "canary.json")
+			if err := os.WriteFile(candidate, []byte(payload), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			_, err := ReadPVECanaryPreflightConfig(candidate)
+			if name == "boot-like disk is still syntactically allowed" {
+				if err != nil {
+					t.Fatalf("boot role requires live evidence, not key inference: %v", err)
+				}
+				return
+			}
+			if err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}

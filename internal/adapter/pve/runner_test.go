@@ -74,6 +74,18 @@ func TestRunBoundedCommandDoesNotLeakFailedCommandOutput(t *testing.T) {
 	}
 }
 
+func TestQEMUConfigCommandIsExactAndRejectsInjection(t *testing.T) {
+	path, args, err := commandSpec(opQEMUConfig, commandRequest{Node: "node-a", WorkloadID: "101"})
+	if err != nil || path != "/usr/bin/pvesh" || strings.Join(args, " ") != "get /nodes/node-a/qemu/101/config --output-format json" {
+		t.Fatalf("path=%q args=%v err=%v", path, args, err)
+	}
+	for _, workloadID := range []string{"", "0;touch", "../101", "1234567890"} {
+		if _, _, err := commandSpec(opQEMUConfig, commandRequest{Node: "node-a", WorkloadID: workloadID}); err == nil {
+			t.Fatalf("accepted unsafe workload id %q", workloadID)
+		}
+	}
+}
+
 func helperArgs(mode string) []string {
 	return []string{"-test.run=^TestBoundedCommandHelper$", "--", mode}
 }

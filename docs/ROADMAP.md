@@ -25,6 +25,8 @@ public distribution.
 
 ## v0.2 — Approved canary actuation
 
+- Read-only exact-resource eligibility preflight with explicit non-critical
+  tags, non-boot data-disk proof, and identity-free output (implemented).
 - Minimal structured PVE actuator with least privilege.
 - Durable desired/effective state, lease, apply/read-back, expiry, and rollback.
 - Non-critical disk canary workflow and fault injection.

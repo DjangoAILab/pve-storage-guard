@@ -165,6 +165,29 @@ close non-root permissions, systemd isolation, controlled-load, sustained
 sampling, rollback, alert, or actuation gates. Production deployment and every
 control write remain separate approval points.
 
+## Read-only canary eligibility preflight
+
+`canary preflight` is a distinct PVE product-layer check; it is not part of the
+observer loop and it has no actuator. Copy the synthetic example to an
+owner-only private path, replace its private bindings, and run:
+
+```sh
+install -m 0600 configs/examples/reference-canary-preflight.json /private/path/canary.json
+pve-storage-guard canary preflight --config /private/path/canary.json
+```
+
+The command invokes only fixed `pvesh get` operations for cluster health,
+storage state, and one exact QEMU config. It fails closed unless the live guest
+has both reviewed tags, is unlocked, and the selected disk is a writable
+non-boot data disk on the bound storage. Output contains identity-free checks
+and gap codes only, always records `requestedMutations: 0`, and always records
+`activeControlEligible: false`. It does not generate load, change a tag, write a
+limit, start or stop a guest, or create an approval.
+
+The 2026-08-03 production inventory audit found no explicitly classified guest,
+so no production disk was selected. This negative result is a safety gate, not
+a reason to infer criticality from a guest name.
+
 ## Proposed systemd boundary
 
 `deploy/systemd/pve-storage-guard-observer.service` is a reviewable
@@ -199,7 +222,7 @@ runtime behavior.
 Before any installation, use the evidence gate on a non-production PVE node,
 then prove the remaining live service behavior under the dedicated account:
 `pvesh` read authorization at the smallest reviewed scope, `/dev/zfs` access,
-both procfs reads, at least 24 hours of repeated samples, restart backoff,
+both procfs reads, representative evidence coverage, restart backoff,
 journal classification/retention, and full stop/disable/removal. The repository
 does not create the account, PVE ACL, config, binary, unit, or log policy.
 Failure of any check leaves the service disabled. A production host remains an

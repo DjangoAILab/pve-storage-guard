@@ -136,21 +136,25 @@ controllers, SLOs, capacity baselines, and limit ranges.
 
 1. Collector emits a timestamped normalized observation.
 2. Adapter inventory resolves explicit enrollments and storage-domain members.
-3. The pool actor acquires/renews its single-writer lease and resolves the
+3. Before any controlled-load proposal, the PVE product layer separately
+   verifies one exact live workload/disk binding, explicit non-critical tags,
+   non-boot data-disk role, storage health, and a bounded rollback value. This
+   read-only preflight cannot grant actuation.
+4. The pool actor acquires/renews its single-writer lease and resolves the
    immutable policy version.
-4. The policy engine proposes an aggregate budget and disk allocation.
-5. Safety Controller validates freshness, bounds, cooldown, policy feasibility,
+5. The policy engine proposes an aggregate budget and disk allocation.
+6. Safety Controller validates freshness, bounds, cooldown, policy feasibility,
    enrollment, desired/effective state, and operating mode.
-6. In observer/shadow mode, an explicitly configured journal is synced before
+7. In observer/shadow mode, an explicitly configured journal is synced before
    the proposal is emitted; neither path can authorize an apply.
-7. After the writer is stopped or detached, an operator may rotate and verify a
+8. After the writer is stopped or detached, an operator may rotate and verify a
    sealed journal. ITOps approval binds its immutable digest, expected counts,
    target, domain, policy version, expiry, and resource mappings; an authorized
    local capability may then request bounded pages. Active files are never
    tailed, and mutable paths are never approval identities.
-8. In approved canary mode, the constrained actuator snapshots, applies, and
+9. In approved canary mode, the constrained actuator snapshots, applies, and
    reads back effective state.
-9. Telemetry records the full outcome and ITOps evaluates multi-signal alerts.
+10. Telemetry records the full outcome and ITOps evaluates multi-signal alerts.
 
 ## Deployment modes
 
@@ -177,6 +181,11 @@ binds that future run to an approved binary digest, checks fixed one-shot/watch
 operations in memory, exercises SIGTERM, and emits only an identity-free
 summary. It is outside the product binary so the observer does not define its
 own success. See ADR 0007.
+
+The separate `canary preflight` command adds one fixed read-only QEMU config
+lookup for an operator-selected disk. It reports identity-free eligibility and
+zero requested mutations, but it is not part of the observer service and does
+not add an actuator. See ADR 0011.
 
 ### Split production topology
 
