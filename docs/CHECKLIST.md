@@ -660,11 +660,23 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   coordinates and digests; they are deliberately not published here. The exact
   candidate remains undeployed and changes no collector, schema, rule,
   notification, journal, actuator, or control state.
+  A fresh 2026-08-04 read-only preflight then verified that the accepted
+  predecessor remained `ecfa810`, both exact containers were healthy with zero
+  restarts, the live volume had exactly one writer, no replacement/deployment/
+  rollback journal existed, and the exact two storage-pressure rules had zero
+  enabled rows. The existing authenticated page still rendered many generic
+  throughput resources as duplicate/unregistered disks, establishing the
+  pre-cutover UI baseline without clicking a collection, rule, notification,
+  or settings action.
   Locked-dependency CI caught an optional-resource type narrowing error that the
   older local dependency tree missed; the current head adds an explicit string
   guard and passes exact-lock frontend lint/build, full regression, and the
   exact-head CI/image gates.
-  Its production checkpoint is explicitly unapproved: require rebased-PR and
+  Its production checkpoint is explicitly unapproved. The current release path
+  would stop the writer while archiving the approximately 17.9 GiB live volume,
+  so the separately reviewed online-backup work must pass its repository,
+  container-rehearsal, capacity, cleanup, and release-binding gates before this
+  display-only candidate can be proposed again. Then require rebased-PR and
   post-merge main quality/secret/linux-amd64 image gates, immutable commit and
   digest binding, healthy active-pair plus online-backup/rollback preflight,
   confirmation of no migration or rule/notification/actuator change, and
@@ -672,6 +684,13 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   kinds. Any health, evidence, classification, rule-state, or release-identity
   failure must immediately restore the recorded predecessor. Alert enablement,
   notification testing, journal registration, and control remain out of scope.
+  The separately gated online-backup implementation subsequently merged as
+  `4f0f052` after exact-head PR run `#244` and post-merge main run `#245`
+  passed their quality, secret, and linux/amd64 image gates. Run `#245`
+  produced new digest-bound backend and frontend images for that exact merge;
+  private registry coordinates and digests remain restricted deployment
+  evidence. This repository result does not authorize production deployment,
+  alert enablement, notification delivery, journal registration, or actuation.
   Approved transport/runtime registration and incident/runbook links remain. The
   verifier and importer expose no route, scheduler, alert evaluation, or
   production side effect.

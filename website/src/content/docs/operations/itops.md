@@ -224,13 +224,25 @@ and runtime-smoke verification. Private registry coordinates and digests remain
 in restricted deployment evidence. The candidate is undeployed and changes no
 collector, schema, alert, notification, actuator, or control state.
 
+A fresh read-only preflight on 2026-08-04 verified that the accepted `ecfa810`
+predecessor still had two healthy exact containers with zero restarts, exactly
+one live-volume writer, no replacement/deployment/rollback journal, and zero of
+the exact two storage-pressure rules enabled. The authenticated old page still
+showed generic throughput resources as duplicate/unregistered disks alongside
+registered rows, providing a pre-cutover UI baseline. No collection, setting,
+rule, notification, database, or deployment action was invoked.
+
 The first locked-dependency CI run exposed an optional-resource type narrowing
 error that an older local dependency tree did not report. The reviewed head uses
 an explicit string guard and passed exact-lock full regression.
 
 ### Pending dashboard-query correction checkpoint
 
-Production deployment remains explicitly unapproved. Before release, the
+Production deployment remains explicitly unapproved. The current release path
+would stop the writer while archiving the approximately 17.9 GiB live volume;
+the separately reviewed online-backup path must first pass repository,
+container-rehearsal, capacity, cleanup, rollback-compatibility, and exact-image
+gates. Before release, the
 rebased PR and post-merge `main` must pass quality, secret, and linux/amd64 image
 gates; the candidate must be bound by immutable commit and digest; and preflight
 must prove a healthy active pair, an online backup, an exact rollback target,
@@ -244,7 +256,7 @@ notification testing, journal registration, and control remain separate gates.
 ## Online release-backup follow-up
 
 The verified offline archive exposed a long maintenance pause. An internal
-repository-only Draft now creates a consistent SQLite online backup and copies
+repository change now creates a consistent SQLite online backup and copies
 stable ordinary non-database files while the active pair remains healthy. It
 checks capacity before staging and again before compression using actual staged
 bytes plus headroom. Helper containers are networkless, capability- and
@@ -252,10 +264,21 @@ resource-bounded, time-bounded, and release-labeled; cleanup may remove only an
 exact current-release match, while a stale helper blocks the next attempt for
 operator inspection.
 
-The hardened Draft passed its complete quality gate and isolated linux/amd64
-image smoke. A read-only host probe verified the exact timeout CLI contract,
-but did not create a helper or prove cgroup-v2 I/O weighting. The mitigation
-remains unmerged and undeployed. An exact candidate, a separately approved
-synthetic production-host rehearsal, effective I/O-weight evidence, and
-explicit deployment approval remain required. Available event history does not
-support an exact downtime claim.
+The implementation merged as `4f0f052` after exact-head PR run `#244` and
+post-merge main run `#245` passed the full quality, secret, and linux/amd64
+image gates. The main run emitted new digest-bound backend and frontend images
+for that exact merge. A disposable local Linux/cgroup-v2 Docker rehearsal used
+only synthetic labeled volumes: the live writer remained active, the SQLite
+snapshot passed `quick_check`, source and snapshot row counts matched, sidecars
+were excluded, the archive was readable, idle I/O scheduling and CPU/memory/PID
+limits were effective, and forced-stop cleanup left no labeled helper or
+volume. The backend image build also fails unless the required `ionice` binary
+is executable.
+
+Private registry coordinates and digests remain restricted evidence. The merge
+and local rehearsal do not approve a production-host helper rehearsal or
+deployment; production capacity, exact active-pair and rollback verification,
+authenticated acceptance, explicit approval, and immediate rollback criteria
+remain mandatory. Alerts, notifications, journals, and storage actuation remain
+disabled and separately gated. Available event history does not support an
+exact downtime claim.

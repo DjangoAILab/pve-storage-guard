@@ -518,6 +518,16 @@ remain in restricted deployment evidence rather than this public document. The
 candidate is undeployed and changes no collector, database schema, rule,
 notification, journal, actuator, or control state.
 
+A 2026-08-04 read-only production preflight kept that boundary intact. The
+accepted `ecfa810` predecessor still owned both healthy exact containers with
+zero restarts; one and only one container mounted the live data volume for
+write; no source-replacement, deployment, or rollback journal existed; and the
+exact two storage-pressure rules remained disabled. An authenticated read-only
+page inspection reproduced the expected old-view failure: generic throughput
+resources appeared as duplicate/unregistered disks while registered disk rows
+were also present. No collection, setting, rule, notification, database, or
+deployment action was invoked.
+
 The first locked-dependency CI run exposed an optional-resource type narrowing
 error that the older local dependency tree did not report. The reviewed head
 fixes it with an explicit string guard and passed exact-lock full regression.
@@ -534,7 +544,8 @@ and requires all of the following evidence:
    full quality, secret, and linux/amd64 image gates; the candidate is bound by
    immutable commit and image digest.
 2. Preflight records the healthy active backend/frontend pair, verifies the
-   rollback state and online backup, and confirms that the candidate contains
+   rollback state and an independently reviewed online backup, and confirms
+   that the candidate contains
    no database migration, rule mutation, notification, or actuator change.
 3. The approved release mechanism deploys only that immutable candidate. Both
    storage-pressure rules are checked disabled before and after cutover.
@@ -547,3 +558,20 @@ and requires all of the following evidence:
 
 Alert enablement, notification testing, journal registration, and storage
 control are outside this checkpoint and remain separately gated.
+
+Production use of the online-backup implementation remains a separate gate. The
+accepted release has an approximately 17.9 GiB live volume, and the older
+upgrade path would keep the writer stopped during the full archive. Do not
+trade that avoidable outage for a dashboard correction. The replacement path
+must prove a consistent SQLite online snapshot, preservation of stable ordinary
+files, bounded CPU/memory/process/I/O behavior, capacity headroom, exact helper
+cleanup, legacy rollback compatibility, exact candidate images, and an explicit
+production approval before it can satisfy item 2.
+
+That implementation later merged as `4f0f052` after exact-head PR run `#244`
+and post-merge main run `#245` passed the full quality, secret, and
+linux/amd64 image gates. The main run emitted new digest-bound backend and
+frontend images for the exact merge. Registry coordinates and digests remain
+restricted deployment evidence, and the merge does not itself satisfy the
+production capacity, live rehearsal, authenticated acceptance, or explicit
+approval gates above.
