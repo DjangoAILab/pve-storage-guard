@@ -142,17 +142,33 @@ def _identity_absent() -> bool:
     return False
 
 
+def _root_group_is_exclusive() -> bool:
+    try:
+        root_group = grp.getgrgid(0)
+    except KeyError:
+        return False
+    for name in root_group.gr_mem:
+        try:
+            if pwd.getpwnam(name).pw_uid != 0:
+                return False
+        except KeyError:
+            return False
+    return not any(account.pw_uid != 0 and account.pw_gid == 0 for account in pwd.getpwall())
+
+
 def _trusted_root_directory(path: Path) -> bool:
     try:
         metadata = os.lstat(path)
     except OSError:
         return False
+    mode = stat.S_IMODE(metadata.st_mode)
     return (
         stat.S_ISDIR(metadata.st_mode)
         and not stat.S_ISLNK(metadata.st_mode)
         and metadata.st_uid == 0
         and metadata.st_gid == 0
-        and not stat.S_IMODE(metadata.st_mode) & 0o022
+        and not mode & 0o002
+        and (not mode & 0o020 or _root_group_is_exclusive())
     )
 
 

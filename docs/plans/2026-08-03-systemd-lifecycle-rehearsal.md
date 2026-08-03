@@ -34,7 +34,10 @@ following are true:
 - an exact, non-secret opt-in guard is present;
 - `/etc/pve` and every production-path rehearsal target are absent;
 - the baseline/candidate binaries, production unit, and fixture directory are
-  regular trusted inputs with the expected structure.
+  regular trusted inputs with the expected structure;
+- every fixed parent is root-owned and not writable by any non-root identity
+  (a root-group write bit is accepted only if the root group has no non-root
+  primary or supplemental member).
 
 It refuses real PVE hosts rather than attempting to distinguish
 "production" from "non-production" PVE. It creates only exact allowlisted

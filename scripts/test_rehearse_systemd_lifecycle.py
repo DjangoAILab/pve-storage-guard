@@ -82,6 +82,9 @@ class SystemdLifecycleRehearsalTests(unittest.TestCase):
     def test_parent_directory_gate_rejects_missing_path(self) -> None:
         self.assertFalse(rehearsal._trusted_root_directory(Path("/definitely-not-present-pve-guard")))
 
+    def test_root_group_exclusivity_is_boolean(self) -> None:
+        self.assertIsInstance(rehearsal._root_group_is_exclusive(), bool)
+
 
 if __name__ == "__main__":
     unittest.main()
