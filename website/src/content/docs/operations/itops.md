@@ -182,8 +182,9 @@ arming.
 No production pressure was generated to manufacture the missing evidence.
 Alerts, notifications, journal registration, and actuation remain disabled.
 
-An internal Draft at exact head `1cffa52` now proposes an identity-free v2
-assessment that grades warning and critical evidence separately. Shared gates
+The internal identity-free v2 evaluator at exact head `1cffa52` was merged as
+`cbd6e23` after its exact-head quality and linux/amd64 image run passed. It
+grades warning and critical evidence separately. Shared gates
 still require structural coverage, exact detector recomputation, the exact two
 disabled rules, and fail-closed rule-set review. Each severity needs its own
 exact contract, exposure and complete firing/recovery lifecycle; every resource
@@ -192,9 +193,10 @@ samples. Whole-domain quiet coverage becomes diagnostic rather than a shared
 gate. The combined result remains the logical AND of both severities and the
 only proposed action remains keeping both rules disabled.
 
-The Draft passed local focused, read-only SQLite, state-machine, architecture,
-lint, build, coverage, replay, and secret-scan gates. It is not merged or
-deployed. The exact evaluator was then streamed to the active backend as stdin,
+The evaluator passed local focused, read-only SQLite, state-machine, architecture,
+lint, build, coverage, replay, and secret-scan gates. It is merged as diagnostic
+tooling but not deployed; ADR-0016 remains Proposed and merge does not authorize
+alert arming. The exact evaluator was then streamed to the active backend as stdin,
 not installed, and opened production SQLite read-only/query-only. Across 240
 complete cycles and 960 detector samples it found zero mismatches, two
 warning-firing resources with adequate individual baselines, and four complete
@@ -207,12 +209,15 @@ logic only, not production readiness.
 An authenticated read-only UI review then exposed a separate presentation
 defect in the currently deployed page. A generic 2,000-series latest query could
 truncate the named PVE/ZFS evidence, and generic workload throughput could be
-misclassified as an unregistered disk. An internal read/display-only Draft now
-uses a bounded exact-name query for the 13 panel metrics and restricts disk/ZFS
-rows and pressure aggregation to registered resources. Focused and full
+misclassified as an unregistered disk. An internal read/display-only Draft at
+rebased head `321ec7f` now uses a bounded exact-name query for the 13 panel
+metrics and restricts disk/ZFS rows and pressure aggregation to registered
+resources. Focused and full
 backend/frontend tests, lint, builds, and architecture checks passed. The patch
-is still unmerged and undeployed and changes no collector, schema, alert,
-notification, actuator, or control state.
+was also exercised with the exact production SQL shape in read-only/query-only
+mode: 193 current series returned in 4.378 ms under the 2,000-row bound using
+the existing target/name index. It is still unmerged and undeployed and changes
+no collector, schema, alert, notification, actuator, or control state.
 
 ## Online release-backup follow-up
 
