@@ -429,17 +429,35 @@ no critical firing/recovery lifecycle. This is the intended outcome: bounded
 deployment acceptance can finish while alert, notification, journal, and
 actuation paths stay closed until representative evidence exists.
 
+A second read-only replay then evaluated 240 complete cycles and 960 disk
+detector samples with zero detector-v1 mismatches. The warning rules would have
+completed four firing/recovery lifecycles, while the critical rules completed
+none; only one quiet cycle was present. The exact two-rule contract remained
+disabled and the gate again rejected arming, now specifically on quiet-regime
+and critical-lifecycle coverage. No production pressure was generated to close
+those gaps. The identity-free evidence was later merged to the internal fact
+source after branch and post-merge quality/image CI passed; that documentation
+change did not deploy an image or mutate rules, notifications, data, or control.
+
 The transactional database archive was private and verified, but the offline
 compression/read-back sequence created an undesirably long maintenance pause.
 A repository-only internal Draft now creates a consistent SQLite online backup
 and copies stable ordinary non-database files while the exact active pair stays
 healthy. It keeps archive validation, hashes, method/summary evidence, recovery
-journals, and cutover ordering fail-closed; helper containers are isolated and
-resource-bounded. Repeated helper tests, a 512 MiB database plus 64 MiB opaque
+journals, and cutover ordering fail-closed. It rechecks free space after staging
+against actual logical bytes plus headroom; helper containers are isolated,
+resource-bounded, release-labeled, time-bounded, and cleaned only on an exact
+current-release match. A stale helper aborts the next deployment for explicit
+review. Repeated helper tests, a 512 MiB database plus 64 MiB opaque
 file rehearsal, deployment fault tests, full quality gates, and isolated
-linux/amd64 image smoke passed. This mitigation remains unmerged and undeployed;
-effective block-I/O weighting, capacity headroom, a separately bound candidate,
-and explicit production approval remain gates. Available event history did not
+linux/amd64 image smoke passed. The hardened Draft head then passed its full
+internal quality gate and isolated linux/amd64 image smoke after an exact
+bounded-retry regression classified npm `EIDLETIMEOUT` as transient without
+broadening deterministic retries. A read-only production-host probe also verified
+the exact timeout CLI contract, but did not create a helper or prove cgroup-v2
+I/O weighting. This mitigation remains unmerged and undeployed; an exact
+candidate, synthetic host rehearsal, effective block-I/O weighting, and explicit
+production approval remain gates. Available event history did not
 support an exact downtime calculation, so this project makes no downtime claim.
 
 The merged integration also adds a PVE-only storage-pressure dashboard that combines PSI,

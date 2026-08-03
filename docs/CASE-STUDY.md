@@ -120,8 +120,11 @@ limitation; it does not claim 24-hour coverage or calibrated alert thresholds.
 Alerts, notifications, journal import, and actuation remain disabled. The
 verified offline database archive also exposed a long maintenance pause. A
 repository-only follow-up now stages a SQLite online backup plus stable
-non-database files while the active pair remains healthy, but it has not been
-merged or deployed and therefore carries no production-effectiveness claim.
+non-database files while the active pair remains healthy. Its review added a
+second capacity gate based on actual staged bytes plus headroom, bounded helper
+runtimes, exact release labels, current-release-only cleanup, and a stale-helper
+abort. It has not been merged or deployed and therefore carries no
+production-effectiveness claim.
 
 ## Sanitization contract
 

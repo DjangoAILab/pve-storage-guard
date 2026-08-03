@@ -4,7 +4,7 @@ Status values: `[x]` complete, `[~]` in progress, `[ ]` pending, `[!]` blocked
 by an explicit safety checkpoint. Evidence links are repository-relative unless
 marked as local-only.
 
-Last updated: 2026-08-03 (Asia/Shanghai)
+Last updated: 2026-08-04 (Asia/Shanghai)
 
 ## 1. Current state and data safety
 
@@ -533,10 +533,13 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   separate repository-only internal Draft now uses SQLite's online backup API,
   copies stable ordinary non-database files into a root-only staging tree, and
   keeps the exact active pair healthy until the archive, summary, hashes, and
-  recovery records are durable. It fails closed on source drift, unsafe file
-  types or permissions, insufficient capacity, timeout, integrity failure, or
-  unsupported runtime constraints. Helpers are networkless, capability- and
-  resource-bounded, including a best-effort low block-I/O weight. Five repeated
+  recovery records are durable. It checks capacity before staging and again
+  before compression using actual staged bytes plus bounded headroom. It fails
+  closed on source drift, unsafe file types or permissions, insufficient
+  capacity, timeout, integrity failure, unsupported runtime constraints, or a
+  stale labeled helper. Helpers are networkless, capability- and
+  resource-bounded, including a best-effort low block-I/O weight; exact
+  release labels let the failure trap remove only current-release helpers. Five repeated
   helper tests, concurrent-WAL coverage, an identity-free 512 MiB database plus
   64 MiB attachment rehearsal, deployment crash/fault tests, full application
   quality gates, and isolated linux/amd64 image smoke passed. The first clean
@@ -545,10 +548,17 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   and the successor run passed. The local gate was then strengthened to scan
   both the staged index and every tracked or untracked, non-ignored working-tree
   file. An untracked high-entropy negative probe failed as required, the clean
-  dual scan passed, and the final quality/image CI run passed. This follow-up
-  remains Draft, unmerged, and undeployed. A separately bound candidate,
-  effective block-I/O verification, capacity preflight, and explicit production
-  approval remain required.
+  dual scan passed, and the earlier quality/image CI run passed. The final
+  hardening head also passed the complete local quality matrix. Its first CI
+  run exposed an npm registry `EIDLETIMEOUT` that the bounded retry classifier
+  did not recognize; an exact regression added only that transient code without
+  retrying deterministic failures. Successor internal Draft run 235 passed the
+  Node quality gate in 6m17s and isolated linux/amd64 image smoke in 5m34s. A read-only host
+  check proved that the installed timeout implementation accepts the exact
+  bounded arguments and returns status 124, but cgroup-v2 block-I/O enforcement
+  remains unproven. This follow-up remains Draft, unmerged, and undeployed. A
+  separately bound candidate, synthetic production-host rehearsal, effective
+  block-I/O verification, and explicit production approval remain required.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
@@ -559,10 +569,15 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   The operator-shortened window is deployment acceptance only. A deterministic,
   identity-free, read-only evidence gate now replaces fixed 24-hour / 7–14-day
   waits for alert calibration and verifies the exact disabled rule contract.
-  Its latest sanitized production replay found 203 complete cycles, 812 disk
-  detector samples, and zero detector-v1 mismatches, but correctly rejected
-  arming because quiet, warning-lifecycle, and critical-lifecycle evidence are
-  absent. Representative evidence, real notification testing, and explicit
+  A first sanitized production replay found 203 complete cycles and 812 disk
+  detector samples. A later replay found 240 complete cycles and 960 disk
+  detector samples with zero detector-v1 mismatches, four warning firing/recovery
+  lifecycles, no critical lifecycle, and only one quiet cycle. It correctly
+  rejected arming because the quiet-regime and critical-lifecycle gates remain
+  open. The sanitized evidence follow-up merged internally after its branch
+  quality/image run passed; the post-merge main quality and linux/amd64 image
+  run also passed. It caused no deployment, rule, notification, database, or
+  control change. Representative evidence, real notification testing, and explicit
   enablement therefore remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Merged PR #37 includes a tested PVE-only storage-pressure dashboard for
