@@ -439,6 +439,28 @@ those gaps. The identity-free evidence was later merged to the internal fact
 source after branch and post-merge quality/image CI passed; that documentation
 change did not deploy an image or mutate rules, notifications, data, or control.
 
+An internal Draft at exact head `786308f` now proposes a v2 calibration result
+that grades warning and critical evidence independently without adding an
+enablement path. Structural coverage, detector recomputation, the exact
+two-rule set, and confirmation that both rules are disabled remain shared
+fail-closed gates. Each severity additionally requires its own exact contract,
+exposure regime, complete firing/recovery lifecycle, and at least ten baseline
+samples for every resource that actually fired. Whole-domain quiet coverage is
+retained as a diagnostic because simultaneous quiet across every disk is weaker
+evidence than the baseline of the firing resource itself. The conservative
+combined result remains the logical AND of warning and critical, and the only
+proposed action remains keeping both rules disabled.
+
+This proposal has passed local focused, SQLite read-only, deployment-state,
+storage-control, architecture, lint, build, coverage, replay-benchmark, and
+staged-tree secret checks. It is not merged or deployed. The previously recorded
+aggregate replay is consistent with warning eligibility, but it cannot prove
+the baseline of each firing resource; a private v2 replay is still required.
+Critical remains ineligible until a natural production lifecycle exists. A
+synthetic critical replay may test software logic but must not be counted as
+production evidence, and production pressure must not be generated to close
+that gate.
+
 The transactional database archive was private and verified, but the offline
 compression/read-back sequence created an undesirably long maintenance pause.
 A repository-only internal Draft now creates a consistent SQLite online backup

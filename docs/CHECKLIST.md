@@ -577,7 +577,19 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   open. The sanitized evidence follow-up merged internally after its branch
   quality/image run passed; the post-merge main quality and linux/amd64 image
   run also passed. It caused no deployment, rule, notification, database, or
-  control change. Representative evidence, real notification testing, and explicit
+  control change. Internal Draft #61 at exact head `786308f` now proposes v2
+  per-severity review eligibility while keeping the combined result as warning
+  AND critical and always proposing that both rules stay disabled. Shared gates
+  cover structural/detector/exact-disabled-rule-set evidence; each severity has
+  independent contract, exposure, lifecycle, and per-firing-resource baseline
+  gates. Local focused and read-only SQLite tests, deployment state machines,
+  15 storage-control tests, architecture/dependency checks, backend/frontend
+  lint/build/coverage, the one-day replay smoke, and the staged-tree Gitleaks
+  scan passed. The Draft remains unmerged and undeployed. Existing aggregate
+  evidence is only consistent with warning readiness and cannot prove every
+  firing resource's baseline; a private v2 replay is still required. Critical
+  evidence must arise naturally rather than through generated production
+  pressure. Representative evidence, real notification testing, and explicit
   enablement therefore remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Merged PR #37 includes a tested PVE-only storage-pressure dashboard for
