@@ -82,9 +82,9 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   [external trace research](EXTERNAL-TRACE-RESEARCH.md), and
   [third-party data notices](../THIRD-PARTY-DATA.md). Public
   [PR #52](https://github.com/DjangoAILab/pve-storage-guard/pull/52) passed
-  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30811726494),
-  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30811726481),
-  and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30811726441).
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30813831906),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30813831197),
+  and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30813830918).
 - [!] Promote an adaptive policy beyond shadow mode only after PoC and live
   evidence gates pass.
 
