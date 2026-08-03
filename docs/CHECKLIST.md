@@ -248,13 +248,19 @@ Last updated: 2026-08-03 (Asia/Shanghai)
 - [x] Complete the initial pre-publication review: identifier/IP/private-key
   pattern scan clean, Gitleaks v8.30.1 reports no leaks, Markdown links resolve,
   screenshots contain anonymized content and standard JFIF/sRGB metadata only.
-- [~] Enforce the publication sanitization contract in required CI. The
+- [x] Enforce the publication sanitization contract in required CI. The
   dependency-free gate scans only tracked author-maintained publication
   surfaces, uses an exact public-host allowlist, rejects URL user information,
   local/private hosts and RFC1918 coordinates, and emits only categorical
   findings with short hashes. Nine focused tests, a real-tree scan of 88 files
-  and 94 URLs, and a redacted Gitleaks scan of 98 commits pass locally; public
-  PR and protected-main evidence are pending.
+  and 94 URLs, and a redacted Gitleaks scan of 98 commits passed locally.
+  Public [PR #43](https://github.com/DjangoAILab/pve-storage-guard/pull/43)
+  merged as `79a1324`; protected-main
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30785829508)
+  and [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30785829524)
+  passed. The main secret job reran the nine tests, scanned 88 files and 94
+  URLs, and found no leak across all 75 commits reachable from the squashed
+  public history. Existing release history was intentionally not rewritten.
 - [x] Create and push the public GitHub repository only after a clean sensitive
   information scan and review of publishable artifacts. Evidence:
   [DjangoAILab/pve-storage-guard](https://github.com/DjangoAILab/pve-storage-guard).
@@ -424,9 +430,19 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   smoke in internal run 201;
   the rebased four-file PR head passed the same gates in
   internal run 204.
-  The fix remains unmerged and the narrow mode repair remains unapproved.
-  Application deployment, alerts, notifications, journal registration, and
-  actuation remain disabled.
+  The protected-PKI fix then merged internally after run 204; post-merge main
+  run 205 passed both jobs. A separately approved, non-recursive repair changed
+  only the pre-existing `source-backups` root directory from `0755` to `0700`
+  while holding both deployment locks. Its inode was preserved and a digest of
+  all four descendants' type, mode, owner, size, mtime, and inode was unchanged.
+  A successor read-only protected-state check then reported zero rollback-tree
+  violations and the exact two-file root-only CA contract. An exact release ref
+  remained bound to `ecfa810`; internal dispatch run 206 passed the Node quality
+  gate and linux/amd64 image publication, runtime smoke, immutable read-back,
+  revision/source-label, SBOM, and provenance verification without promoting a
+  mutable main tag. Registry coordinates and digests remain outside this public
+  record. The successor candidate remains undeployed; application deployment,
+  alerts, notifications, journal registration, and actuation remain disabled.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
