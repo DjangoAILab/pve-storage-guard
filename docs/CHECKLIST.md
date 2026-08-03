@@ -577,7 +577,7 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   open. The sanitized evidence follow-up merged internally after its branch
   quality/image run passed; the post-merge main quality and linux/amd64 image
   run also passed. It caused no deployment, rule, notification, database, or
-  control change. Internal Draft #61 at exact head `786308f` now proposes v2
+  control change. Internal Draft #61 at exact head `1cffa52` now proposes v2
   per-severity review eligibility while keeping the combined result as warning
   AND critical and always proposing that both rules stay disabled. Shared gates
   cover structural/detector/exact-disabled-rule-set evidence; each severity has
@@ -604,8 +604,18 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   controller now has a private append/sync journal, an identity-free sealed
   verifier, and a bounded digest-matched reader; the internal draft has a tested
   but uninvoked persistence adapter.
-  The real identity-free shadow-baseline screenshot is now published. Approved
-  transport/runtime registration and incident/runbook links remain. The
+  The real identity-free shadow-baseline screenshot is now published.
+  An authenticated read-only production review subsequently found that the
+  deployed page's generic 2,000-series latest query could omit the named
+  PVE/ZFS evidence and that generic workload throughput could create a false
+  unregistered-disk row. A separate internal read/display-only Draft adds a
+  maximum-32-name query for the 13 panel metrics and restricts rows plus pressure
+  aggregation to registered `disk` / `zfs_pool` resources. Focused tests passed
+  31/31 backend and 8/8 frontend; full regression passed 1,413/1,413 backend and
+  104/104 frontend, with lint/build/architecture/dependency checks also passing.
+  It remains unmerged and undeployed and changes no collector, schema, rule,
+  notification, journal, actuator, or control state.
+  Approved transport/runtime registration and incident/runbook links remain. The
   verifier and importer expose no route, scheduler, alert evaluation, or
   production side effect.
 - [x] Exercise cold restart and rollback in a non-critical environment. Public

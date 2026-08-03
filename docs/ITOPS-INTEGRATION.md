@@ -439,7 +439,7 @@ those gaps. The identity-free evidence was later merged to the internal fact
 source after branch and post-merge quality/image CI passed; that documentation
 change did not deploy an image or mutate rules, notifications, data, or control.
 
-An internal Draft at exact head `786308f` now proposes a v2 calibration result
+An internal Draft at exact head `1cffa52` now proposes a v2 calibration result
 that grades warning and critical evidence independently without adding an
 enablement path. Structural coverage, detector recomputation, the exact
 two-rule set, and confirmation that both rules are disabled remain shared
@@ -495,5 +495,16 @@ production shadow baseline, not fixture data. It is a deterministic crop: the
 target header and per-pool/per-disk tables were excluded so no target, host,
 account, pool, or disk identity is published. The four retained cells show only
 detector status, aggregate IO PSI, management-probe state, and alert-gate count.
+
+A later authenticated read-only review found that the currently deployed page
+could omit this evidence even while the database contained it: a generic
+2,000-series latest-metric query was truncating the named PVE/ZFS series, and a
+generic workload throughput metric could be rendered as an unregistered disk.
+An internal read/display-only Draft now adds a bounded exact-name query (at most
+32 names), asks for the 13 storage-panel metrics explicitly, and accepts only
+registered `disk` and `zfs_pool` resources for rows and pressure aggregation.
+Focused and full backend/frontend tests, lint, builds, and architecture checks
+passed. The fix remains unmerged and undeployed; it changes no collector,
+database schema, rule, notification, journal, actuator, or control state.
 
 ![Identity-free ITOps storage-pressure shadow baseline](assets/itops-storage-pressure-shadow-baseline.png)

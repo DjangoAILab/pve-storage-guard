@@ -182,7 +182,7 @@ arming.
 No production pressure was generated to manufacture the missing evidence.
 Alerts, notifications, journal registration, and actuation remain disabled.
 
-An internal Draft at exact head `786308f` now proposes an identity-free v2
+An internal Draft at exact head `1cffa52` now proposes an identity-free v2
 assessment that grades warning and critical evidence separately. Shared gates
 still require structural coverage, exact detector recomputation, the exact two
 disabled rules, and fail-closed rule-set review. Each severity needs its own
@@ -203,6 +203,16 @@ recovery, so critical and combined eligibility remained false. Both rules stayed
 disabled and no notification or control action followed. Critical production
 pressure will not be manufactured; synthetic critical tests prove evaluator
 logic only, not production readiness.
+
+An authenticated read-only UI review then exposed a separate presentation
+defect in the currently deployed page. A generic 2,000-series latest query could
+truncate the named PVE/ZFS evidence, and generic workload throughput could be
+misclassified as an unregistered disk. An internal read/display-only Draft now
+uses a bounded exact-name query for the 13 panel metrics and restricts disk/ZFS
+rows and pressure aggregation to registered resources. Focused and full
+backend/frontend tests, lint, builds, and architecture checks passed. The patch
+is still unmerged and undeployed and changes no collector, schema, alert,
+notification, actuator, or control state.
 
 ## Online release-backup follow-up
 
