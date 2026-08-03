@@ -3,6 +3,7 @@
   "kind": "PVECanaryPreflightConfig",
   "spec": {
     "domainKey": "reference-bulk-pool",
+    "resourceKey": "reference-data-disk",
     "node": "example-node",
     "storage": "example-storage",
     "zpool": "example-pool",

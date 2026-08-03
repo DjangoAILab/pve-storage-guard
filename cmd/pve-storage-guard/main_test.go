@@ -184,7 +184,7 @@ func (f fakeCanaryAssessor) Assess(context.Context) v1.PVECanaryPreflightAssessm
 
 func TestCanaryPreflightCLIEmitsIdentityFreeNonActuatingAssessment(t *testing.T) {
 	configPath := filepath.Join(t.TempDir(), "canary.json")
-	payload := []byte(`{"apiVersion":"guard.storage-slo.io/v1alpha1","kind":"PVECanaryPreflightConfig","spec":{"domainKey":"reference-pool","node":"private-node","storage":"private-storage","zpool":"privatepool","workloadKind":"qemu","workloadId":"101","diskKey":"scsi1","requiredTags":["non-critical","pve-storage-guard"],"commandTimeoutSeconds":5,"envelope":{"minimumMiBPS":16,"maximumMiBPS":128,"rollbackMiBPS":32}}}`)
+	payload := []byte(`{"apiVersion":"guard.storage-slo.io/v1alpha1","kind":"PVECanaryPreflightConfig","spec":{"domainKey":"reference-pool","resourceKey":"resource-a","node":"private-node","storage":"private-storage","zpool":"privatepool","workloadKind":"qemu","workloadId":"101","diskKey":"scsi1","requiredTags":["non-critical","pve-storage-guard"],"commandTimeoutSeconds":5,"envelope":{"minimumMiBPS":16,"maximumMiBPS":128,"rollbackMiBPS":32}}}`)
 	if err := os.WriteFile(configPath, payload, 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -194,7 +194,7 @@ func TestCanaryPreflightCLIEmitsIdentityFreeNonActuatingAssessment(t *testing.T)
 	}
 	var stdout, stderr bytes.Buffer
 	err := runCanaryPreflight([]string{"--config", configPath}, &stdout, &stderr, func(document config.PVECanaryPreflightConfig) (canaryPreflightAssessor, error) {
-		if document.Spec.WorkloadID != "101" || document.Spec.DiskKey != "scsi1" {
+		if document.Spec.ResourceKey != "resource-a" || document.Spec.WorkloadID != "101" || document.Spec.DiskKey != "scsi1" {
 			return nil, errors.New("unexpected private binding")
 		}
 		return fakeCanaryAssessor{assessment: assessment}, nil

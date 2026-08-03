@@ -87,6 +87,7 @@ func validCanaryConfig() config.PVECanaryPreflightConfig {
 	document.APIVersion = v1.SchemaVersion
 	document.Kind = "PVECanaryPreflightConfig"
 	document.Spec.DomainKey = "reference-pool"
+	document.Spec.ResourceKey = "resource-a"
 	document.Spec.Node = "private-node"
 	document.Spec.Storage = "private-storage"
 	document.Spec.ZPool = "privatepool"

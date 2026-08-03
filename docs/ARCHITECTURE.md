@@ -86,8 +86,20 @@ in the structured actuator request. A conflicting, expired, or unavailable
 lease/approval is rejected before any effective-state read or apply.
 Effective-state drift, an actuator error, or a read-back mismatch freezes that
 resource without automatic retry. The gate is currently exercised only with
-injected fakes and is not wired to a PVE command, listener, service, or
-production configuration.
+injected fakes.
+
+The first PVE-specific actuator core is also fake-backed and deliberately not
+wired to a PVE command, API client, CLI, listener, service, container
+entrypoint, credential, or production configuration. One instance binds one
+opaque resource key to one owner-configured QEMU disk. It accepts only an exact
+integer-byte `bps_wr` update for a disk that already has a positive bounded
+`bps_wr`; all other bandwidth/IOPS options and unlimited bootstrap states fail
+closed. Each apply reads the live config and PVE SHA-1 version digest (used as a
+concurrency token, not an authenticity primitive), revalidates tags,
+lock, boot role, storage, disk role, and envelope, submits a digest-fenced full
+disk value with only `bps_wr` changed, then verifies the volume and every
+unmanaged option on read-back. It returns the actual effective value so the
+generic gate can freeze a mismatch. See ADR 0012.
 
 ### Event and Telemetry
 
@@ -185,7 +197,9 @@ own success. See ADR 0007.
 The separate `canary preflight` command adds one fixed read-only QEMU config
 lookup for an operator-selected disk. It reports identity-free eligibility and
 zero requested mutations, but it is not part of the observer service and does
-not add an actuator. See ADR 0011.
+not add an actuator. Its private binding now includes the opaque resource key
+used by the offline actuator core. This schema connection does not enable the
+core. See ADRs 0011 and 0012.
 
 ### Split production topology
 
