@@ -585,12 +585,17 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   gates. Local focused and read-only SQLite tests, deployment state machines,
   15 storage-control tests, architecture/dependency checks, backend/frontend
   lint/build/coverage, the one-day replay smoke, and the staged-tree Gitleaks
-  scan passed. The Draft remains unmerged and undeployed. Existing aggregate
-  evidence is only consistent with warning readiness and cannot prove every
-  firing resource's baseline; a private v2 replay is still required. Critical
-  evidence must arise naturally rather than through generated production
-  pressure. Representative evidence, real notification testing, and explicit
-  enablement therefore remain.
+  scan passed. The Draft remains unmerged and undeployed. The exact evaluator
+  was then streamed to the active backend as stdin without installation and
+  opened production SQLite read-only/query-only. Its 240 complete cycles and
+  960 detector samples had zero mismatches; both warning-firing resources met
+  their own baseline and all four warning firings recovered. Warning review
+  evidence passed, while critical and combined eligibility remained false
+  because no critical firing/recovery existed. Both rules stayed disabled and
+  no notification or control action followed. Critical evidence must arise
+  naturally rather than through generated production pressure. Representative
+  evidence, real notification testing, and explicit enablement therefore
+  remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Merged PR #37 includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, separately typed ZFS-pool and per-disk pressure

@@ -453,13 +453,17 @@ proposed action remains keeping both rules disabled.
 
 This proposal has passed local focused, SQLite read-only, deployment-state,
 storage-control, architecture, lint, build, coverage, replay-benchmark, and
-staged-tree secret checks. It is not merged or deployed. The previously recorded
-aggregate replay is consistent with warning eligibility, but it cannot prove
-the baseline of each firing resource; a private v2 replay is still required.
-Critical remains ineligible until a natural production lifecycle exists. A
-synthetic critical replay may test software logic but must not be counted as
-production evidence, and production pressure must not be generated to close
-that gate.
+staged-tree secret checks. It is not merged or deployed. The exact proposed
+evaluator was then streamed to the active backend as stdin without installation
+and opened production SQLite read-only/query-only. Its identity-free result
+contained 240/240 complete cycles, 960 detector samples, zero mismatches, two
+warning-firing resources with adequate individual baselines, and four complete
+warning recoveries. Warning review evidence passed. No critical firing or
+recovery existed, so critical and combined eligibility remained false. Both
+rules stayed disabled and no notification, deployment, or control action
+followed. Synthetic critical replay may test software logic but must not be
+counted as production evidence, and production pressure must not be generated
+to close that gate.
 
 The transactional database archive was private and verified, but the offline
 compression/read-back sequence created an undesirably long maintenance pause.

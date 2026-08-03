@@ -194,10 +194,15 @@ only proposed action remains keeping both rules disabled.
 
 The Draft passed local focused, read-only SQLite, state-machine, architecture,
 lint, build, coverage, replay, and secret-scan gates. It is not merged or
-deployed. Existing aggregate evidence cannot prove each firing resource's
-baseline, so a private v2 replay remains required before even claiming warning
-review eligibility. Critical production pressure will not be manufactured;
-synthetic critical tests prove evaluator logic only, not production readiness.
+deployed. The exact evaluator was then streamed to the active backend as stdin,
+not installed, and opened production SQLite read-only/query-only. Across 240
+complete cycles and 960 detector samples it found zero mismatches, two
+warning-firing resources with adequate individual baselines, and four complete
+warning recoveries. Warning review evidence passed. Critical had no firing or
+recovery, so critical and combined eligibility remained false. Both rules stayed
+disabled and no notification or control action followed. Critical production
+pressure will not be manufactured; synthetic critical tests prove evaluator
+logic only, not production readiness.
 
 ## Online release-backup follow-up
 
