@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"regexp"
 	"strings"
@@ -17,8 +18,10 @@ import (
 )
 
 var (
-	opaqueKeyPattern = regexp.MustCompile(`^[a-z][a-z0-9-]{0,62}$`)
-	privateIDPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`)
+	opaqueKeyPattern   = regexp.MustCompile(`^[a-z][a-z0-9-]{0,62}$`)
+	privateIDPattern   = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`)
+	workloadIDPattern  = regexp.MustCompile(`^[1-9][0-9]{0,8}$`)
+	qemuDiskKeyPattern = regexp.MustCompile(`^(?:ide|sata|scsi|virtio)[0-9]{1,2}$`)
 )
 
 // StorageDomainPolicy is the v1alpha1 JSON policy document.
@@ -92,6 +95,83 @@ type PVEAgentConfig struct {
 			Critical     bool   `json:"critical"`
 		} `json:"resources"`
 	} `json:"spec"`
+}
+
+// PVECanaryPreflightConfig binds one private, read-only QEMU disk eligibility
+// check. It contains no credential, command, lifecycle action, or apply mode.
+type PVECanaryPreflightConfig struct {
+	APIVersion string `json:"apiVersion"`
+	Kind       string `json:"kind"`
+	Spec       struct {
+		DomainKey             string   `json:"domainKey"`
+		Node                  string   `json:"node"`
+		Storage               string   `json:"storage"`
+		ZPool                 string   `json:"zpool"`
+		WorkloadKind          string   `json:"workloadKind"`
+		WorkloadID            string   `json:"workloadId"`
+		DiskKey               string   `json:"diskKey"`
+		RequiredTags          []string `json:"requiredTags"`
+		CommandTimeoutSeconds int      `json:"commandTimeoutSeconds"`
+		Envelope              struct {
+			MinimumMiBPS  float64 `json:"minimumMiBPS"`
+			MaximumMiBPS  float64 `json:"maximumMiBPS"`
+			RollbackMiBPS float64 `json:"rollbackMiBPS"`
+		} `json:"envelope"`
+	} `json:"spec"`
+}
+
+// ReadPVECanaryPreflightConfig strictly decodes an owner-only private binding.
+func ReadPVECanaryPreflightConfig(path string) (PVECanaryPreflightConfig, error) {
+	var document PVECanaryPreflightConfig
+	if err := readStrictPrivateJSON(path, &document); err != nil {
+		return document, fmt.Errorf("read PVE canary preflight config: %w", err)
+	}
+	if err := document.Validate(); err != nil {
+		return document, err
+	}
+	return document, nil
+}
+
+// Validate enforces one exact QEMU data disk, explicit non-critical tags, and
+// a static rollback limit inside the immutable envelope.
+func (d PVECanaryPreflightConfig) Validate() error {
+	if d.APIVersion != v1.SchemaVersion || d.Kind != "PVECanaryPreflightConfig" {
+		return errors.New("PVE canary preflight apiVersion or kind is unsupported")
+	}
+	if !opaqueKeyPattern.MatchString(d.Spec.DomainKey) || d.Spec.WorkloadKind != "qemu" ||
+		!workloadIDPattern.MatchString(d.Spec.WorkloadID) || !qemuDiskKeyPattern.MatchString(d.Spec.DiskKey) {
+		return errors.New("PVE canary domain or workload binding is invalid")
+	}
+	for _, value := range []string{d.Spec.Node, d.Spec.Storage, d.Spec.ZPool} {
+		if !privateIDPattern.MatchString(value) || value == "." || value == ".." || strings.Contains(value, "..") {
+			return errors.New("PVE canary private binding is invalid")
+		}
+	}
+	if d.Spec.CommandTimeoutSeconds < 1 || d.Spec.CommandTimeoutSeconds > 30 {
+		return errors.New("PVE canary command timeout must be between 1 and 30 seconds")
+	}
+	tags := make(map[string]struct{}, len(d.Spec.RequiredTags))
+	for _, tag := range d.Spec.RequiredTags {
+		if !opaqueKeyPattern.MatchString(tag) {
+			return errors.New("PVE canary required tag is invalid")
+		}
+		tags[tag] = struct{}{}
+	}
+	if len(tags) != len(d.Spec.RequiredTags) {
+		return errors.New("PVE canary required tags must be unique")
+	}
+	for _, required := range []string{"non-critical", "pve-storage-guard"} {
+		if _, ok := tags[required]; !ok {
+			return errors.New("PVE canary requires explicit non-critical and pve-storage-guard tags")
+		}
+	}
+	minimum, maximum, rollback := d.Spec.Envelope.MinimumMiBPS, d.Spec.Envelope.MaximumMiBPS, d.Spec.Envelope.RollbackMiBPS
+	if math.IsNaN(minimum) || math.IsInf(minimum, 0) || minimum <= 0 ||
+		math.IsNaN(maximum) || math.IsInf(maximum, 0) || maximum < minimum ||
+		math.IsNaN(rollback) || math.IsInf(rollback, 0) || rollback < minimum || rollback > maximum {
+		return errors.New("PVE canary envelope or rollback limit is invalid")
+	}
+	return nil
 }
 
 // ReadPVEAgentConfig strictly decodes and validates a local agent file.

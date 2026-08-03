@@ -104,6 +104,10 @@ code, .site-title, .pagination-links, .sl-link-button { font-family: var(--sl-fo
 .card-grid .card { border-radius: 0; border-color: var(--sl-color-gray-5); background: color-mix(in srgb, var(--sl-color-black) 92%, transparent); }
 .starlight-aside { border-radius: 0; }
 
+.observed-dashboard { margin: 1.5rem 0 3rem; border: 1px solid var(--sl-color-gray-5); background: var(--guard-ink); }
+.observed-dashboard img { width: 100%; display: block; }
+.observed-dashboard figcaption { padding: 0.75rem 1rem; color: var(--sl-color-gray-3); font: 0.65rem/1.4 var(--sl-font-system-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+
 @keyframes rise { from { transform: scaleY(0); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) { .trace-observed i { animation: none; } }

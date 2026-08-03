@@ -53,7 +53,7 @@ Last updated: 2026-08-03 (Asia/Shanghai)
 - [x] Run one-at-a-time parameter-neighborhood sensitivity analysis. Evidence:
   `poc/results/report.md`; 16/18 neighbors pass, while faster additive increase
   and shorter healthy confirmation fail the safety gate.
-- [ ] Add independent storage-class and workload-shape traces; do not relabel
+- [x] Add independent storage-class and workload-shape traces; do not relabel
   the three counterfactual capacity models as observed storage classes.
   ADR-0003 now makes metric statistic, provenance, and independence group
   mandatory trace fields. A tested local converter can aggregate authorized
@@ -65,8 +65,26 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   [Issue #48](https://github.com/DjangoAILab/pve-storage-guard/issues/48) now
   solicits independent observed storage plus synchronized management evidence
   under the same no-upload boundary. Creating an intake and solicitation is not
-  evidence receipt: license clearance and an eligible trace remain pending.
-  Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md).
+  evidence receipt: a CC BY 4.0 UMass/SPC search prefix is now accepted as a
+  separate `WorkloadShapeTrace`. Its 600-second/60-sample artifact passes the
+  research gate with 100% structural completeness while remaining explicitly
+  ineligible for active control because latency, storage class, and management
+  evidence are unavailable. A second CC BY 4.0 Alibaba Block Trace derivative
+  covers 600 seconds of observed production Ultra Disk arrivals, explicitly
+  preserves the logical `network-block` class, and passes both the general and
+  storage-class research gates. Its device IDs, offsets, absolute times, raw
+  source, and physical-media assumptions are absent. It remains categorically
+  ineligible for active control because response latency and synchronized
+  management evidence are unavailable. Source/prefix/artifact hashes,
+  attribution, transformations, and rounding checks are recorded. The
+  promotion-compatible independent trace remains pending.
+  Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md),
+  [external trace research](EXTERNAL-TRACE-RESEARCH.md), and
+  [third-party data notices](../THIRD-PARTY-DATA.md). Public
+  [PR #52](https://github.com/DjangoAILab/pve-storage-guard/pull/52) passed
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30813831906),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30813831197),
+  and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30813830918).
 - [!] Promote an adaptive policy beyond shadow mode only after PoC and live
   evidence gates pass.
 
@@ -194,11 +212,25 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   or read-back mismatch. The gate is not wired to a real actuator; durable
   authority storage, authorized restoration, and production enablement remain
   v0.2 gates.
-- [ ] Complete a non-critical controlled load test.
+- [~] Complete a non-critical controlled load test. The read-only canary
+  preflight now validates live explicit tags, workload lock state, management
+  and storage health, exact disk existence/storage, writable data-disk role,
+  exclusion from boot order, and a bounded static rollback value without
+  exposing PVE identity. A 2026-08-03 read-only production inventory audit found
+  no explicitly classified guest, so candidate selection and all load remain
+  stopped until one exact non-critical data disk is deliberately enrolled.
+  Public [PR #54](https://github.com/DjangoAILab/pve-storage-guard/pull/54)
+  merged the mutation-free preflight as `06e8168`; protected-main
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30830219723),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30830219451),
+  and [Pages](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30830218936)
+  passed. This closes only the enrollment-readiness sub-gate, not the controlled
+  load or actuation gate.
 - [!] Install or change a service on a production PVE host only after explicit
   approval at the production-write checkpoint.
 - [!] Enable canary actuation only after explicit approval and a reviewed
-  rollback command/state snapshot.
+  rollback command/state snapshot. A passing read-only preflight still emits
+  `activeControlEligible=false`; the v0.2 actuator does not yet exist.
 
 ## 5. Open-source engineering
 
@@ -253,10 +285,20 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   and [main CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30732751758).
 - [x] Build the GitHub Pages landing/documentation site; local Astro build has
   zero diagnostics and responsive browser review has no horizontal overflow.
-- [~] Add verified architecture and incident/control-loop graphics. The modeled
+- [x] Add verified architecture and incident/control-loop graphics. The modeled
   policy-effect SVG is now deterministically generated from the reviewed PoC
   golden JSON, visibly labeled counterfactual/not-production, and checked in
-  CI. A real ITOps shadow-baseline dashboard graphic remains pending.
+  CI. On 2026-08-03, an authenticated real ITOps production shadow view was
+  captured and deterministically cropped to the detector title and four
+  aggregate status cells. Manual visual review confirms the public PNG excludes
+  the target header, host/account identity, and per-pool/per-disk tables; it
+  shows the alert gate still disabled. Public
+  [PR #53](https://github.com/DjangoAILab/pve-storage-guard/pull/53) merged the
+  reviewed documentation asset, and
+  [PR #54](https://github.com/DjangoAILab/pve-storage-guard/pull/54) published it
+  on the project site. The live PNG returned HTTP 200 with SHA-256
+  `e67b83b35e066046c1175504c437fce4fa5fd0bc01cd351d28effea365d8b9a0`,
+  exactly matching the locally reviewed asset.
 - [x] Complete the initial pre-publication review: identifier/IP/private-key
   pattern scan clean, Gitleaks v8.30.1 reports no leaks, Markdown links resolve,
   screenshots contain anonymized content and standard JFIF/sRGB metadata only.
@@ -297,6 +339,14 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   GitHub Release tag `v0.1.0-rc.2` intentionally retains the leading `v`, while
   the container image tag does not. Evidence:
   [public GHCR package](https://github.com/DjangoAILab/pve-storage-guard/pkgs/container/pve-storage-guard).
+  A 2026-08-03 delivery re-audit fetched the live Pages site over HTTPS and
+  matched the required SEO title and description; the latest five main Pages
+  workflows were successful. The published OCI index still resolved to the
+  reviewed digest and both architectures, each with SPDX and SLSA in-toto
+  layers. Cosign v3.0.6 verified the exact release-workflow OIDC identity,
+  certificate chain, and transparency-log claim. A downloaded linux/amd64
+  archive and SPDX SBOM matched `checksums.txt`, and their GitHub provenance
+  attestations verified. No package-token scope was added for this audit.
 
 ## 6. Local practice and ITOps
 
@@ -506,8 +556,14 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   and one recovery with detector evidence attached. The general recommended-rule
   command now excludes both storage-pressure rules unless a second exact opt-in
   is present, and an idempotent rollback helper disables only those two IDs.
-  The operator-shortened window is deployment acceptance only; representative
-  shadow data, real notification testing, and explicit enablement remain.
+  The operator-shortened window is deployment acceptance only. A deterministic,
+  identity-free, read-only evidence gate now replaces fixed 24-hour / 7–14-day
+  waits for alert calibration and verifies the exact disabled rule contract.
+  Its latest sanitized production replay found 203 complete cycles, 812 disk
+  detector samples, and zero detector-v1 mismatches, but correctly rejected
+  arming because quiet, warning-lifecycle, and critical-lifecycle evidence are
+  absent. Representative evidence, real notification testing, and explicit
+  enablement therefore remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Merged PR #37 includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, separately typed ZFS-pool and per-disk pressure
@@ -516,9 +572,10 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   controller now has a private append/sync journal, an identity-free sealed
   verifier, and a bounded digest-matched reader; the internal draft has a tested
   but uninvoked persistence adapter.
-  A real shadow-baseline screenshot, approved transport/runtime registration,
-  and incident/runbook links remain. The verifier and importer expose no route,
-  scheduler, alert evaluation, or production side effect.
+  The real identity-free shadow-baseline screenshot is now published. Approved
+  transport/runtime registration and incident/runbook links remain. The
+  verifier and importer expose no route, scheduler, alert evaluation, or
+  production side effect.
 - [x] Exercise cold restart and rollback in a non-critical environment. Public
   PR #46 [run 30791350808](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30791350808)
   used the production observer unit and real compiled

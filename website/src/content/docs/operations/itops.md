@@ -27,6 +27,16 @@ failure, or continued pressure at minimum is critical.
 Group by storage domain and use clear/hold durations plus reason-aware
 deduplication.
 
+## Observed production shadow view
+
+![Identity-free observed ITOps storage-pressure shadow baseline](/pve-storage-guard/itops-storage-pressure-shadow-baseline.png)
+
+This is a deterministic crop from the authenticated production dashboard, not
+fixture data. The target header and per-pool/per-disk tables were excluded; the
+retained cells contain only detector state, aggregate IO PSI,
+management-probe state, and the disabled alert-gate count. It is evidence of
+the observer boundary, not of prevention or actuation.
+
 ## Decision-journal handoff
 
 The public shadow CLI now supports an opt-in private JSONL decision journal. It

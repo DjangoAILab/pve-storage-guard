@@ -72,6 +72,15 @@ The storage-domain budget is authoritative for shared safety. Disk envelopes
 protect individual workloads and express allocation policy. A disk maximum does
 not reserve or force throughput.
 
+PVE enrollment has a separate live evidence gate before controlled load. The
+owner-only binding names one exact QEMU disk, but the public assessment contains
+no PVE identity. The read-only preflight requires both `non-critical` and
+`pve-storage-guard` tags on the live workload, an unlocked guest, an active
+bound ZFS storage, a writable data disk excluded from the explicit boot order,
+and a static rollback value inside the approved envelope. A name, a manually
+typed `criticality` field, or a passing historical replay cannot replace these
+checks. Passing preflight still reports `activeControlEligible=false`.
+
 ## Allocator
 
 Given aggregate budget `B` and enrolled active disks `i`:

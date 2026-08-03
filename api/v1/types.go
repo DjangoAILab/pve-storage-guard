@@ -19,6 +19,8 @@ const (
 	DecisionJournalBatchKind = "DecisionJournalBatch"
 	// PVEInventoryKind identifies an identity-safe PVE inventory snapshot.
 	PVEInventoryKind = "PVEInventory"
+	// PVECanaryPreflightAssessmentKind identifies a read-only canary eligibility result.
+	PVECanaryPreflightAssessmentKind = "PVECanaryPreflightAssessment"
 )
 
 // Observation is a normalized, read-only storage-domain sample.
@@ -80,6 +82,34 @@ type PVEInventoryDisk struct {
 	ResourceKey string `json:"resourceKey"`
 	Root        bool   `json:"root"`
 	Critical    bool   `json:"critical"`
+}
+
+// PVECanaryPreflightChecks contains only identity-free, read-only checks.
+type PVECanaryPreflightChecks struct {
+	ManagementHealthy     bool `json:"managementHealthy"`
+	StorageBound          bool `json:"storageBound"`
+	ExplicitlyNonCritical bool `json:"explicitlyNonCritical"`
+	WorkloadUnlocked      bool `json:"workloadUnlocked"`
+	DiskExists            bool `json:"diskExists"`
+	DiskOnStorage         bool `json:"diskOnStorage"`
+	DiskIsData            bool `json:"diskIsData"`
+	DiskIsNonBoot         bool `json:"diskIsNonBoot"`
+	DiskIsWritable        bool `json:"diskIsWritable"`
+	RollbackWithinBounds  bool `json:"rollbackWithinBounds"`
+}
+
+// PVECanaryPreflightAssessment never grants actuation. It proves only whether
+// one exact private enrollment is structurally eligible for a controlled-load
+// rehearsal after separate operator approval.
+type PVECanaryPreflightAssessment struct {
+	SchemaVersion          string                   `json:"schemaVersion"`
+	Kind                   string                   `json:"kind"`
+	ShadowOnly             bool                     `json:"shadowOnly"`
+	RequestedMutations     int                      `json:"requestedMutations"`
+	ControlledLoadEligible bool                     `json:"controlledLoadEligible"`
+	ActiveControlEligible  bool                     `json:"activeControlEligible"`
+	Checks                 PVECanaryPreflightChecks `json:"checks"`
+	Gaps                   []string                 `json:"gaps"`
 }
 
 // Proposal is a non-mutating desired allocation emitted by the policy engine.

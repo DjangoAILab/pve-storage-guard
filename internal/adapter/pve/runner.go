@@ -20,6 +20,7 @@ const (
 	opStorageStatus
 	opZFSWaitHistogramLayout
 	opZFSWaitHistogram
+	opQEMUConfig
 )
 
 func (o operation) String() string {
@@ -34,6 +35,8 @@ func (o operation) String() string {
 		return "zfs-wait-histogram-layout"
 	case opZFSWaitHistogram:
 		return "zfs-wait-histogram"
+	case opQEMUConfig:
+		return "qemu-config"
 	default:
 		return "unknown-operation"
 	}
@@ -44,6 +47,7 @@ type commandRequest struct {
 	Storage         string
 	ZPool           string
 	IntervalSeconds int
+	WorkloadID      string
 }
 
 type commandRunner interface {
@@ -105,6 +109,16 @@ func commandSpec(op operation, request commandRequest) (string, []string, error)
 			return "", nil, errors.New("invalid histogram interval")
 		}
 		return "/usr/sbin/zpool", []string{"iostat", "-wpH", "-y", request.ZPool, strconv.Itoa(request.IntervalSeconds), "1"}, nil
+	case opQEMUConfig:
+		if len(request.WorkloadID) == 0 || len(request.WorkloadID) > 9 {
+			return "", nil, errors.New("invalid QEMU workload id")
+		}
+		for _, character := range request.WorkloadID {
+			if character < '0' || character > '9' {
+				return "", nil, errors.New("invalid QEMU workload id")
+			}
+		}
+		return "/usr/bin/pvesh", []string{"get", "/nodes/" + request.Node + "/qemu/" + request.WorkloadID + "/config", "--output-format", "json"}, nil
 	default:
 		return "", nil, errors.New("unsupported local operation")
 	}

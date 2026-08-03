@@ -30,6 +30,13 @@ PVE Adapter.
 
 ![An anonymized storage-latency incident and the observe, decide, verify, explain control loop](docs/assets/incident-signal.jpg)
 
+The companion ITOps integration exposes the same protection boundary as a
+read-only shadow view. This production screenshot is deterministically cropped
+to remove target, host, account, storage-pool, and disk identities; it shows the
+detector status, IO PSI, management probe, and disabled alert gate only.
+
+![Identity-free ITOps storage-pressure shadow baseline](docs/assets/itops-storage-pressure-shadow-baseline.png)
+
 ## Safety principles
 
 - Read-only and `dry-run` by default.
@@ -70,6 +77,20 @@ pve-storage-guard agent inventory --config /private/path/agent.json
 pve-storage-guard agent observe --config /private/path/agent.json
 pve-storage-guard agent watch --config /private/path/agent.json --period 10s
 ```
+
+Before selecting any controlled-load candidate, the source tree also provides
+an identity-free, read-only eligibility check for one exact QEMU data disk:
+
+```sh
+install -m 0600 configs/examples/reference-canary-preflight.json /private/path/canary.json
+pve-storage-guard canary preflight --config /private/path/canary.json
+```
+
+The live guest must carry both `non-critical` and `pve-storage-guard` tags, be
+unlocked, and expose the selected writable disk on the bound storage outside
+its explicit boot order. A passing result authorizes neither load nor control:
+it always reports `requestedMutations: 0` and
+`activeControlEligible: false`.
 
 These commands are present in the
 [`v0.1.0-rc.2` pre-release](https://github.com/DjangoAILab/pve-storage-guard/releases/tag/v0.1.0-rc.2).
@@ -190,6 +211,11 @@ network details, raw logs, and guest data removed. Historical replay preserves
 observed measurements. Counterfactual strategy results are explicitly labeled
 as model-assisted estimates and are not presented as measured production gains.
 
+Two attributed CC BY 4.0 derivatives now cover independent observed workload
+shape, including one explicitly documented `network-block` product class. They
+remain storage research only: neither contains response latency or synchronized
+management-plane evidence, and both are ineligible for active control.
+
 ## Documentation
 
 - [Goal and success criteria](docs/GOAL.md)
@@ -202,6 +228,7 @@ as model-assisted estimates and are not presented as measured production gains.
 - [Replay trace contract](docs/TRACE-CONTRACT.md)
 - [External trace research and safe conversion](docs/EXTERNAL-TRACE-RESEARCH.md)
 - [Safe community trace contribution](docs/TRACE-CONTRIBUTION.md)
+- [Third-party data notices](THIRD-PARTY-DATA.md)
 - [Performance evidence](docs/PERFORMANCE.md)
 - [Anonymized incident case study](docs/CASE-STUDY.md)
 - [Community context and prior art](docs/PRIOR-ART.md)

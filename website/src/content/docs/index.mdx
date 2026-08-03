@@ -20,6 +20,19 @@ import SignalPanel from '../../components/SignalPanel.astro';
 
 <SignalPanel />
 
+## Observed before control
+
+The real ITOps production shadow view keeps detector evidence, management-plane
+health, and alert gates visible while all control stays outside ITOps. This
+deterministic crop excludes target, host, account, pool, and disk identities.
+The captured state is visibly labeled **observed / shadow** and its alert gate
+remains disabled.
+
+<figure class="observed-dashboard">
+  <img src="/pve-storage-guard/itops-storage-pressure-shadow-baseline.png" alt="Identity-free observed ITOps storage-pressure shadow baseline" loading="lazy" />
+  <figcaption>Observed production shadow baseline · identity-free crop · no actuation</figcaption>
+</figure>
+
 ## A guardrail, not an optimizer
 
 <CardGrid>

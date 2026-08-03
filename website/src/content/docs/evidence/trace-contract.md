@@ -31,9 +31,18 @@ python3 poc/trace_contract.py candidate.json \
 ```
 
 The schema and validator live in the public repository. No qualifying second
-trace is claimed yet. Passing the machine gate is necessary but cannot prove a
+promotion trace is claimed yet. Passing the machine gate is necessary but cannot prove a
 self-declared provenance; source hashing, redaction review, and human evidence
 approval remain required.
+
+Latency-free observed traces use a separate `WorkloadShapeTrace` contract
+rather than a fake `ReplayTrace` wait field. Accepted derivatives retain only
+ten-second read/write IOPS and throughput buckets. The UMass/SPC search prefix
+keeps storage class `unknown`; the Alibaba Ultra Disk prefix preserves the
+documented logical `network-block` class without inferring physical media. The
+second trace can close a storage-class research gate, but both always report
+`active_control_eligible=false`; neither can close latency, management-plane,
+or production-promotion gates.
 
 The internal ITOps draft now has a pure v1alpha2 builder for reviewed metric
 windows. It preserves the declared window and gaps, removes absolute times and internal
