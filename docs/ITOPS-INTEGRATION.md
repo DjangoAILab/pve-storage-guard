@@ -379,9 +379,11 @@ the exact 28 recommended-rule set with both storage-pressure rules disabled,
 plus fresh PSI/diskstats/management provenance, detector-v1 labels, and typed
 ZFS one-second interval semantics. General recommended-rule arming does not
 include storage-pressure rules without a second exact opt-in, and an idempotent
-rollback path disables only those two rules. A 24-hour shadow window accepts the
-deployment and data path; alert calibration requires at least 7–14 days spanning
-representative quiet and busy periods.
+rollback path disables only those two rules. Deployment acceptance uses bounded,
+independent health checks. Alert calibration is a separate read-only evidence
+gate over complete cycles, representative regimes, exact detector semantics,
+the exact disabled-rule contract, and firing/recovery lifecycles; elapsed time
+alone cannot close it. See [ADR-0008](adr/0008-evidence-based-alert-calibration.md).
 
 The first live use of those gates validated the separation. The explicitly
 approved restricted-probe checkpoint completed after an exact rollback and
@@ -416,6 +418,15 @@ notification state. The operator explicitly shortened the deployment-only
 acceptance window after those two checks. This closes deployment acceptance
 with a documented evidence limitation; it is not 24-hour statistical coverage
 and does not calibrate or authorize an alert.
+
+A later identity-free, read-only calibration replay evaluated 203 complete
+production cycles and 812 disk detector samples. Detector-v1 recomputation had
+zero mismatches, and the exact warning/critical rule contract remained disabled.
+The gate still rejected alert arming: the window had no quiet cycles, its five
+warning samples were isolated rather than two consecutive breaches, and it had
+no critical firing/recovery lifecycle. This is the intended outcome: bounded
+deployment acceptance can finish while alert, notification, journal, and
+actuation paths stay closed until representative evidence exists.
 
 The transactional database archive was private and verified, but the offline
 compression/read-back sequence created an undesirably long maintenance pause.

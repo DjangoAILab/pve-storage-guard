@@ -490,8 +490,14 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   and one recovery with detector evidence attached. The general recommended-rule
   command now excludes both storage-pressure rules unless a second exact opt-in
   is present, and an idempotent rollback helper disables only those two IDs.
-  The operator-shortened window is deployment acceptance only; representative
-  shadow data, real notification testing, and explicit enablement remain.
+  The operator-shortened window is deployment acceptance only. A deterministic,
+  identity-free, read-only evidence gate now replaces fixed 24-hour / 7–14-day
+  waits for alert calibration and verifies the exact disabled rule contract.
+  Its latest sanitized production replay found 203 complete cycles, 812 disk
+  detector samples, and zero detector-v1 mismatches, but correctly rejected
+  arming because quiet, warning-lifecycle, and critical-lifecycle evidence are
+  absent. Representative evidence, real notification testing, and explicit
+  enablement therefore remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Merged PR #37 includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, separately typed ZFS-pool and per-disk pressure
