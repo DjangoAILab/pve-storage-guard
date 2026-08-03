@@ -161,6 +161,44 @@ passed the complete quality and isolated linux/amd64 image-smoke gates in
 internal run 201
 and again at the rebased PR head in
 internal run 204.
-It remains unmerged and undeployed; the independently discovered directory-mode
-drift still requires a narrow, non-recursive production approval. Alerts,
-notifications, journal registration, and actuation remain disabled.
+After a separate narrow repair and renewed approval, the exact-digest successor
+deployment completed. Two bounded read-only checkpoints verified fresh
+collectors, the exact recommended-rule set, healthy zero-restart containers,
+absent deployment journals, and the retained predecessor rollback pair. The
+operator then closed deployment acceptance with an explicit evidence
+limitation instead of waiting for a fixed 24-hour timer. This proves the
+observer deployment boundary; it is not statistical threshold calibration.
+
+## Calibration remains shadow-only
+
+The first identity-free production replay contained 203 complete cycles and
+812 disk detector samples. A second contained 240 complete cycles and 960 disk
+detector samples. Detector-v1 recomputation reported zero mismatches in both.
+The second window would have produced four warning firing/recovery lifecycles,
+but no critical lifecycle and only one quiet cycle. The exact warning/critical
+rules remained disabled, so the evidence gate correctly rejected arming on
+quiet-regime and critical-lifecycle coverage.
+
+No production pressure was generated to manufacture the missing evidence.
+Alerts, notifications, journal registration, and actuation remain disabled.
+Warning/critical eligibility may later be separated, but that policy change is
+not implemented or authorized by this evidence.
+
+## Online release-backup follow-up
+
+The verified offline archive exposed a long maintenance pause. An internal
+repository-only Draft now creates a consistent SQLite online backup and copies
+stable ordinary non-database files while the active pair remains healthy. It
+checks capacity before staging and again before compression using actual staged
+bytes plus headroom. Helper containers are networkless, capability- and
+resource-bounded, time-bounded, and release-labeled; cleanup may remove only an
+exact current-release match, while a stale helper blocks the next attempt for
+operator inspection.
+
+The hardened Draft passed its complete quality gate and isolated linux/amd64
+image smoke. A read-only host probe verified the exact timeout CLI contract,
+but did not create a helper or prove cgroup-v2 I/O weighting. The mitigation
+remains unmerged and undeployed. An exact candidate, a separately approved
+synthetic production-host rehearsal, effective I/O-weight evidence, and
+explicit deployment approval remain required. Available event history does not
+support an exact downtime claim.
