@@ -502,20 +502,25 @@ A later authenticated read-only review found that the currently deployed page
 could omit this evidence even while the database contained it: a generic
 2,000-series latest-metric query was truncating the named PVE/ZFS series, and a
 generic workload throughput metric could be rendered as an unregistered disk.
-An internal read/display-only Draft at rebased head `72cb073` now adds a bounded
+Internal read/display-only Merged PR #62 at reviewed head `72cb073` adds a bounded
 exact-name query (at most 32 names), asks for the 13 storage-panel metrics
 explicitly, and accepts only registered `disk` and `zfs_pool` resources for rows
 and pressure aggregation.
 Focused and full backend/frontend tests, lint, builds, and architecture checks
 passed. A production read-only/query-only probe of the exact SQL shape returned
 193 current series in 4.378 ms under the 2,000-row bound and confirmed use of
-the existing target/name index. The fix remains unmerged and undeployed; it
-changes no collector, database schema, rule, notification, journal, actuator,
-or control state.
+the existing target/name index. Exact PR run #241 passed the full quality and
+linux/amd64 image/runtime-smoke gates, and the fix was merged as `bc78477`.
+Post-merge main run #242 then passed full quality and published two
+digest-bound linux/amd64 images after SBOM, provenance, revision-label, pull,
+and runtime-smoke verification. Full private registry coordinates and digests
+remain in restricted deployment evidence rather than this public document. The
+candidate is undeployed and changes no collector, database schema, rule,
+notification, journal, actuator, or control state.
 
 The first locked-dependency CI run exposed an optional-resource type narrowing
-error that the older local dependency tree did not report. The current head
-fixes it with an explicit string guard; a fresh exact-head run remains required.
+error that the older local dependency tree did not report. The reviewed head
+fixes it with an explicit string guard and passed exact-lock full regression.
 
 ![Identity-free ITOps storage-pressure shadow baseline](assets/itops-storage-pressure-shadow-baseline.png)
 
