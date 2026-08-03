@@ -67,6 +67,70 @@ jobs:
           path: coverage.out
           if-no-files-found: error
 
+  systemd-lifecycle:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: 1.26.5
+          cache: true
+      - name: Test lifecycle rehearsal safety contracts
+        run: python3 -m unittest scripts.test_rehearse_systemd_lifecycle -v
+      - name: Build byte-distinct observer artifacts
+        run: |
+          go build -buildvcs=false -trimpath \
+            -ldflags '-X main.version=lifecycle-baseline' \
+            -o /tmp/pve-storage-guard-baseline ./cmd/pve-storage-guard
+          go build -buildvcs=false -trimpath \
+            -ldflags '-X main.version=lifecycle-candidate' \
+            -o /tmp/pve-storage-guard-candidate ./cmd/pve-storage-guard
+      - name: Rehearse systemd restart, cold start, and rollback
+        run: |
+          sudo env \
+            CI=true \
+            PVE_STORAGE_GUARD_SYSTEMD_REHEARSAL=ephemeral-ci-v1 \
+            python3 scripts/rehearse_systemd_lifecycle.py \
+              --baseline-binary /tmp/pve-storage-guard-baseline \
+              --candidate-binary /tmp/pve-storage-guard-candidate \
+              --unit deploy/systemd/pve-storage-guard-observer.service \
+              --fixtures internal/adapter/pve/testdata/pve-9.2-openzfs-2.4 \
+              > /tmp/systemd-lifecycle-rehearsal.json
+      - name: Verify identity-free lifecycle evidence
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          evidence = json.loads(Path('/tmp/systemd-lifecycle-rehearsal.json').read_text())
+          assert evidence['kind'] == 'SystemdLifecycleRehearsal'
+          assert evidence['platform'] == 'ephemeral-ubuntu-ci'
+          assert evidence['syntheticFixtures'] is True
+          assert evidence['policyEvidenceEligible'] is False
+          assert evidence['serviceNonRoot'] is True
+          assert evidence['initialSamples'] >= 2
+          assert evidence['supervisedRestartSamples'] >= 1
+          assert evidence['candidateColdStartSamples'] >= 1
+          assert evidence['rollbackColdStartSamples'] >= 1
+          assert evidence['rollbackBinaryExact'] is True
+          assert evidence['rollbackConfigExact'] is True
+          assert evidence['unitEnabled'] is False
+          assert evidence['cleanupComplete'] is True
+          assert evidence['requestedProductionMutations'] == 0
+          assert len({
+              evidence['initialPid'], evidence['restartedPid'],
+              evidence['candidatePid'], evidence['rollbackPid'],
+          }) == 4
+          PY
+      - name: Upload lifecycle evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: systemd-lifecycle-rehearsal
+          path: /tmp/systemd-lifecycle-rehearsal.json
+          if-no-files-found: error
+          retention-days: 14
+
   lint:
     runs-on: ubuntu-24.04
     steps:
