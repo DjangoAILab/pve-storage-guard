@@ -119,7 +119,7 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   govulncheck call-graph scan, current-tree Gitleaks, 56 replay tests, nine
   publication-privacy tests, the 106-file/132-URL privacy scan, and the 16-page
   Astro build all passed. Public review:
-  [Draft PR #57](https://github.com/DjangoAILab/pve-storage-guard/pull/57),
+  [Merged PR #57](https://github.com/DjangoAILab/pve-storage-guard/pull/57),
   initial implementation commit `94e54af`. A subsequent safety review found
   that the offline core had not yet enforced the configured command timeout and
   that a fractional rollback target could validate despite not being an exact
@@ -128,6 +128,12 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30844742654),
   [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30844742643),
   and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30844742676).
+  The reviewed core was squash-merged as `eccfba9`; its post-merge
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30845163068),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30845163048),
+  and [Pages](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30845163063)
+  all passed. Merging this offline core did not accept ADR-0012 or authorize a
+  live backend.
   This item remains partial until stakeholder review accepts the ADR and a
   separately reviewed live backend passes non-critical controlled-load and
   rollback evidence.
@@ -638,7 +644,7 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   An authenticated read-only production review subsequently found that the
   deployed page's generic 2,000-series latest query could omit the named
   PVE/ZFS evidence and that generic workload throughput could create a false
-  unregistered-disk row. A separate internal read/display-only Draft at rebased
+  unregistered-disk row. Internal read/display-only Merged PR #62 at reviewed
   head `72cb073` adds a maximum-32-name query for the 13 panel metrics and
   restricts rows plus pressure
   aggregation to registered `disk` / `zfs_pool` resources. Focused tests passed
@@ -646,12 +652,18 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   104/104 frontend, with lint/build/architecture/dependency checks also passing.
   A production read-only/query-only probe of the exact SQL returned 193 current
   series in 4.378 ms under the 2,000-row bound and used the existing target/name
-  index. It remains unmerged and undeployed and changes no collector, schema,
-  rule, notification, journal, actuator, or control state.
+  index. Exact PR run #241 passed both the Node 22 quality gates and linux/amd64
+  image build/runtime smoke. It was merged as `bc78477`; post-merge main run
+  #242 then passed the full quality gates and published two digest-bound
+  linux/amd64 images after SBOM, provenance, revision-label, pull, and runtime
+  smoke verification. The private deployment evidence retains the full image
+  coordinates and digests; they are deliberately not published here. The exact
+  candidate remains undeployed and changes no collector, schema, rule,
+  notification, journal, actuator, or control state.
   Locked-dependency CI caught an optional-resource type narrowing error that the
   older local dependency tree missed; the current head adds an explicit string
-  guard and passes an exact-lock frontend lint/build plus focused tests. A fresh
-  exact-head CI run remains required.
+  guard and passes exact-lock frontend lint/build, full regression, and the
+  exact-head CI/image gates.
   Its production checkpoint is explicitly unapproved: require rebased-PR and
   post-merge main quality/secret/linux-amd64 image gates, immutable commit and
   digest binding, healthy active-pair plus online-backup/rollback preflight,

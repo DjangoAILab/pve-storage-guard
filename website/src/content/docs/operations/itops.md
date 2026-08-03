@@ -209,20 +209,24 @@ logic only, not production readiness.
 An authenticated read-only UI review then exposed a separate presentation
 defect in the currently deployed page. A generic 2,000-series latest query could
 truncate the named PVE/ZFS evidence, and generic workload throughput could be
-misclassified as an unregistered disk. An internal read/display-only Draft at
-rebased head `72cb073` now uses a bounded exact-name query for the 13 panel
+misclassified as an unregistered disk. Internal read/display-only Merged PR #62
+at reviewed head `72cb073` uses a bounded exact-name query for the 13 panel
 metrics and restricts disk/ZFS rows and pressure aggregation to registered
 resources. Focused and full
 backend/frontend tests, lint, builds, and architecture checks passed. The patch
 was also exercised with the exact production SQL shape in read-only/query-only
 mode: 193 current series returned in 4.378 ms under the 2,000-row bound using
-the existing target/name index. It is still unmerged and undeployed and changes
-no collector, schema, alert, notification, actuator, or control state.
+the existing target/name index. Exact PR run #241 passed full quality and
+linux/amd64 image/runtime-smoke gates, and the change was merged as `bc78477`.
+Post-merge main run #242 then passed full quality and published two
+digest-bound linux/amd64 images after SBOM, provenance, revision-label, pull,
+and runtime-smoke verification. Private registry coordinates and digests remain
+in restricted deployment evidence. The candidate is undeployed and changes no
+collector, schema, alert, notification, actuator, or control state.
 
 The first locked-dependency CI run exposed an optional-resource type narrowing
-error that an older local dependency tree did not report. The current head uses
-an explicit string guard and passes exact-lock frontend lint/build plus focused
-tests; a fresh exact-head run remains required.
+error that an older local dependency tree did not report. The reviewed head uses
+an explicit string guard and passed exact-lock full regression.
 
 ### Pending dashboard-query correction checkpoint
 
