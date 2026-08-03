@@ -124,10 +124,10 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   that the offline core had not yet enforced the configured command timeout and
   that a fractional rollback target could validate despite not being an exact
   integer `bps_wr` value. Rebased correction commit `b8b60b0` closes both gaps;
-  its exact-head CI is pending. The earlier review head passed
-  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30838801962),
-  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30838802197),
-  and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30838802244).
+  review head `4526d1c` passed
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30844742654),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30844742643),
+  and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30844742676).
   This item remains partial until stakeholder review accepts the ADR and a
   separately reviewed live backend passes non-critical controlled-load and
   rollback evidence.
