@@ -492,9 +492,13 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   quality gates, and isolated linux/amd64 image smoke passed. The first clean
   runner correctly rejected two high-entropy test placeholders; they were
   replaced with explicit non-secret values without adding a scanner exemption,
-  and the successor run passed. This follow-up remains Draft, unmerged, and
-  undeployed. A separately bound candidate, effective block-I/O verification,
-  capacity preflight, and explicit production approval remain required.
+  and the successor run passed. The local gate was then strengthened to scan
+  both the staged index and every tracked or untracked, non-ignored working-tree
+  file. An untracked high-entropy negative probe failed as required, the clean
+  dual scan passed, and the final quality/image CI run passed. This follow-up
+  remains Draft, unmerged, and undeployed. A separately bound candidate,
+  effective block-I/O verification, capacity preflight, and explicit production
+  approval remain required.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
