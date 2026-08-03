@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	v1 "github.com/DjangoAILab/pve-storage-guard/api/v1"
 	"github.com/DjangoAILab/pve-storage-guard/internal/config"
@@ -36,16 +37,17 @@ type Actuator struct {
 }
 
 type binding struct {
-	domainKey     string
-	resourceKey   string
-	node          string
-	storage       string
-	workloadID    string
-	diskKey       string
-	requiredTags  []string
-	minimumMiBPS  float64
-	maximumMiBPS  float64
-	rollbackMiBPS float64
+	domainKey      string
+	resourceKey    string
+	node           string
+	storage        string
+	workloadID     string
+	diskKey        string
+	requiredTags   []string
+	minimumMiBPS   float64
+	maximumMiBPS   float64
+	rollbackMiBPS  float64
+	commandTimeout time.Duration
 }
 
 type qemuState struct {
@@ -78,10 +80,11 @@ func NewActuator(document config.PVECanaryPreflightConfig, backend Backend) (*Ac
 			domainKey: document.Spec.DomainKey, resourceKey: document.Spec.ResourceKey,
 			node: document.Spec.Node, storage: document.Spec.Storage,
 			workloadID: document.Spec.WorkloadID, diskKey: document.Spec.DiskKey,
-			requiredTags:  append([]string(nil), document.Spec.RequiredTags...),
-			minimumMiBPS:  document.Spec.Envelope.MinimumMiBPS,
-			maximumMiBPS:  document.Spec.Envelope.MaximumMiBPS,
-			rollbackMiBPS: document.Spec.Envelope.RollbackMiBPS,
+			requiredTags:   append([]string(nil), document.Spec.RequiredTags...),
+			minimumMiBPS:   document.Spec.Envelope.MinimumMiBPS,
+			maximumMiBPS:   document.Spec.Envelope.MaximumMiBPS,
+			rollbackMiBPS:  document.Spec.Envelope.RollbackMiBPS,
+			commandTimeout: time.Duration(document.Spec.CommandTimeoutSeconds) * time.Second,
 		},
 		backend: backend,
 	}, nil
@@ -116,7 +119,10 @@ func (a *Actuator) ApplyApproved(ctx context.Context, request v1.ApplyRequest) (
 		return EffectiveLimit{ResourceKey: a.binding.resourceKey, WriteLimitMiBPS: request.WriteLimitMiBPS}, nil
 	}
 	updated := before.disk.withLimit(limit)
-	if err := a.backend.UpdateQEMUDisk(ctx, a.binding.node, a.binding.workloadID, a.binding.diskKey, updated, before.digest); err != nil {
+	updateCtx, cancel := context.WithTimeout(ctx, a.binding.commandTimeout)
+	err = a.backend.UpdateQEMUDisk(updateCtx, a.binding.node, a.binding.workloadID, a.binding.diskKey, updated, before.digest)
+	cancel()
+	if err != nil {
 		return EffectiveLimit{}, errors.New("PVE actuator update failed")
 	}
 	after, err := a.readState(ctx)
@@ -152,7 +158,9 @@ func (a *Actuator) validateRequest(request v1.ApplyRequest) (uint64, error) {
 }
 
 func (a *Actuator) readState(ctx context.Context) (qemuState, error) {
-	payload, err := a.backend.ReadQEMUConfig(ctx, a.binding.node, a.binding.workloadID)
+	readCtx, cancel := context.WithTimeout(ctx, a.binding.commandTimeout)
+	payload, err := a.backend.ReadQEMUConfig(readCtx, a.binding.node, a.binding.workloadID)
+	cancel()
 	if err != nil {
 		return qemuState{}, errors.New("PVE actuator configuration read failed")
 	}

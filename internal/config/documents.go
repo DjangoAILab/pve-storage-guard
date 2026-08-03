@@ -169,10 +169,16 @@ func (d PVECanaryPreflightConfig) Validate() error {
 	minimum, maximum, rollback := d.Spec.Envelope.MinimumMiBPS, d.Spec.Envelope.MaximumMiBPS, d.Spec.Envelope.RollbackMiBPS
 	if math.IsNaN(minimum) || math.IsInf(minimum, 0) || minimum <= 0 ||
 		math.IsNaN(maximum) || math.IsInf(maximum, 0) || maximum < minimum ||
-		math.IsNaN(rollback) || math.IsInf(rollback, 0) || rollback < minimum || rollback > maximum {
+		math.IsNaN(rollback) || math.IsInf(rollback, 0) || rollback < minimum || rollback > maximum ||
+		!exactMiBPSToBytes(rollback) {
 		return errors.New("PVE canary envelope or rollback limit is invalid")
 	}
 	return nil
+}
+
+func exactMiBPSToBytes(value float64) bool {
+	bytes := value * 1024 * 1024
+	return bytes > 0 && bytes <= float64(math.MaxUint64) && math.Abs(bytes-math.Round(bytes)) <= 1e-6
 }
 
 // ReadPVEAgentConfig strictly decodes and validates a local agent file.

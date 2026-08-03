@@ -18,10 +18,12 @@ const (
 )
 
 type fakeBackend struct {
-	reads     [][]byte
-	readErr   error
-	updateErr error
-	updates   []updateCall
+	reads             [][]byte
+	readErr           error
+	updateErr         error
+	updates           []updateCall
+	readHadDeadline   bool
+	updateHadDeadline bool
 }
 
 type updateCall struct {
@@ -40,7 +42,8 @@ func (f fixedApprovalVerifier) Get(context.Context, string) (safety.Approval, er
 	return f.approval, nil
 }
 
-func (f *fakeBackend) ReadQEMUConfig(context.Context, string, string) ([]byte, error) {
+func (f *fakeBackend) ReadQEMUConfig(ctx context.Context, _ string, _ string) ([]byte, error) {
+	_, f.readHadDeadline = ctx.Deadline()
 	if f.readErr != nil {
 		return nil, f.readErr
 	}
@@ -52,7 +55,8 @@ func (f *fakeBackend) ReadQEMUConfig(context.Context, string, string) ([]byte, e
 	return payload, nil
 }
 
-func (f *fakeBackend) UpdateQEMUDisk(_ context.Context, node, workloadID, diskKey, diskValue, digest string) error {
+func (f *fakeBackend) UpdateQEMUDisk(ctx context.Context, node, workloadID, diskKey, diskValue, digest string) error {
+	_, f.updateHadDeadline = ctx.Deadline()
 	f.updates = append(f.updates, updateCall{node: node, workloadID: workloadID, diskKey: diskKey, diskValue: diskValue, digest: digest})
 	return f.updateErr
 }
@@ -85,6 +89,9 @@ func TestActuatorAppliesOnlyBPSWriteWithDigestAndReadsBack(t *testing.T) {
 	}
 	if backend.updates[0] != want {
 		t.Fatalf("update=%+v want=%+v", backend.updates[0], want)
+	}
+	if !backend.readHadDeadline || !backend.updateHadDeadline {
+		t.Fatal("expected bounded backend read and update contexts")
 	}
 }
 
@@ -289,10 +296,11 @@ func newFixtureBinding() binding {
 		domainKey: document.Spec.DomainKey, resourceKey: document.Spec.ResourceKey,
 		node: document.Spec.Node, storage: document.Spec.Storage,
 		workloadID: document.Spec.WorkloadID, diskKey: document.Spec.DiskKey,
-		requiredTags:  append([]string(nil), document.Spec.RequiredTags...),
-		minimumMiBPS:  document.Spec.Envelope.MinimumMiBPS,
-		maximumMiBPS:  document.Spec.Envelope.MaximumMiBPS,
-		rollbackMiBPS: document.Spec.Envelope.RollbackMiBPS,
+		requiredTags:   append([]string(nil), document.Spec.RequiredTags...),
+		minimumMiBPS:   document.Spec.Envelope.MinimumMiBPS,
+		maximumMiBPS:   document.Spec.Envelope.MaximumMiBPS,
+		rollbackMiBPS:  document.Spec.Envelope.RollbackMiBPS,
+		commandTimeout: time.Duration(document.Spec.CommandTimeoutSeconds) * time.Second,
 	}
 }
 

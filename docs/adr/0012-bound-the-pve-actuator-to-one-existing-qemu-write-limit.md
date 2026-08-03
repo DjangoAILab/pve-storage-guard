@@ -41,9 +41,13 @@ would enlarge the failure boundary unnecessarily.
   rate becomes `readback_mismatch`; an ambiguous update, read error, or binding
   drift becomes an apply failure. Both paths freeze the resource and prohibit
   automatic retry.
+- Bound every backend read and update with the owner-configured command timeout.
+  A timeout during an update is ambiguous and therefore follows the same
+  fail-closed freeze path.
 - Keep rollback explicit. The configured rollback value is another approved,
-  fenced apply after an operator-owned checkpoint; the actuator does not
-  schedule or guess a rollback after an ambiguous write.
+  fenced apply after an operator-owned checkpoint and must be exactly
+  representable as integer bytes per second; the actuator does not schedule or
+  guess a rollback after an ambiguous write.
 - Define only a two-method injected backend: read one QEMU config and update one
   exact disk with a digest. Do not add a shell runner, PVE API client, CLI,
   listener, service unit, container entrypoint, credentials, or production

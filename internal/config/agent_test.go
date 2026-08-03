@@ -67,6 +67,7 @@ func TestReadPVECanaryPreflightConfigRequiresPrivateExplicitNonCriticalDataDisk(
 		"boot-like disk is still syntactically allowed": strings.Replace(valid, `"scsi1"`, `"scsi0"`, 1),
 		"workload injection":                            strings.Replace(valid, `"101"`, `"101;touch"`, 1),
 		"rollback below floor":                          strings.Replace(valid, `"rollbackMiBPS":32`, `"rollbackMiBPS":8`, 1),
+		"rollback not exact bytes":                      strings.Replace(valid, `"rollbackMiBPS":32`, `"rollbackMiBPS":32.0000001`, 1),
 	} {
 		t.Run(name, func(t *testing.T) {
 			candidate := filepath.Join(t.TempDir(), "canary.json")
