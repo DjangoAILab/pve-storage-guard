@@ -253,10 +253,14 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   and [main CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30732751758).
 - [x] Build the GitHub Pages landing/documentation site; local Astro build has
   zero diagnostics and responsive browser review has no horizontal overflow.
-- [~] Add verified architecture and incident/control-loop graphics. The modeled
+- [x] Add verified architecture and incident/control-loop graphics. The modeled
   policy-effect SVG is now deterministically generated from the reviewed PoC
   golden JSON, visibly labeled counterfactual/not-production, and checked in
-  CI. A real ITOps shadow-baseline dashboard graphic remains pending.
+  CI. On 2026-08-03, an authenticated real ITOps production shadow view was
+  captured and deterministically cropped to the detector title and four
+  aggregate status cells. Manual visual review confirms the public PNG excludes
+  the target header, host/account identity, and per-pool/per-disk tables; it
+  shows the alert gate still disabled.
 - [x] Complete the initial pre-publication review: identifier/IP/private-key
   pattern scan clean, Gitleaks v8.30.1 reports no leaks, Markdown links resolve,
   screenshots contain anonymized content and standard JFIF/sRGB metadata only.
@@ -514,9 +518,10 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   controller now has a private append/sync journal, an identity-free sealed
   verifier, and a bounded digest-matched reader; the internal draft has a tested
   but uninvoked persistence adapter.
-  A real shadow-baseline screenshot, approved transport/runtime registration,
-  and incident/runbook links remain. The verifier and importer expose no route,
-  scheduler, alert evaluation, or production side effect.
+  The real identity-free shadow-baseline screenshot is now published. Approved
+  transport/runtime registration and incident/runbook links remain. The
+  verifier and importer expose no route, scheduler, alert evaluation, or
+  production side effect.
 - [x] Exercise cold restart and rollback in a non-critical environment. Public
   PR #46 [run 30791350808](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30791350808)
   used the production observer unit and real compiled

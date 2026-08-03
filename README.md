@@ -30,6 +30,13 @@ PVE Adapter.
 
 ![An anonymized storage-latency incident and the observe, decide, verify, explain control loop](docs/assets/incident-signal.jpg)
 
+The companion ITOps integration exposes the same protection boundary as a
+read-only shadow view. This production screenshot is deterministically cropped
+to remove target, host, account, storage-pool, and disk identities; it shows the
+detector status, IO PSI, management probe, and disabled alert gate only.
+
+![Identity-free ITOps storage-pressure shadow baseline](docs/assets/itops-storage-pressure-shadow-baseline.png)
+
 ## Safety principles
 
 - Read-only and `dry-run` by default.

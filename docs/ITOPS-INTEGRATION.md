@@ -439,5 +439,10 @@ The merged integration also adds a PVE-only storage-pressure dashboard that comb
 management-probe health, separately typed per-pool and per-disk evidence,
 queue depth, utilization, throughput, detector level, and alert-gate state.
 The UI labels detector output as evidence rather than a controller decision and
-does not expose an actuation action. A screenshot must come from a real shadow
-baseline, not fixture data.
+does not expose an actuation action. The following image comes from the real
+production shadow baseline, not fixture data. It is a deterministic crop: the
+target header and per-pool/per-disk tables were excluded so no target, host,
+account, pool, or disk identity is published. The four retained cells show only
+detector status, aggregate IO PSI, management-probe state, and alert-gate count.
+
+![Identity-free ITOps storage-pressure shadow baseline](assets/itops-storage-pressure-shadow-baseline.png)
