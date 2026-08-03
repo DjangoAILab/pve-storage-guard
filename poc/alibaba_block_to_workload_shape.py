@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Convert an authorized SPC trace into a sanitized workload-shape artifact.
+"""Convert an authorized Alibaba Block Trace CSV into a sanitized shape trace.
 
-The converter performs no download. It drops ASU, LBA, and all optional fields,
-retains only per-window operation counts and transferred bytes, and fixes the
-storage class to unknown because SPC records do not carry that semantic claim.
+The converter performs no download or decompression. It accepts the documented
+headerless ``device_id,opcode,offset,length,timestamp`` records, drops device
+and address coordinates, and fixes the semantic boundary to observed Alibaba
+Ultra Disk requests arriving at a virtual block service. It cannot emit latency
+or management-plane claims.
 """
 
 from __future__ import annotations
 
 import argparse
-import bz2
 import json
-import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, TextIO, Tuple
@@ -26,6 +26,7 @@ from workload_shape_contract import (
 
 
 MAXIMUM_LINE_CHARACTERS = 65_536
+MICROSECONDS_PER_SECOND = 1_000_000
 
 
 @dataclass(frozen=True)
@@ -34,24 +35,32 @@ class ConversionOptions:
     independence_group: str
     workload_class: str
     sample_interval_seconds: int
-    window_duration_seconds: int = 0
+    window_duration_seconds: int = 600
     authorized_and_sanitized: bool = False
 
 
 def _validate_options(options: ConversionOptions) -> None:
     if options.authorized_and_sanitized is not True:
         raise ValueError("authorized-and-sanitized confirmation is required")
-    for label, value in (("name", options.name), ("independence group", options.independence_group)):
+    for label, value in (
+        ("name", options.name),
+        ("independence group", options.independence_group),
+    ):
         if not SAFE_SLUG.fullmatch(value):
             raise ValueError(f"{label} must be a non-identifying safe slug")
     if options.workload_class not in WORKLOAD_CLASSES:
         raise ValueError("workload class is invalid")
-    if type(options.sample_interval_seconds) is not int or not 1 <= options.sample_interval_seconds <= 60:
+    interval = options.sample_interval_seconds
+    if type(interval) is not int or not 1 <= interval <= 60:
         raise ValueError("sample interval must be between 1 and 60 seconds")
     duration = options.window_duration_seconds
-    if type(duration) is not int or duration < 0 or duration > MAXIMUM_DURATION_SECONDS:
-        raise ValueError("window duration must be between 0 and 86400 seconds")
-    if duration and duration % options.sample_interval_seconds:
+    if (
+        type(duration) is not int
+        or duration < 2 * interval
+        or duration > MAXIMUM_DURATION_SECONDS
+    ):
+        raise ValueError("window duration must contain at least two samples and at most 86400 seconds")
+    if duration % interval:
         raise ValueError("window duration must be divisible by sample interval")
 
 
@@ -62,23 +71,14 @@ def _nonnegative_integer(value: str, label: str, line: int) -> int:
     return int(value)
 
 
-def _timestamp(value: str, line: int) -> float:
-    try:
-        parsed = float(value.strip())
-    except ValueError as error:
-        raise ValueError(f"line {line} timestamp is not numeric") from error
-    if not math.isfinite(parsed) or parsed < 0:
-        raise ValueError(f"line {line} timestamp must be finite and non-negative")
-    return parsed
-
-
 def build_workload_shape(source: TextIO, options: ConversionOptions) -> Dict[str, object]:
-    """Aggregate an SPC stream while discarding all source identity coordinates."""
+    """Aggregate a bounded arrival-time window and discard source coordinates."""
     _validate_options(options)
     interval = options.sample_interval_seconds
+    interval_microseconds = interval * MICROSECONDS_PER_SECOND
     buckets: Dict[int, Tuple[int, int, int, int]] = {}
-    origin = None
-    previous_timestamp = None
+    origin_microseconds = None
+    previous_timestamp_microseconds = None
     last_bucket_index = 0
 
     for line_number, raw_line in enumerate(source, start=1):
@@ -86,27 +86,32 @@ def build_workload_shape(source: TextIO, options: ConversionOptions) -> Dict[str
             raise ValueError(f"line {line_number} exceeds the bounded record size")
         if not raw_line.strip():
             raise ValueError(f"line {line_number} is empty")
-        fields = raw_line.rstrip("\r\n").split(",", 5)
-        if len(fields) < 5:
-            raise ValueError(f"line {line_number} has fewer than five SPC fields")
-        _nonnegative_integer(fields[0], "ASU", line_number)
-        _nonnegative_integer(fields[1], "LBA", line_number)
-        size_bytes = _nonnegative_integer(fields[2], "size", line_number)
-        operation = fields[3].strip().lower()
+        fields = raw_line.rstrip("\r\n").split(",")
+        if len(fields) != 5:
+            raise ValueError(f"line {line_number} must have exactly five fields")
+        _nonnegative_integer(fields[0], "device ID", line_number)
+        operation = fields[1].strip().lower()
         if operation not in {"r", "w"}:
             raise ValueError(f"line {line_number} opcode must be R or W")
-        timestamp = _timestamp(fields[4], line_number)
-        if previous_timestamp is not None and timestamp < previous_timestamp:
+        _nonnegative_integer(fields[2], "offset", line_number)
+        size_bytes = _nonnegative_integer(fields[3], "length", line_number)
+        timestamp_microseconds = _nonnegative_integer(fields[4], "timestamp", line_number)
+        if (
+            previous_timestamp_microseconds is not None
+            and timestamp_microseconds < previous_timestamp_microseconds
+        ):
             raise ValueError(f"line {line_number} timestamp is earlier than the preceding record")
-        if origin is None:
-            origin = timestamp
-        previous_timestamp = timestamp
-        offset = timestamp - origin
-        if options.window_duration_seconds and offset >= options.window_duration_seconds:
+        if origin_microseconds is None:
+            origin_microseconds = timestamp_microseconds
+        previous_timestamp_microseconds = timestamp_microseconds
+        offset_microseconds = timestamp_microseconds - origin_microseconds
+        if offset_microseconds >= options.window_duration_seconds * MICROSECONDS_PER_SECOND:
             break
-        bucket_index = int(offset // interval)
+        bucket_index = offset_microseconds // interval_microseconds
         last_bucket_index = bucket_index
-        read_count, write_count, read_bytes, write_bytes = buckets.get(bucket_index, (0, 0, 0, 0))
+        read_count, write_count, read_bytes, write_bytes = buckets.get(
+            bucket_index, (0, 0, 0, 0)
+        )
         if operation == "r":
             read_count += 1
             read_bytes += size_bytes
@@ -115,10 +120,10 @@ def build_workload_shape(source: TextIO, options: ConversionOptions) -> Dict[str
             write_bytes += size_bytes
         buckets[bucket_index] = (read_count, write_count, read_bytes, write_bytes)
 
-    if origin is None:
-        raise ValueError("SPC trace must contain at least one record")
+    if origin_microseconds is None:
+        raise ValueError("Alibaba Block Trace must contain at least one record")
     required_duration = (last_bucket_index + 1) * interval
-    duration = options.window_duration_seconds or required_duration
+    duration = options.window_duration_seconds
     if duration < required_duration:
         raise ValueError("window duration does not contain every selected record")
     if duration < 2 * interval:
@@ -126,7 +131,9 @@ def build_workload_shape(source: TextIO, options: ConversionOptions) -> Dict[str
 
     samples = []
     for index in range(duration // interval):
-        read_count, write_count, read_bytes, write_bytes = buckets.get(index, (0, 0, 0, 0))
+        read_count, write_count, read_bytes, write_bytes = buckets.get(
+            index, (0, 0, 0, 0)
+        )
         samples.append({
             "offsetSeconds": index * interval,
             "readIops": round(read_count / interval, 6),
@@ -142,15 +149,15 @@ def build_workload_shape(source: TextIO, options: ConversionOptions) -> Dict[str
             "name": options.name,
             "sourceKind": "observed",
             "independenceGroup": options.independence_group,
-            "storageClass": "unknown",
+            "storageClass": "network-block",
             "workloadClass": options.workload_class,
             "sampleIntervalSeconds": interval,
             "windowDurationSeconds": duration,
             "sanitized": True,
         },
         "metricSemantics": {
-            "timestamp": "issue-offset-seconds",
-            "ioLayer": "host-to-logical-unit",
+            "timestamp": "arrival-offset-seconds",
+            "ioLayer": "virtual-block-service",
             "latency": "unavailable",
             "managementPlane": "unavailable",
             "provenance": "derived",
@@ -159,20 +166,14 @@ def build_workload_shape(source: TextIO, options: ConversionOptions) -> Dict[str
     }
 
 
-def _open_source(path: Path) -> TextIO:
-    if path.suffix == ".bz2":
-        return bz2.open(path, mode="rt", encoding="ascii", errors="strict")
-    return path.open(encoding="ascii", errors="strict")
-
-
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("spc", type=Path)
+    parser.add_argument("csv", type=Path)
     parser.add_argument("--name", required=True)
     parser.add_argument("--independence-group", required=True)
     parser.add_argument("--workload-class", required=True, choices=sorted(WORKLOAD_CLASSES))
     parser.add_argument("--sample-interval-seconds", type=int, default=10)
-    parser.add_argument("--window-duration-seconds", type=int, default=0)
+    parser.add_argument("--window-duration-seconds", type=int, default=600)
     parser.add_argument("--confirm-authorized-and-sanitized", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
@@ -185,7 +186,7 @@ def main() -> None:
         authorized_and_sanitized=args.confirm_authorized_and_sanitized,
     )
     try:
-        with _open_source(args.spc) as source:
+        with args.csv.open(encoding="ascii", errors="strict") as source:
             document = build_workload_shape(source, options)
     except (OSError, UnicodeError, ValueError) as error:
         parser.error(str(error))

@@ -16,6 +16,7 @@ from urllib.parse import urlsplit
 
 ALLOWED_URL_HOSTS = frozenset(
     {
+        "cache-datasets.s3.amazonaws.com",
         "creativecommons.org",
         "djangoailab.github.io",
         "docs.kernel.org",

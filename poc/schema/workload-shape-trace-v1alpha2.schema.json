@@ -1,21 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/workload-shape-trace/v1alpha1.json",
-  "title": "PVE Storage Guard sanitized workload-shape research trace v1alpha1",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/workload-shape-trace/v1alpha2.json",
+  "title": "PVE Storage Guard sanitized workload-shape research trace v1alpha2",
   "type": "object",
   "additionalProperties": false,
   "required": ["apiVersion", "kind", "metadata", "metricSemantics", "samples"],
   "properties": {
-    "apiVersion": { "const": "guard.storage-slo.io/workload-shape-trace/v1alpha1" },
+    "apiVersion": { "const": "guard.storage-slo.io/workload-shape-trace/v1alpha2" },
     "kind": { "const": "WorkloadShapeTrace" },
     "metadata": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "sourceKind", "independenceGroup", "workloadClass", "sampleIntervalSeconds", "windowDurationSeconds", "sanitized"],
+      "required": ["name", "sourceKind", "independenceGroup", "storageClass", "workloadClass", "sampleIntervalSeconds", "windowDurationSeconds", "sanitized"],
       "properties": {
         "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]{0,127}$" },
         "sourceKind": { "const": "observed" },
         "independenceGroup": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]{0,127}$" },
+        "storageClass": { "enum": ["rotational-hdd", "sata-ssd", "nvme", "network-block", "unknown"] },
         "workloadClass": { "enum": ["backup", "build", "database", "migration", "search", "mixed", "unknown"] },
         "sampleIntervalSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
         "windowDurationSeconds": { "type": "integer", "minimum": 2, "maximum": 86400 },
@@ -26,9 +27,19 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["timestamp", "ioLayer", "latency", "managementPlane", "provenance"],
+      "allOf": [
+        {
+          "if": { "properties": { "timestamp": { "const": "issue-offset-seconds" } } },
+          "then": { "properties": { "ioLayer": { "const": "host-to-logical-unit" } } }
+        },
+        {
+          "if": { "properties": { "timestamp": { "const": "arrival-offset-seconds" } } },
+          "then": { "properties": { "ioLayer": { "const": "virtual-block-service" } } }
+        }
+      ],
       "properties": {
-        "timestamp": { "const": "issue-offset-seconds" },
-        "ioLayer": { "const": "host-to-logical-unit" },
+        "timestamp": { "enum": ["issue-offset-seconds", "arrival-offset-seconds"] },
+        "ioLayer": { "enum": ["host-to-logical-unit", "virtual-block-service"] },
         "latency": { "const": "unavailable" },
         "managementPlane": { "const": "unavailable" },
         "provenance": { "const": "derived" }

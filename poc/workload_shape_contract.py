@@ -12,13 +12,20 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 
-API_VERSION = "guard.storage-slo.io/workload-shape-trace/v1alpha1"
+API_VERSION = "guard.storage-slo.io/workload-shape-trace/v1alpha2"
 KIND = "WorkloadShapeTrace"
 MAXIMUM_DURATION_SECONDS = 86_400
 MINIMUM_RESEARCH_DURATION_SECONDS = 600
 MINIMUM_COMPLETENESS = 0.95
 SAFE_SLUG = re.compile(r"^[a-z0-9][a-z0-9.-]{0,127}$")
 WORKLOAD_CLASSES = {"backup", "build", "database", "migration", "search", "mixed", "unknown"}
+STORAGE_CLASSES = {"rotational-hdd", "sata-ssd", "nvme", "network-block", "unknown"}
+TIMESTAMP_SEMANTICS = {"issue-offset-seconds", "arrival-offset-seconds"}
+IO_LAYERS = {"host-to-logical-unit", "virtual-block-service"}
+SEMANTIC_PAIRS = {
+    ("issue-offset-seconds", "host-to-logical-unit"),
+    ("arrival-offset-seconds", "virtual-block-service"),
+}
 
 
 @dataclass(frozen=True)
@@ -29,7 +36,9 @@ class WorkloadShapeAssessment:
     completeness: float
     read_active_bucket_seconds: int
     write_active_bucket_seconds: int
+    storage_class_known: bool
     meets_research_gate: bool
+    meets_storage_class_research_gate: bool
     active_control_eligible: bool
 
 
@@ -46,7 +55,9 @@ def assess_workload_shape(
             completeness=0.0,
             read_active_bucket_seconds=0,
             write_active_bucket_seconds=0,
+            storage_class_known=False,
             meets_research_gate=False,
+            meets_storage_class_research_gate=False,
             active_control_eligible=False,
         )
 
@@ -69,7 +80,7 @@ def assess_workload_shape(
         samples = []
 
     allowed_metadata = {
-        "name", "sourceKind", "independenceGroup", "workloadClass",
+        "name", "sourceKind", "independenceGroup", "storageClass", "workloadClass",
         "sampleIntervalSeconds", "windowDurationSeconds", "sanitized",
     }
     if set(metadata) != allowed_metadata:
@@ -81,6 +92,8 @@ def assess_workload_shape(
         errors.append("sourceKind must be observed")
     if metadata.get("workloadClass") not in WORKLOAD_CLASSES:
         errors.append("workloadClass is invalid")
+    if metadata.get("storageClass") not in STORAGE_CLASSES:
+        errors.append("storageClass is invalid")
     if metadata.get("sanitized") is not True:
         errors.append("sanitized must be true")
 
@@ -95,15 +108,22 @@ def assess_workload_shape(
     elif duration % interval:
         errors.append("windowDurationSeconds must be divisible by sampleIntervalSeconds")
 
-    expected_semantics = {
-        "timestamp": "issue-offset-seconds",
-        "ioLayer": "host-to-logical-unit",
-        "latency": "unavailable",
-        "managementPlane": "unavailable",
-        "provenance": "derived",
-    }
-    if semantics != expected_semantics:
-        errors.append("metricSemantics must preserve the SPC research boundary")
+    if set(semantics) != {
+        "timestamp", "ioLayer", "latency", "managementPlane", "provenance",
+    }:
+        errors.append("metricSemantics fields do not match the strict contract")
+    if semantics.get("timestamp") not in TIMESTAMP_SEMANTICS:
+        errors.append("metricSemantics.timestamp is invalid")
+    if semantics.get("ioLayer") not in IO_LAYERS:
+        errors.append("metricSemantics.ioLayer is invalid")
+    if (semantics.get("timestamp"), semantics.get("ioLayer")) not in SEMANTIC_PAIRS:
+        errors.append("timestamp and I/O layer semantics are incompatible")
+    if semantics.get("latency") != "unavailable":
+        errors.append("metricSemantics.latency must remain unavailable")
+    if semantics.get("managementPlane") != "unavailable":
+        errors.append("metricSemantics.managementPlane must remain unavailable")
+    if semantics.get("provenance") != "derived":
+        errors.append("metricSemantics.provenance must be derived")
 
     required_sample_fields = {
         "offsetSeconds", "readIops", "writeIops",
@@ -153,6 +173,7 @@ def assess_workload_shape(
         and duration >= MINIMUM_RESEARCH_DURATION_SECONDS
         and completeness >= MINIMUM_COMPLETENESS
     )
+    storage_class_known = metadata.get("storageClass") in STORAGE_CLASSES - {"unknown"}
     return WorkloadShapeAssessment(
         errors=errors,
         sample_count=len(samples),
@@ -160,7 +181,9 @@ def assess_workload_shape(
         completeness=round(completeness, 6),
         read_active_bucket_seconds=read_active_bucket_seconds,
         write_active_bucket_seconds=write_active_bucket_seconds,
+        storage_class_known=storage_class_known,
         meets_research_gate=meets_research_gate,
+        meets_storage_class_research_gate=meets_research_gate and storage_class_known,
         # This artifact has neither latency nor management-plane evidence by design.
         active_control_eligible=False,
     )

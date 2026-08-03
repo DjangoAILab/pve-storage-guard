@@ -24,6 +24,12 @@ fields, then emits only interval IOPS and throughput under the strict
 such an artifact for workload research while always reporting
 `active_control_eligible=false`.
 
+`alibaba_block_to_workload_shape.py` accepts an already downloaded and
+decompressed, authorized Alibaba Block Trace CSV. It drops device IDs and byte
+offsets, fixes the documented storage boundary to `network-block`, and retains
+only arrival-relative IOPS and throughput. It performs no download or
+decompression and cannot emit latency or management-plane evidence.
+
 `fixtures/` contains anonymized or explicitly licensed, attributed derived
 observations. `results/` contains
 reviewed snapshots. Observed shadow replay retains captured wait values exactly;

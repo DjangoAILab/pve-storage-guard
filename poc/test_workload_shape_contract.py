@@ -12,6 +12,7 @@ def valid_document():
             "name": "licensed-shape",
             "sourceKind": "observed",
             "independenceGroup": "external-study-a",
+            "storageClass": "unknown",
             "workloadClass": "search",
             "sampleIntervalSeconds": 60,
             "windowDurationSeconds": 600,
@@ -42,6 +43,8 @@ class WorkloadShapeContractTests(unittest.TestCase):
         assessment = assess_workload_shape(valid_document(), "reference-incident")
         self.assertEqual([], assessment.errors)
         self.assertTrue(assessment.meets_research_gate)
+        self.assertFalse(assessment.storage_class_known)
+        self.assertFalse(assessment.meets_storage_class_research_gate)
         self.assertFalse(assessment.active_control_eligible)
         self.assertEqual(60, assessment.write_active_bucket_seconds)
 
@@ -71,13 +74,32 @@ class WorkloadShapeContractTests(unittest.TestCase):
         semantic_drift = valid_document()
         semantic_drift["metricSemantics"]["latency"] = "p95"
         self.assertIn(
-            "metricSemantics must preserve the SPC research boundary",
+            "metricSemantics.latency must remain unavailable",
             assess_workload_shape(semantic_drift, "reference-incident").errors,
+        )
+
+        crossed_semantics = valid_document()
+        crossed_semantics["metricSemantics"]["ioLayer"] = "virtual-block-service"
+        self.assertIn(
+            "timestamp and I/O layer semantics are incompatible",
+            assess_workload_shape(crossed_semantics, "reference-incident").errors,
         )
 
         private = copy.deepcopy(valid_document())
         private["metadata"]["name"] = "node 192.0.2.1"
         self.assertTrue(assess_workload_shape(private, "reference-incident").errors)
+
+    def test_known_storage_class_closes_only_storage_class_research_gate(self):
+        document = valid_document()
+        document["metadata"]["storageClass"] = "network-block"
+        document["metricSemantics"]["timestamp"] = "arrival-offset-seconds"
+        document["metricSemantics"]["ioLayer"] = "virtual-block-service"
+        assessment = assess_workload_shape(document, "reference-incident")
+        self.assertEqual([], assessment.errors)
+        self.assertTrue(assessment.meets_research_gate)
+        self.assertTrue(assessment.storage_class_known)
+        self.assertTrue(assessment.meets_storage_class_research_gate)
+        self.assertFalse(assessment.active_control_eligible)
 
 
 if __name__ == "__main__":

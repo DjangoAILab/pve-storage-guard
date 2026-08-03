@@ -53,7 +53,7 @@ Last updated: 2026-08-03 (Asia/Shanghai)
 - [x] Run one-at-a-time parameter-neighborhood sensitivity analysis. Evidence:
   `poc/results/report.md`; 16/18 neighbors pass, while faster additive increase
   and shorter healthy confirmation fail the safety gate.
-- [~] Add independent storage-class and workload-shape traces; do not relabel
+- [x] Add independent storage-class and workload-shape traces; do not relabel
   the three counterfactual capacity models as observed storage classes.
   ADR-0003 now makes metric statistic, provenance, and independence group
   mandatory trace fields. A tested local converter can aggregate authorized
@@ -69,9 +69,15 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   separate `WorkloadShapeTrace`. Its 600-second/60-sample artifact passes the
   research gate with 100% structural completeness while remaining explicitly
   ineligible for active control because latency, storage class, and management
-  evidence are unavailable. The source archive is not committed; source and
-  derived hashes, attribution, and transformations are recorded. An independent
-  storage-class trace and a promotion-compatible trace remain pending.
+  evidence are unavailable. A second CC BY 4.0 Alibaba Block Trace derivative
+  covers 600 seconds of observed production Ultra Disk arrivals, explicitly
+  preserves the logical `network-block` class, and passes both the general and
+  storage-class research gates. Its device IDs, offsets, absolute times, raw
+  source, and physical-media assumptions are absent. It remains categorically
+  ineligible for active control because response latency and synchronized
+  management evidence are unavailable. Source/prefix/artifact hashes,
+  attribution, transformations, and rounding checks are recorded. The
+  promotion-compatible independent trace remains pending.
   Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md),
   [external trace research](EXTERNAL-TRACE-RESEARCH.md), and
   [third-party data notices](../THIRD-PARTY-DATA.md). Public

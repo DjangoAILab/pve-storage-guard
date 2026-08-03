@@ -55,21 +55,30 @@ credentials, guest content, and internal domains are excluded.
 
 ## Validation lanes
 
-### Independent workload-shape research
+### Independent workload-shape and storage-class research
 
-A separately licensed UMass/SPC search trace now exercises a second, observed
-workload shape without pretending to contain latency or management availability.
-The committed artifact covers the first 600 seconds in 60 ten-second buckets.
-An independent raw-prefix count found 194,293 operations: 194,255 reads and 38
-writes. The sanitized artifact contains only per-bucket read/write IOPS and
-throughput; ASU, LBA, optional fields, source timestamps, and the raw file are
-absent.
+Two separately licensed sources now exercise observed workload shape without
+pretending to contain latency or management availability:
 
-The strict workload-shape assessor reports complete independent research
-evidence and `active_control_eligible=false`. This strengthens workload-shape
-coverage but cannot calibrate latency thresholds, prove a storage class, or
-close the promotion gate. See [external trace research](EXTERNAL-TRACE-RESEARCH.md)
-and [third-party data notices](../THIRD-PARTY-DATA.md).
+- The UMass/SPC search artifact covers 600 seconds in 60 ten-second buckets.
+  An independent raw-prefix count found 194,293 operations: 194,255 reads and
+  38 writes. ASU, LBA, optional fields, source timestamps, and the raw file are
+  absent. Its storage class remains `unknown`.
+- The Alibaba Block Trace artifact covers 600 seconds of production Ultra Disk
+  arrivals in the same bucket shape. An independent pre-boundary check found
+  5,180,237 operations: 1,641,300 reads and 3,538,937 writes. Counts matched
+  exactly; byte totals matched within the declared six-decimal rounding bound.
+  Device IDs, offsets, absolute times, raw prefixes, and any physical-media
+  inference are absent. The documented virtual product class is retained only
+  as `network-block`.
+
+The strict workload-shape assessor reports complete independent research for
+both artifacts. Alibaba also passes the distinct storage-class research gate.
+Both report `active_control_eligible=false`: neither source contains response
+latency or a synchronized management probe. They cannot calibrate latency
+thresholds or close the promotion gate. See
+[external trace research](EXTERNAL-TRACE-RESEARCH.md) and
+[third-party data notices](../THIRD-PARTY-DATA.md).
 
 ### Observed shadow replay
 
@@ -211,6 +220,9 @@ python3 poc/simulate.py --format json
 python3 poc/trace_contract.py candidate.json --reference-group reference-incident
 python3 poc/workload_shape_contract.py \
   poc/fixtures/umass-spc-websearch1-workload-shape.json \
+  --reference-group reference-incident
+python3 poc/workload_shape_contract.py \
+  poc/fixtures/alibaba-block-ultra-2020-prefix-workload-shape.json \
   --reference-group reference-incident
 ```
 

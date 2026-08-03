@@ -22,7 +22,8 @@ requests are not raw-data upload channels.
 | Source | Observed | Latency | Management evidence | Current disposition |
 | --- | --- | --- | --- | --- |
 | [UMass/SPC OLTP and search traces](https://traces.cs.umass.edu/docs/traces/storage/) | yes | no standard latency field | none | one attributed search prefix accepted as workload-shape research evidence |
-| [Tencent, Alibaba, and CloudPhysics block traces catalogued by CacheMon](https://github.com/cacheMon/cache_dataset#block-cache-traces) | yes | catalog formats expose arrival, size, and direction but not response latency | none | workload-shape research only |
+| [Alibaba Block Traces](https://github.com/alibaba/block-traces) | yes | no response latency field | none | one attributed Ultra Disk prefix accepted for workload-shape plus logical storage-class research |
+| [Tencent and CloudPhysics block traces catalogued by CacheMon](https://github.com/cacheMon/cache_dataset#block-cache-traces) | yes | catalog formats expose arrival, size, and direction but not response latency | none | candidate workload-shape research only |
 | [MSR Cambridge catalog entry](https://github.com/cacheMon/cache_dataset#msr-cambridge-traces) | yes | per-I/O response time | none | license review required; no project redistribution |
 | [Google Thesios trace](https://github.com/cacheMon/cache_dataset#google-synthetic-io-traces) | synthetic | yes | none | synthetic testing only |
 | [SNIA real-world workload captures](https://www.snia.org/blog/2019/your-questions-answered-now-you-can-be-part-real-world-workload-revolution) | yes | response-time and queue statistics may be captured | no synchronized host-management contract identified | promising research format, not a promotion trace yet |
@@ -60,6 +61,53 @@ python3 poc/spc_to_workload_shape.py WebSearch1.spc.bz2 \
   --name umass-spc-websearch1-prefix \
   --independence-group umass-spc-websearch-2004 \
   --workload-class search \
+  --sample-interval-seconds 10 \
+  --window-duration-seconds 600 \
+  --confirm-authorized-and-sanitized \
+  --output candidate.json
+
+python3 poc/workload_shape_contract.py candidate.json \
+  --reference-group reference-incident
+```
+
+### Accepted Alibaba Ultra Disk workload shape and storage class
+
+The Alibaba source repository explicitly licenses the trace data and document
+under CC BY 4.0 and describes the records as observed production Elastic Block
+Storage requests for virtual Ultra Disk products. The accepted derivative uses
+`network-block` as that logical product class. It does not infer HDD, SSD, or
+NVMe media behind the service.
+
+The committed
+[workload-shape artifact](../poc/fixtures/alibaba-block-ultra-2020-prefix-workload-shape.json)
+covers 600 seconds in 60 ten-second buckets. The bounded converter stops at the
+first record outside the requested window and drops device IDs, offsets, and
+absolute timestamps. The processed compressed byte range, its SHA-256, the
+mirror object identity, artifact hash, license, attribution, and exact changes
+are recorded in [third-party data notices](../THIRD-PARTY-DATA.md); neither raw
+nor decompressed source data is committed.
+
+An independent pre-boundary scan counted 5,180,237 records with strictly
+nondecreasing arrival timestamps: 1,641,300 reads and 3,538,937 writes. Artifact
+counts matched exactly, and byte sums matched within the mathematically bounded
+six-decimal per-bucket rounding error. The assessor reports 60/60 samples,
+100% structural completeness, `meets_research_gate=true`,
+`storage_class_known=true`, and
+`meets_storage_class_research_gate=true`.
+
+It still reports `active_control_eligible=false`. The trace contains neither
+response latency nor a synchronized management probe, so it cannot calibrate a
+controller threshold, prove management-plane protection, or close the
+promotion trace gate.
+
+Reproduce the identity-removing conversion from an independently obtained,
+license-reviewed, decompressed prefix with:
+
+```sh
+python3 poc/alibaba_block_to_workload_shape.py alibabaBlock2020-prefix.csv \
+  --name alibaba-block-ultra-2020-prefix \
+  --independence-group alibaba-block-traces-2020 \
+  --workload-class mixed \
   --sample-interval-seconds 10 \
   --window-duration-seconds 600 \
   --confirm-authorized-and-sanitized \

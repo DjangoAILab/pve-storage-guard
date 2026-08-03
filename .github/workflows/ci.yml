@@ -57,9 +57,11 @@ jobs:
           python3 poc/render_effect_chart.py --check
       - name: Validate accepted workload-shape research evidence
         run: |
-          python3 poc/workload_shape_contract.py \
-            poc/fixtures/umass-spc-websearch1-workload-shape.json \
-            --reference-group reference-incident
+          for trace in poc/fixtures/*-workload-shape.json; do
+            python3 poc/workload_shape_contract.py \
+              "$trace" \
+              --reference-group reference-incident
+          done
       - name: Validate JSON documents
         run: |
           for document in api/v1/schema/*.json configs/examples/*.json poc/schema/*.json; do

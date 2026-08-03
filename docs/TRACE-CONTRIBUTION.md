@@ -44,7 +44,10 @@ cannot pass the active-control promotion gate.
 If the source has no standardized latency field, use the separate
 `WorkloadShapeTrace` path. Do not create a placeholder latency statistic merely
 to satisfy the replay schema. A workload-shape artifact can qualify for the
-research lane while remaining categorically ineligible for active control.
+research lane while remaining categorically ineligible for active control. A
+storage class may be preserved only when the source explicitly documents the
+logical layer; do not infer physical media behind network or distributed block
+storage.
 
 ### Promotion candidate
 
