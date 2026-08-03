@@ -190,6 +190,11 @@ network details, raw logs, and guest data removed. Historical replay preserves
 observed measurements. Counterfactual strategy results are explicitly labeled
 as model-assisted estimates and are not presented as measured production gains.
 
+Two attributed CC BY 4.0 derivatives now cover independent observed workload
+shape, including one explicitly documented `network-block` product class. They
+remain storage research only: neither contains response latency or synchronized
+management-plane evidence, and both are ineligible for active control.
+
 ## Documentation
 
 - [Goal and success criteria](docs/GOAL.md)
@@ -202,6 +207,7 @@ as model-assisted estimates and are not presented as measured production gains.
 - [Replay trace contract](docs/TRACE-CONTRACT.md)
 - [External trace research and safe conversion](docs/EXTERNAL-TRACE-RESEARCH.md)
 - [Safe community trace contribution](docs/TRACE-CONTRIBUTION.md)
+- [Third-party data notices](THIRD-PARTY-DATA.md)
 - [Performance evidence](docs/PERFORMANCE.md)
 - [Anonymized incident case study](docs/CASE-STUDY.md)
 - [Community context and prior art](docs/PRIOR-ART.md)

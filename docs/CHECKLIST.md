@@ -53,7 +53,7 @@ Last updated: 2026-08-03 (Asia/Shanghai)
 - [x] Run one-at-a-time parameter-neighborhood sensitivity analysis. Evidence:
   `poc/results/report.md`; 16/18 neighbors pass, while faster additive increase
   and shorter healthy confirmation fail the safety gate.
-- [ ] Add independent storage-class and workload-shape traces; do not relabel
+- [x] Add independent storage-class and workload-shape traces; do not relabel
   the three counterfactual capacity models as observed storage classes.
   ADR-0003 now makes metric statistic, provenance, and independence group
   mandatory trace fields. A tested local converter can aggregate authorized
@@ -65,8 +65,26 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   [Issue #48](https://github.com/DjangoAILab/pve-storage-guard/issues/48) now
   solicits independent observed storage plus synchronized management evidence
   under the same no-upload boundary. Creating an intake and solicitation is not
-  evidence receipt: license clearance and an eligible trace remain pending.
-  Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md).
+  evidence receipt: a CC BY 4.0 UMass/SPC search prefix is now accepted as a
+  separate `WorkloadShapeTrace`. Its 600-second/60-sample artifact passes the
+  research gate with 100% structural completeness while remaining explicitly
+  ineligible for active control because latency, storage class, and management
+  evidence are unavailable. A second CC BY 4.0 Alibaba Block Trace derivative
+  covers 600 seconds of observed production Ultra Disk arrivals, explicitly
+  preserves the logical `network-block` class, and passes both the general and
+  storage-class research gates. Its device IDs, offsets, absolute times, raw
+  source, and physical-media assumptions are absent. It remains categorically
+  ineligible for active control because response latency and synchronized
+  management evidence are unavailable. Source/prefix/artifact hashes,
+  attribution, transformations, and rounding checks are recorded. The
+  promotion-compatible independent trace remains pending.
+  Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md),
+  [external trace research](EXTERNAL-TRACE-RESEARCH.md), and
+  [third-party data notices](../THIRD-PARTY-DATA.md). Public
+  [PR #52](https://github.com/DjangoAILab/pve-storage-guard/pull/52) passed
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30813831906),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30813831197),
+  and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30813830918).
 - [!] Promote an adaptive policy beyond shadow mode only after PoC and live
   evidence gates pass.
 

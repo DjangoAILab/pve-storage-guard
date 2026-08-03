@@ -61,6 +61,17 @@ Storage-only public traces may be processed in a separate research lane. They
 must declare management status `unknown` and remain ineligible for active-control
 promotion. See [external trace research](EXTERNAL-TRACE-RESEARCH.md).
 
+Observed sources with no portable latency field use the separate
+`WorkloadShapeTrace` contract instead of inventing a wait statistic. That
+contract retains only interval IOPS and throughput and is categorically
+ineligible for active control. Its v1alpha2 form distinguishes source issue
+time from service-arrival time and requires a storage class: `unknown` when the
+source has no supported claim, or an explicit logical class such as
+`network-block`. A known class can close only the separate storage-class
+research gate. The accepted UMass/SPC and Alibaba research artifacts and their
+attribution are documented in
+[external trace research](EXTERNAL-TRACE-RESEARCH.md).
+
 ## Privacy boundary
 
 Public traces may contain relative offsets, numeric metrics, coarse storage and
