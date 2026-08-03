@@ -117,7 +117,7 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   package reached 93.5% statement coverage; its bounded parser completed
   1,377,511 fuzz executions without a failure; golangci-lint, staticcheck,
   govulncheck call-graph scan, current-tree Gitleaks, 56 replay tests, nine
-  publication-privacy tests, the 105-file/127-URL privacy scan, and the 16-page
+  publication-privacy tests, the 106-file/129-URL privacy scan, and the 16-page
   Astro build all passed. Public review:
   [Draft PR #57](https://github.com/DjangoAILab/pve-storage-guard/pull/57),
   initial implementation commit `94e54af`; GitHub CI/security/Pages evidence
