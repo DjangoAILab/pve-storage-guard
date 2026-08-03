@@ -188,7 +188,13 @@ the static non-root `pve-storage-guard` account. Its contract includes:
 Repository tests pin the execution surface and required hardening directives.
 `scripts/verify-systemd-unit.sh` checks unit syntax and enforces a maximum 1.0
 `systemd-analyze security` exposure score. The current disposable Ubuntu 24.04
-check scored 0.8 (SAFE); that is static sandbox evidence only.
+check scored 0.8 (SAFE). A separate ephemeral Ubuntu PID-1 rehearsal runs the
+real compiled CLI through non-root initial start, SIGKILL supervision, candidate
+cold start, and exact baseline binary/config rollback. It uses only public
+synthetic fixtures, never enables the unit, restores the runner's pre-existing
+directory metadata, and requires complete cleanup. This proves portable
+systemd lifecycle mechanics, not PVE ACLs, `/dev/zfs`, sustained load, or PVE
+runtime behavior.
 
 Before any installation, use the evidence gate on a non-production PVE node,
 then prove the remaining live service behavior under the dedicated account:

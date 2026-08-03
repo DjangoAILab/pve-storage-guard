@@ -10,9 +10,10 @@ until its safety criteria pass.
 - PVE read-only discovery/metrics adapter (initial explicit OpenZFS binding
   implemented; sanitized PVE 9.2 / OpenZFS 2.4 source-format compatibility
   passed; serial watch, cancellation tests, and a statically verified hardened
-  observer unit are implemented; an identity-free, digest-bound non-production
-  validator is ready, while its compiled-PVE permission/runtime result remains
-  gated).
+  observer unit are implemented; ephemeral Ubuntu PID-1 start, supervised
+  restart, cold start, and exact binary/config rollback pass; an identity-free,
+  digest-bound non-production validator is ready, while real non-root PVE
+  permission/runtime evidence remains gated).
 - Offline replay with anonymized fixtures and golden reports.
 - Prometheus metrics, structured decisions, ITOps integration examples.
 - Local dry-run and shadow mode only.

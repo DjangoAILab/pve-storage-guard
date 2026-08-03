@@ -65,8 +65,11 @@ The current distroless controller image does not contain host `pvesh` or
 `zpool` tools and is not a drop-in PVE collector. A proposed observer-only
 systemd unit runs under a static non-root account with no capabilities, network
 namespace, or writable filesystem path. Repository tests and Ubuntu 24.04
-`systemd-analyze` validate its static contract (0.8 exposure), not real PVE
-permissions or runtime behavior. The `v0.1.0-rc.2` binary passed the bounded
+`systemd-analyze` validate its static contract (0.8 exposure). An ephemeral
+Ubuntu PID-1 job also validates non-root initial start, supervised restart,
+candidate cold start, and exact binary/config rollback with synthetic fixtures.
+Neither check proves real PVE ACL, `/dev/zfs`, or sustained runtime behavior.
+The `v0.1.0-rc.2` binary passed the bounded
 production read-only compatibility check, but remains evidence-only until
 those host gates pass.
 
@@ -90,9 +93,10 @@ SIGTERM. Raw child output stays bounded in memory. Failure has zero stdout;
 success is one identity-free versioned summary with no host, path, domain,
 resource, timestamp, or metric.
 
-This validates a short observer execution only. It does not install the unit,
-prove 24-hour stability, validate restart/rollback, or authorize production.
-Fake/CI passes test the evidence mechanism and never count as PVE host evidence.
+This validates a short observer execution only. The separate CI lifecycle job
+validates portable restart/rollback mechanics, but neither job installs on PVE,
+proves 24-hour stability, or authorizes production. Synthetic CI passes never
+count as PVE host permission evidence.
 
 ## Production read-only compatibility
 
@@ -117,7 +121,7 @@ actuation evidence.
 
 | PVE | OpenZFS | Proven | Still gated |
 | --- | --- | --- | --- |
-| 9.2 | 2.4 | Source-bound and `v0.1.0-rc.2` inventory/observe/two-record watch, SIGTERM zero exit, release checksum/provenance, PVE/ZFS/PSI/diskstats formats, portable cancellation, static unit analysis | non-root ACL/device/unit behavior, sustained sampling, controlled load, policy thresholds, actuation |
+| 9.2 | 2.4 | Source-bound and `v0.1.0-rc.2` inventory/observe/two-record watch, SIGTERM zero exit, release checksum/provenance, PVE/ZFS/PSI/diskstats formats, portable cancellation, static unit analysis, ephemeral Ubuntu PID-1 restart/cold-start/exact rollback | non-root PVE ACL/device/unit behavior, sustained sampling, controlled load, policy thresholds, actuation |
 
 The fixture retains observed field and histogram shape but uses fixed aliases,
 synthetic topology/cardinality, and synthetic operational values. It is

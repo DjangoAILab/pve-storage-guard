@@ -5,6 +5,17 @@
 Approved by the existing project plan for offline/simulated verification. This
 batch must not run on a PVE host or change any production system.
 
+Implemented in public PR #46. The first two CI attempts failed closed before
+mutation because the GitHub runner's `/usr/local/bin` was not a root-trusted
+parent; the final design snapshots its inode/metadata, normalizes it during the
+run, and restores it exactly. A later attempt proved initial start and
+supervised restart before rejecting a non-essential `reset-failed` helper; that
+helper was removed so the production unit's native start-rate limits are tested.
+Final
+[run 30791350808](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30791350808)
+passed the one-minute lifecycle job. Its evidence artifact SHA-256 is
+`1c23af970801c23d00a0e7d50c02bacc128276c6c6550288dbd4df9366c10bc3`.
+
 ## Evidence gap
 
 The repository already proves the observer's process-level cancellation,
