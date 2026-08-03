@@ -383,7 +383,7 @@ rollback path disables only those two rules. Deployment acceptance uses bounded,
 independent health checks. Alert calibration is a separate read-only evidence
 gate over complete cycles, representative regimes, exact detector semantics,
 the exact disabled-rule contract, and firing/recovery lifecycles; elapsed time
-alone cannot close it. See [ADR-0008](adr/0008-evidence-based-alert-calibration.md).
+alone cannot close it. See [ADR-0010](adr/0010-evidence-based-alert-calibration.md).
 
 The first live use of those gates validated the separation. The explicitly
 approved restricted-probe checkpoint completed after an exact rollback and

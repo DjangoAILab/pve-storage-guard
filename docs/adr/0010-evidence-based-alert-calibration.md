@@ -1,4 +1,4 @@
-# ADR-0008: Calibrate alerts with evidence coverage, not elapsed time
+# ADR-0010: Calibrate alerts with evidence coverage, not elapsed time
 
 ## Status
 

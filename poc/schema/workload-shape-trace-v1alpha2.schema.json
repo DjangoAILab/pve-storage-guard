@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djangoailab.github.io/pve-storage-guard/schema/workload-shape-trace/v1alpha2.json",
+  "title": "PVE Storage Guard sanitized workload-shape research trace v1alpha2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "metricSemantics", "samples"],
+  "properties": {
+    "apiVersion": { "const": "guard.storage-slo.io/workload-shape-trace/v1alpha2" },
+    "kind": { "const": "WorkloadShapeTrace" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "sourceKind", "independenceGroup", "storageClass", "workloadClass", "sampleIntervalSeconds", "windowDurationSeconds", "sanitized"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]{0,127}$" },
+        "sourceKind": { "const": "observed" },
+        "independenceGroup": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]{0,127}$" },
+        "storageClass": { "enum": ["rotational-hdd", "sata-ssd", "nvme", "network-block", "unknown"] },
+        "workloadClass": { "enum": ["backup", "build", "database", "migration", "search", "mixed", "unknown"] },
+        "sampleIntervalSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
+        "windowDurationSeconds": { "type": "integer", "minimum": 2, "maximum": 86400 },
+        "sanitized": { "const": true }
+      }
+    },
+    "metricSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timestamp", "ioLayer", "latency", "managementPlane", "provenance"],
+      "allOf": [
+        {
+          "if": { "properties": { "timestamp": { "const": "issue-offset-seconds" } } },
+          "then": { "properties": { "ioLayer": { "const": "host-to-logical-unit" } } }
+        },
+        {
+          "if": { "properties": { "timestamp": { "const": "arrival-offset-seconds" } } },
+          "then": { "properties": { "ioLayer": { "const": "virtual-block-service" } } }
+        }
+      ],
+      "properties": {
+        "timestamp": { "enum": ["issue-offset-seconds", "arrival-offset-seconds"] },
+        "ioLayer": { "enum": ["host-to-logical-unit", "virtual-block-service"] },
+        "latency": { "const": "unavailable" },
+        "managementPlane": { "const": "unavailable" },
+        "provenance": { "const": "derived" }
+      }
+    },
+    "samples": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["offsetSeconds", "readIops", "writeIops", "readThroughputMiBps", "writeThroughputMiBps"],
+        "properties": {
+          "offsetSeconds": { "type": "integer", "minimum": 0 },
+          "readIops": { "type": "number", "minimum": 0 },
+          "writeIops": { "type": "number", "minimum": 0 },
+          "readThroughputMiBps": { "type": "number", "minimum": 0 },
+          "writeThroughputMiBps": { "type": "number", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

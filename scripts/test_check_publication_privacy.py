@@ -20,6 +20,7 @@ class PublicationSurfaceTests(unittest.TestCase):
             "website/public/chart.svg",
             "api/v1/schema/event.json",
             "configs/examples/policy.json",
+            "poc/fixtures/research-trace.json",
             "poc/schema/trace.json",
             ".github/workflows/ci.yml",
         }
@@ -28,6 +29,7 @@ class PublicationSurfaceTests(unittest.TestCase):
             "website/dist/index.html",
             "internal/policy/policy.go",
             "poc/results/report.json",
+            "poc/private/source.json",
             "scripts/example.md",
         }
         self.assertTrue(all(privacy.is_publication_surface(path) for path in selected))

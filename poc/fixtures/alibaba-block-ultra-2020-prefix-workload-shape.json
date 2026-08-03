@@ -1,0 +1,443 @@
+{
+  "apiVersion": "guard.storage-slo.io/workload-shape-trace/v1alpha2",
+  "kind": "WorkloadShapeTrace",
+  "metadata": {
+    "independenceGroup": "alibaba-block-traces-2020",
+    "name": "alibaba-block-ultra-2020-prefix",
+    "sampleIntervalSeconds": 10,
+    "sanitized": true,
+    "sourceKind": "observed",
+    "storageClass": "network-block",
+    "windowDurationSeconds": 600,
+    "workloadClass": "mixed"
+  },
+  "metricSemantics": {
+    "ioLayer": "virtual-block-service",
+    "latency": "unavailable",
+    "managementPlane": "unavailable",
+    "provenance": "derived",
+    "timestamp": "arrival-offset-seconds"
+  },
+  "samples": [
+    {
+      "offsetSeconds": 0,
+      "readIops": 5532.1,
+      "readThroughputMiBps": 237.975342,
+      "writeIops": 6531.2,
+      "writeThroughputMiBps": 145.668799
+    },
+    {
+      "offsetSeconds": 10,
+      "readIops": 2838.4,
+      "readThroughputMiBps": 161.021729,
+      "writeIops": 6564.8,
+      "writeThroughputMiBps": 197.470654
+    },
+    {
+      "offsetSeconds": 20,
+      "readIops": 4029.4,
+      "readThroughputMiBps": 162.635205,
+      "writeIops": 5657.8,
+      "writeThroughputMiBps": 96.65918
+    },
+    {
+      "offsetSeconds": 30,
+      "readIops": 2036.2,
+      "readThroughputMiBps": 183.042285,
+      "writeIops": 8466.2,
+      "writeThroughputMiBps": 183.074902
+    },
+    {
+      "offsetSeconds": 40,
+      "readIops": 1214.9,
+      "readThroughputMiBps": 149.530029,
+      "writeIops": 4947.1,
+      "writeThroughputMiBps": 165.158008
+    },
+    {
+      "offsetSeconds": 50,
+      "readIops": 1109.7,
+      "readThroughputMiBps": 148.052979,
+      "writeIops": 5616.8,
+      "writeThroughputMiBps": 97.075635
+    },
+    {
+      "offsetSeconds": 60,
+      "readIops": 1871.4,
+      "readThroughputMiBps": 163.024756,
+      "writeIops": 6246.1,
+      "writeThroughputMiBps": 160.38418
+    },
+    {
+      "offsetSeconds": 70,
+      "readIops": 1013.1,
+      "readThroughputMiBps": 144.265625,
+      "writeIops": 5978.5,
+      "writeThroughputMiBps": 123.477197
+    },
+    {
+      "offsetSeconds": 80,
+      "readIops": 943.2,
+      "readThroughputMiBps": 147.584473,
+      "writeIops": 5821.9,
+      "writeThroughputMiBps": 140.483154
+    },
+    {
+      "offsetSeconds": 90,
+      "readIops": 1279.4,
+      "readThroughputMiBps": 172.794971,
+      "writeIops": 8546.2,
+      "writeThroughputMiBps": 186.811279
+    },
+    {
+      "offsetSeconds": 100,
+      "readIops": 1581.0,
+      "readThroughputMiBps": 155.307471,
+      "writeIops": 6664.7,
+      "writeThroughputMiBps": 139.206104
+    },
+    {
+      "offsetSeconds": 110,
+      "readIops": 3863.2,
+      "readThroughputMiBps": 128.580908,
+      "writeIops": 5933.6,
+      "writeThroughputMiBps": 109.163086
+    },
+    {
+      "offsetSeconds": 120,
+      "readIops": 6672.9,
+      "readThroughputMiBps": 424.336426,
+      "writeIops": 6712.1,
+      "writeThroughputMiBps": 119.220264
+    },
+    {
+      "offsetSeconds": 130,
+      "readIops": 5017.4,
+      "readThroughputMiBps": 444.280127,
+      "writeIops": 6132.7,
+      "writeThroughputMiBps": 130.891113
+    },
+    {
+      "offsetSeconds": 140,
+      "readIops": 3608.0,
+      "readThroughputMiBps": 440.129004,
+      "writeIops": 6106.6,
+      "writeThroughputMiBps": 141.221582
+    },
+    {
+      "offsetSeconds": 150,
+      "readIops": 4284.5,
+      "readThroughputMiBps": 402.516455,
+      "writeIops": 7519.6,
+      "writeThroughputMiBps": 393.797656
+    },
+    {
+      "offsetSeconds": 160,
+      "readIops": 4890.7,
+      "readThroughputMiBps": 492.331299,
+      "writeIops": 6388.4,
+      "writeThroughputMiBps": 156.838428
+    },
+    {
+      "offsetSeconds": 170,
+      "readIops": 1983.4,
+      "readThroughputMiBps": 407.279053,
+      "writeIops": 5980.5,
+      "writeThroughputMiBps": 99.785107
+    },
+    {
+      "offsetSeconds": 180,
+      "readIops": 3608.8,
+      "readThroughputMiBps": 787.904346,
+      "writeIops": 7379.9,
+      "writeThroughputMiBps": 246.326318
+    },
+    {
+      "offsetSeconds": 190,
+      "readIops": 2592.4,
+      "readThroughputMiBps": 855.227393,
+      "writeIops": 6283.5,
+      "writeThroughputMiBps": 143.501074
+    },
+    {
+      "offsetSeconds": 200,
+      "readIops": 2588.9,
+      "readThroughputMiBps": 772.488721,
+      "writeIops": 5173.7,
+      "writeThroughputMiBps": 296.849902
+    },
+    {
+      "offsetSeconds": 210,
+      "readIops": 2248.8,
+      "readThroughputMiBps": 718.655518,
+      "writeIops": 6284.8,
+      "writeThroughputMiBps": 447.246533
+    },
+    {
+      "offsetSeconds": 220,
+      "readIops": 2837.5,
+      "readThroughputMiBps": 912.000879,
+      "writeIops": 4692.2,
+      "writeThroughputMiBps": 114.657568
+    },
+    {
+      "offsetSeconds": 230,
+      "readIops": 3104.9,
+      "readThroughputMiBps": 846.206396,
+      "writeIops": 5175.4,
+      "writeThroughputMiBps": 110.956006
+    },
+    {
+      "offsetSeconds": 240,
+      "readIops": 2466.0,
+      "readThroughputMiBps": 721.263867,
+      "writeIops": 5767.5,
+      "writeThroughputMiBps": 485.748438
+    },
+    {
+      "offsetSeconds": 250,
+      "readIops": 3715.2,
+      "readThroughputMiBps": 839.187354,
+      "writeIops": 4806.6,
+      "writeThroughputMiBps": 142.010254
+    },
+    {
+      "offsetSeconds": 260,
+      "readIops": 2520.4,
+      "readThroughputMiBps": 731.727832,
+      "writeIops": 5505.6,
+      "writeThroughputMiBps": 382.37749
+    },
+    {
+      "offsetSeconds": 270,
+      "readIops": 2975.5,
+      "readThroughputMiBps": 855.05083,
+      "writeIops": 5844.1,
+      "writeThroughputMiBps": 137.479199
+    },
+    {
+      "offsetSeconds": 280,
+      "readIops": 2918.1,
+      "readThroughputMiBps": 829.779736,
+      "writeIops": 4983.1,
+      "writeThroughputMiBps": 198.416846
+    },
+    {
+      "offsetSeconds": 290,
+      "readIops": 2228.8,
+      "readThroughputMiBps": 735.055859,
+      "writeIops": 6134.4,
+      "writeThroughputMiBps": 474.020068
+    },
+    {
+      "offsetSeconds": 300,
+      "readIops": 2727.5,
+      "readThroughputMiBps": 859.600439,
+      "writeIops": 5257.8,
+      "writeThroughputMiBps": 125.318848
+    },
+    {
+      "offsetSeconds": 310,
+      "readIops": 2465.9,
+      "readThroughputMiBps": 784.675098,
+      "writeIops": 5730.4,
+      "writeThroughputMiBps": 309.729688
+    },
+    {
+      "offsetSeconds": 320,
+      "readIops": 2307.6,
+      "readThroughputMiBps": 722.634082,
+      "writeIops": 5378.4,
+      "writeThroughputMiBps": 415.296338
+    },
+    {
+      "offsetSeconds": 330,
+      "readIops": 2666.6,
+      "readThroughputMiBps": 832.715625,
+      "writeIops": 6161.0,
+      "writeThroughputMiBps": 145.591162
+    },
+    {
+      "offsetSeconds": 340,
+      "readIops": 2728.6,
+      "readThroughputMiBps": 846.602393,
+      "writeIops": 4716.4,
+      "writeThroughputMiBps": 115.954199
+    },
+    {
+      "offsetSeconds": 350,
+      "readIops": 2498.5,
+      "readThroughputMiBps": 803.002393,
+      "writeIops": 5313.3,
+      "writeThroughputMiBps": 317.981934
+    },
+    {
+      "offsetSeconds": 360,
+      "readIops": 2476.8,
+      "readThroughputMiBps": 793.441943,
+      "writeIops": 6006.8,
+      "writeThroughputMiBps": 256.336182
+    },
+    {
+      "offsetSeconds": 370,
+      "readIops": 2449.9,
+      "readThroughputMiBps": 695.597852,
+      "writeIops": 5386.4,
+      "writeThroughputMiBps": 471.14458
+    },
+    {
+      "offsetSeconds": 380,
+      "readIops": 2509.9,
+      "readThroughputMiBps": 814.747754,
+      "writeIops": 5697.3,
+      "writeThroughputMiBps": 174.402979
+    },
+    {
+      "offsetSeconds": 390,
+      "readIops": 2686.8,
+      "readThroughputMiBps": 812.316455,
+      "writeIops": 5115.8,
+      "writeThroughputMiBps": 133.125342
+    },
+    {
+      "offsetSeconds": 400,
+      "readIops": 2601.3,
+      "readThroughputMiBps": 749.293799,
+      "writeIops": 5804.8,
+      "writeThroughputMiBps": 321.959082
+    },
+    {
+      "offsetSeconds": 410,
+      "readIops": 2701.2,
+      "readThroughputMiBps": 822.47876,
+      "writeIops": 5461.2,
+      "writeThroughputMiBps": 323.795801
+    },
+    {
+      "offsetSeconds": 420,
+      "readIops": 2675.2,
+      "readThroughputMiBps": 851.675439,
+      "writeIops": 5156.6,
+      "writeThroughputMiBps": 150.682617
+    },
+    {
+      "offsetSeconds": 430,
+      "readIops": 2118.6,
+      "readThroughputMiBps": 681.582471,
+      "writeIops": 6037.9,
+      "writeThroughputMiBps": 496.95083
+    },
+    {
+      "offsetSeconds": 440,
+      "readIops": 2510.8,
+      "readThroughputMiBps": 822.089795,
+      "writeIops": 5287.3,
+      "writeThroughputMiBps": 172.183252
+    },
+    {
+      "offsetSeconds": 450,
+      "readIops": 2714.3,
+      "readThroughputMiBps": 846.145361,
+      "writeIops": 5271.2,
+      "writeThroughputMiBps": 128.984131
+    },
+    {
+      "offsetSeconds": 460,
+      "readIops": 2340.5,
+      "readThroughputMiBps": 767.848877,
+      "writeIops": 5593.0,
+      "writeThroughputMiBps": 289.901318
+    },
+    {
+      "offsetSeconds": 470,
+      "readIops": 2329.2,
+      "readThroughputMiBps": 786.862549,
+      "writeIops": 5244.7,
+      "writeThroughputMiBps": 298.971777
+    },
+    {
+      "offsetSeconds": 480,
+      "readIops": 3214.9,
+      "readThroughputMiBps": 845.671094,
+      "writeIops": 6225.8,
+      "writeThroughputMiBps": 219.698486
+    },
+    {
+      "offsetSeconds": 490,
+      "readIops": 2676.3,
+      "readThroughputMiBps": 788.151758,
+      "writeIops": 5409.3,
+      "writeThroughputMiBps": 316.286572
+    },
+    {
+      "offsetSeconds": 500,
+      "readIops": 2351.9,
+      "readThroughputMiBps": 813.493213,
+      "writeIops": 5196.4,
+      "writeThroughputMiBps": 181.118262
+    },
+    {
+      "offsetSeconds": 510,
+      "readIops": 2323.1,
+      "readThroughputMiBps": 781.214893,
+      "writeIops": 6829.7,
+      "writeThroughputMiBps": 270.344629
+    },
+    {
+      "offsetSeconds": 520,
+      "readIops": 2277.3,
+      "readThroughputMiBps": 762.921191,
+      "writeIops": 5381.8,
+      "writeThroughputMiBps": 323.059375
+    },
+    {
+      "offsetSeconds": 530,
+      "readIops": 2454.4,
+      "readThroughputMiBps": 830.590674,
+      "writeIops": 5752.8,
+      "writeThroughputMiBps": 152.076465
+    },
+    {
+      "offsetSeconds": 540,
+      "readIops": 2713.7,
+      "readThroughputMiBps": 806.654346,
+      "writeIops": 6091.1,
+      "writeThroughputMiBps": 307.90498
+    },
+    {
+      "offsetSeconds": 550,
+      "readIops": 2639.0,
+      "readThroughputMiBps": 747.377686,
+      "writeIops": 6853.4,
+      "writeThroughputMiBps": 368.517285
+    },
+    {
+      "offsetSeconds": 560,
+      "readIops": 2470.4,
+      "readThroughputMiBps": 835.639307,
+      "writeIops": 5030.7,
+      "writeThroughputMiBps": 157.817969
+    },
+    {
+      "offsetSeconds": 570,
+      "readIops": 2499.1,
+      "readThroughputMiBps": 826.436377,
+      "writeIops": 6926.6,
+      "writeThroughputMiBps": 164.567969
+    },
+    {
+      "offsetSeconds": 580,
+      "readIops": 3138.6,
+      "readThroughputMiBps": 756.586279,
+      "writeIops": 5881.2,
+      "writeThroughputMiBps": 415.977881
+    },
+    {
+      "offsetSeconds": 590,
+      "readIops": 2287.9,
+      "readThroughputMiBps": 775.188184,
+      "writeIops": 5849.0,
+      "writeThroughputMiBps": 298.989941
+    }
+  ]
+}

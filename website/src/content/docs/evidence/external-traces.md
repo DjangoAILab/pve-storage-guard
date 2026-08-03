@@ -16,8 +16,9 @@ Do not attach or link raw production data.
 
 | Source | Latency | Management evidence | Use here |
 | --- | --- | --- | --- |
-| [UMass/SPC traces](https://traces.cs.umass.edu/docs/traces/storage/) | no portable standard field | none | workload shape |
-| [Tencent, Alibaba, CloudPhysics catalog](https://github.com/cacheMon/cache_dataset#block-cache-traces) | not in listed block formats | none | workload shape |
+| [UMass/SPC traces](https://traces.cs.umass.edu/docs/traces/storage/) | no portable standard field | none | one derived search prefix accepted for workload-shape research only |
+| [Alibaba Block Traces](https://github.com/alibaba/block-traces) | none | none | one Ultra Disk prefix accepted for workload shape and logical storage-class research |
+| [Tencent and CloudPhysics catalog](https://github.com/cacheMon/cache_dataset#block-cache-traces) | not in listed block formats | none | candidate workload shape |
 | [MSR Cambridge catalog](https://github.com/cacheMon/cache_dataset#msr-cambridge-traces) | per-I/O response time | none | held for license review |
 | [Google Thesios](https://github.com/cacheMon/cache_dataset#google-synthetic-io-traces) | yes | none | synthetic tests only |
 
@@ -27,6 +28,19 @@ more restrictive redistribution terms. The project bundles neither that
 archive nor derived MSR samples. Permission must be established independently.
 
 ## Safe research lane
+
+The repository contains two attributed CC BY 4.0 derivatives, each covering a
+600-second prefix in 60 ten-second buckets. The UMass/SPC search artifact drops
+ASU, LBA, optional fields, and source timestamps; its storage class remains
+unknown. The Alibaba artifact drops device IDs, offsets, and absolute arrival
+times while preserving only the documented logical `network-block` Ultra Disk
+class. It does not infer physical HDD, SSD, or NVMe media. Neither raw source is
+bundled.
+
+Both pass the independent workload-shape research gate. Alibaba also passes a
+separate storage-class research gate. Both always return
+`active_control_eligible=false` because response latency and synchronized
+management-plane evidence are unavailable.
 
 The repository provides a standard-library-only converter for caller-supplied,
 authorized CSV data. It accepts timestamp, operation, size, and response time;
