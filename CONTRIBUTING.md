@@ -13,6 +13,12 @@ bounded features.
 - Do not present modeled replay output as measured production performance.
 - Actuation changes require a threat-model and rollback discussion.
 
+Storage-trace proposals must begin with the
+[metadata-only qualification process](docs/TRACE-CONTRIBUTION.md). Never upload
+or link raw production data in an Issue or pull request. A valid machine
+assessment does not replace permission, provenance, independence, and privacy
+review.
+
 ## Development
 
 Requirements: Go 1.24+ and Python 3.10+.

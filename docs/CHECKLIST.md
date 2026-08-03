@@ -58,8 +58,11 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   ADR-0003 now makes metric statistic, provenance, and independence group
   mandatory trace fields. A tested local converter can aggregate authorized
   per-I/O CSV into identity-free, layer-typed v1alpha2 research traces without
-  downloading or bundling third-party data; license clearance and an eligible trace remain
-  pending.
+  downloading or bundling third-party data. A metadata-only community intake
+  now separates storage research from promotion candidates, prohibits public
+  raw-data submission, and requires machine plus human permission/provenance/
+  privacy review before a publication PR. License clearance and an eligible
+  trace remain pending. Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md).
 - [!] Promote an adaptive policy beyond shadow mode only after PoC and live
   evidence gates pass.
 

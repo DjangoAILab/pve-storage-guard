@@ -8,6 +8,10 @@ but the sources reviewed so far do not contain synchronized evidence of SSH,
 PVE API, or an equivalent host-management plane. Storage-only data therefore
 cannot close the active-control promotion gate.
 
+Propose a source through the
+[metadata-only trace qualification process](/pve-storage-guard/evidence/contributing-traces/).
+Do not attach or link raw production data.
+
 ## Sources reviewed
 
 | Source | Latency | Management evidence | Use here |
