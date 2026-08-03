@@ -122,10 +122,25 @@ def _command(arguments, *, check=True, timeout=30, accepted=(0,)):
             check=False,
         )
     except (OSError, subprocess.TimeoutExpired):
-        raise RehearsalError("lifecycle command could not complete") from None
+        label = _command_label(arguments)
+        raise RehearsalError("lifecycle command could not complete: " + label) from None
     if check and result.returncode not in accepted:
-        raise RehearsalError("lifecycle command failed")
+        raise RehearsalError("lifecycle command failed: " + _command_label(arguments))
     return result
+
+
+def _command_label(arguments) -> str:
+    command = Path(str(arguments[0])).name
+    if command == "systemctl" and len(arguments) > 1 and arguments[1] in {
+        "daemon-reload",
+        "is-enabled",
+        "reset-failed",
+        "show",
+        "start",
+        "stop",
+    }:
+        return command + " " + arguments[1]
+    return command
 
 
 def _identity_absent() -> bool:
@@ -407,6 +422,11 @@ def _service_property(name: str) -> str:
     return result.stdout.strip()
 
 
+def _named_unit_property(unit: str, name: str) -> str:
+    result = _command(("systemctl", "show", unit, "--property", name, "--value"), check=False)
+    return result.stdout.strip() if result.returncode == 0 else "unavailable"
+
+
 def _wait_active(previous_pid: int | None = None, timeout: float = 50) -> int:
     deadline = time.monotonic() + timeout
     expected_uid = pwd.getpwnam(SERVICE_USER).pw_uid
@@ -425,7 +445,15 @@ def _wait_active(previous_pid: int | None = None, timeout: float = 50) -> int:
                 if len(fields) == 5 and all(field == str(expected_uid) for field in fields[1:]):
                     return pid
         time.sleep(0.2)
-    raise RehearsalError("observer did not become active as non-root")
+    evidence = {
+        "active": _named_unit_property(UNIT_NAME, "ActiveState"),
+        "sub": _named_unit_property(UNIT_NAME, "SubState"),
+        "result": _named_unit_property(UNIT_NAME, "Result"),
+        "pveClusterLoad": _named_unit_property("pve-cluster.service", "LoadState"),
+        "zfsTargetLoad": _named_unit_property("zfs.target", "LoadState"),
+    }
+    summary = ",".join("{}={}".format(key, value) for key, value in sorted(evidence.items()))
+    raise RehearsalError("observer did not become active as non-root: " + summary)
 
 
 def _observations() -> list[dict]:
@@ -671,7 +699,7 @@ def rehearse(baseline: Path, candidate: Path, unit: Path, fixtures: Path) -> dic
             raise RehearsalError("rehearsal unit must not be enabled")
 
         known = _all_observation_ids()
-        _command(("systemctl", "start", UNIT_NAME), timeout=30)
+        _command(("systemctl", "start", "--no-block", UNIT_NAME), timeout=10)
         initial_pid = _wait_active()
         initial_ids = _wait_new_observations("rehearsal-baseline", known, minimum=2, timeout=25)
 
@@ -687,7 +715,7 @@ def rehearse(baseline: Path, candidate: Path, unit: Path, fixtures: Path) -> dic
         _atomic_write(CONFIG_TARGET, candidate_config, 0o600, service_uid, service_gid)
         if _sha256_bytes(_read_regular(BINARY_TARGET, executable=True)) != candidate_binary_digest:
             raise RehearsalError("candidate binary installation failed")
-        _command(("systemctl", "start", UNIT_NAME), timeout=30)
+        _command(("systemctl", "start", "--no-block", UNIT_NAME), timeout=10)
         candidate_pid = _wait_active()
         candidate_ids = _wait_new_observations("rehearsal-candidate", known, timeout=20)
         if candidate_pid in {initial_pid, restarted_pid}:
@@ -705,7 +733,7 @@ def rehearse(baseline: Path, candidate: Path, unit: Path, fixtures: Path) -> dic
             or _sha256_bytes(_read_regular(CONFIG_TARGET)) != baseline_config_digest
         ):
             raise RehearsalError("rollback digest restoration failed")
-        _command(("systemctl", "start", UNIT_NAME), timeout=30)
+        _command(("systemctl", "start", "--no-block", UNIT_NAME), timeout=10)
         rollback_pid = _wait_active()
         rollback_ids = _wait_new_observations("rehearsal-baseline", known, timeout=20)
         if rollback_pid in {initial_pid, restarted_pid, candidate_pid}:

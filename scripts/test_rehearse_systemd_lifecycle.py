@@ -90,6 +90,10 @@ class SystemdLifecycleRehearsalTests(unittest.TestCase):
         self.assertIn('"binaryParentRestored": True', source)
         self.assertIn("_restore_binary_parent(binary_parent_identity)", source)
 
+    def test_command_labels_never_echo_arguments(self) -> None:
+        self.assertEqual("systemctl start", rehearsal._command_label(("systemctl", "start", "private")))
+        self.assertEqual("unknown-tool", rehearsal._command_label(("/tmp/unknown-tool", "private")))
+
 
 if __name__ == "__main__":
     unittest.main()
