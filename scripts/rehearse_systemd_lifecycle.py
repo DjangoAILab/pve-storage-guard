@@ -134,7 +134,6 @@ def _command_label(arguments) -> str:
     if command == "systemctl" and len(arguments) > 1 and arguments[1] in {
         "daemon-reload",
         "is-enabled",
-        "reset-failed",
         "show",
         "start",
         "stop",
@@ -710,7 +709,6 @@ def rehearse(baseline: Path, candidate: Path, unit: Path, fixtures: Path) -> dic
 
         _assert_stopped()
         known |= restart_ids
-        _command(("systemctl", "reset-failed", UNIT_NAME))
         _atomic_write(BINARY_TARGET, payloads["candidate"], 0o755, 0, 0)
         _atomic_write(CONFIG_TARGET, candidate_config, 0o600, service_uid, service_gid)
         if _sha256_bytes(_read_regular(BINARY_TARGET, executable=True)) != candidate_binary_digest:
@@ -723,7 +721,6 @@ def rehearse(baseline: Path, candidate: Path, unit: Path, fixtures: Path) -> dic
 
         _assert_stopped()
         known |= candidate_ids
-        _command(("systemctl", "reset-failed", UNIT_NAME))
         baseline_backup = _read_regular(BACKUP_DIRECTORY / "pve-storage-guard", executable=True)
         config_backup = _read_regular(BACKUP_DIRECTORY / "agent.json")
         _atomic_write(BINARY_TARGET, baseline_backup, 0o755, 0, 0)
