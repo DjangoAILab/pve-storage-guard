@@ -586,13 +586,17 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   hardening head also passed the complete local quality matrix. Its first CI
   run exposed an npm registry `EIDLETIMEOUT` that the bounded retry classifier
   did not recognize; an exact regression added only that transient code without
-  retrying deterministic failures. Successor internal Draft run 235 passed the
-  Node quality gate in 6m17s and isolated linux/amd64 image smoke in 5m34s. A read-only host
-  check proved that the installed timeout implementation accepts the exact
-  bounded arguments and returns status 124, but cgroup-v2 block-I/O enforcement
-  remains unproven. This follow-up remains Draft, unmerged, and undeployed. A
-  separately bound candidate, synthetic production-host rehearsal, effective
-  block-I/O verification, and explicit production approval remain required.
+  retrying deterministic failures. The reviewed online-backup path later fixed
+  streamed-helper stdin, replaced the non-portable cgroup `io.weight` dependency
+  with Linux idle `ionice`, and made the backend image build prove that scheduler
+  binary exists. A disposable Linux/cgroup-v2 rehearsal kept a synthetic WAL
+  writer active, verified snapshot consistency and archive readability, proved
+  the CPU/memory/PID/idle-I/O limits, and left no labeled helper or volume.
+  Exact-head run `#244` and post-merge run `#245` passed, and the implementation
+  merged as `4f0f052`. It remains undeployed. Root registry authentication, a
+  no-live-volume production-host synthetic rehearsal, authoritative capacity
+  recheck, exact rollback evidence, and explicit production approval remain
+  required.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
