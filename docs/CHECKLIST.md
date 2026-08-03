@@ -271,10 +271,14 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   and [main CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30732751758).
 - [x] Build the GitHub Pages landing/documentation site; local Astro build has
   zero diagnostics and responsive browser review has no horizontal overflow.
-- [~] Add verified architecture and incident/control-loop graphics. The modeled
+- [x] Add verified architecture and incident/control-loop graphics. The modeled
   policy-effect SVG is now deterministically generated from the reviewed PoC
   golden JSON, visibly labeled counterfactual/not-production, and checked in
-  CI. A real ITOps shadow-baseline dashboard graphic remains pending.
+  CI. On 2026-08-03, an authenticated real ITOps production shadow view was
+  captured and deterministically cropped to the detector title and four
+  aggregate status cells. Manual visual review confirms the public PNG excludes
+  the target header, host/account identity, and per-pool/per-disk tables; it
+  shows the alert gate still disabled.
 - [x] Complete the initial pre-publication review: identifier/IP/private-key
   pattern scan clean, Gitleaks v8.30.1 reports no leaks, Markdown links resolve,
   screenshots contain anonymized content and standard JFIF/sRGB metadata only.
@@ -315,6 +319,14 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   GitHub Release tag `v0.1.0-rc.2` intentionally retains the leading `v`, while
   the container image tag does not. Evidence:
   [public GHCR package](https://github.com/DjangoAILab/pve-storage-guard/pkgs/container/pve-storage-guard).
+  A 2026-08-03 delivery re-audit fetched the live Pages site over HTTPS and
+  matched the required SEO title and description; the latest five main Pages
+  workflows were successful. The published OCI index still resolved to the
+  reviewed digest and both architectures, each with SPDX and SLSA in-toto
+  layers. Cosign v3.0.6 verified the exact release-workflow OIDC identity,
+  certificate chain, and transparency-log claim. A downloaded linux/amd64
+  archive and SPDX SBOM matched `checksums.txt`, and their GitHub provenance
+  attestations verified. No package-token scope was added for this audit.
 
 ## 6. Local practice and ITOps
 
@@ -508,8 +520,14 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   and one recovery with detector evidence attached. The general recommended-rule
   command now excludes both storage-pressure rules unless a second exact opt-in
   is present, and an idempotent rollback helper disables only those two IDs.
-  The operator-shortened window is deployment acceptance only; representative
-  shadow data, real notification testing, and explicit enablement remain.
+  The operator-shortened window is deployment acceptance only. A deterministic,
+  identity-free, read-only evidence gate now replaces fixed 24-hour / 7–14-day
+  waits for alert calibration and verifies the exact disabled rule contract.
+  Its latest sanitized production replay found 203 complete cycles, 812 disk
+  detector samples, and zero detector-v1 mismatches, but correctly rejected
+  arming because quiet, warning-lifecycle, and critical-lifecycle evidence are
+  absent. Representative evidence, real notification testing, and explicit
+  enablement therefore remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Merged PR #37 includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, separately typed ZFS-pool and per-disk pressure
@@ -518,9 +536,10 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   controller now has a private append/sync journal, an identity-free sealed
   verifier, and a bounded digest-matched reader; the internal draft has a tested
   but uninvoked persistence adapter.
-  A real shadow-baseline screenshot, approved transport/runtime registration,
-  and incident/runbook links remain. The verifier and importer expose no route,
-  scheduler, alert evaluation, or production side effect.
+  The real identity-free shadow-baseline screenshot is now published. Approved
+  transport/runtime registration and incident/runbook links remain. The
+  verifier and importer expose no route, scheduler, alert evaluation, or
+  production side effect.
 - [x] Exercise cold restart and rollback in a non-critical environment. Public
   PR #46 [run 30791350808](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30791350808)
   used the production observer unit and real compiled
