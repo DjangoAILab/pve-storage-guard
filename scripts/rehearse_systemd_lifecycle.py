@@ -204,8 +204,11 @@ def _preflight(baseline: Path, candidate: Path, unit: Path, fixtures: Path):
         FIXTURE_TARGET.parent,
         BACKUP_DIRECTORY.parent,
     }
-    if any(not _trusted_root_directory(path) for path in parent_directories):
-        raise RehearsalError("rehearsal parent directory is unsafe")
+    unsafe_parents = sorted(str(path) for path in parent_directories if not _trusted_root_directory(path))
+    if unsafe_parents:
+        # Every candidate is a fixed public system path defined above; no
+        # caller-provided or host-identity value is included in this error.
+        raise RehearsalError("rehearsal parent directory is unsafe: " + ",".join(unsafe_parents))
     if not _identity_absent():
         raise RehearsalError("rehearsal service identity already exists")
     fixed_path = "/usr/sbin:/usr/bin:/sbin:/bin"
