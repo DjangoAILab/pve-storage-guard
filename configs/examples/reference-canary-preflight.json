@@ -1,0 +1,23 @@
+{
+  "apiVersion": "guard.storage-slo.io/v1alpha1",
+  "kind": "PVECanaryPreflightConfig",
+  "spec": {
+    "domainKey": "reference-bulk-pool",
+    "node": "example-node",
+    "storage": "example-storage",
+    "zpool": "example-pool",
+    "workloadKind": "qemu",
+    "workloadId": "101",
+    "diskKey": "scsi1",
+    "requiredTags": [
+      "non-critical",
+      "pve-storage-guard"
+    ],
+    "commandTimeoutSeconds": 5,
+    "envelope": {
+      "minimumMiBPS": 16,
+      "maximumMiBPS": 128,
+      "rollbackMiBPS": 32
+    }
+  }
+}

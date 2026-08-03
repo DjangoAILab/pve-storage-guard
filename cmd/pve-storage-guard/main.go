@@ -51,6 +51,19 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		}
 		return 0
 	}
+	if len(args) > 0 && args[0] == "canary" {
+		if len(args) < 2 || args[1] != "preflight" {
+			_ = writeUsage(stderr)
+			return 2
+		}
+		if err := runCanaryPreflight(args[2:], stdout, stderr, func(document config.PVECanaryPreflightConfig) (canaryPreflightAssessor, error) {
+			return pveadapter.NewCanaryPreflightReader(document)
+		}); err != nil {
+			_, _ = fmt.Fprintf(stderr, "canary preflight: %v\n", err)
+			return 1
+		}
+		return 0
+	}
 	if len(args) > 0 && args[0] == "journal" {
 		if len(args) < 2 {
 			_ = writeUsage(stderr)
@@ -77,6 +90,36 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 0
 	}
 	return 2
+}
+
+type canaryPreflightAssessor interface {
+	Assess(context.Context) v1.PVECanaryPreflightAssessment
+}
+
+func runCanaryPreflight(args []string, stdout, stderr io.Writer, factory func(config.PVECanaryPreflightConfig) (canaryPreflightAssessor, error)) error {
+	flags := flag.NewFlagSet("canary preflight", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	configPath := flags.String("config", "", "private read-only PVE canary preflight JSON config")
+	if err := flags.Parse(args); err != nil {
+		return err
+	}
+	if flags.NArg() != 0 || *configPath == "" {
+		return errors.New("--config is required and positional arguments are not accepted")
+	}
+	document, err := config.ReadPVECanaryPreflightConfig(*configPath)
+	if err != nil {
+		return err
+	}
+	assessor, err := factory(document)
+	if err != nil {
+		return err
+	}
+	encoder := json.NewEncoder(stdout)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(assessor.Assess(context.Background())); err != nil {
+		return fmt.Errorf("write canary preflight assessment: %w", err)
+	}
+	return nil
 }
 
 func runAgent(args []string, stdout, stderr io.Writer) error {
@@ -343,6 +386,7 @@ Usage:
   pve-storage-guard agent inventory --config PRIVATE-AGENT.json
   pve-storage-guard agent observe --config PRIVATE-AGENT.json
   pve-storage-guard agent watch --config PRIVATE-AGENT.json [--period 10s]
+  pve-storage-guard canary preflight --config PRIVATE-CANARY.json
   pve-storage-guard shadow --policy POLICY.json --enrollment RESOURCE.json [--enrollment ...] [--journal DECISIONS.jsonl]
   pve-storage-guard journal verify --journal SEALED-DECISIONS.jsonl
   pve-storage-guard journal batch --journal SEALED-DECISIONS.jsonl --expected-digest sha256:... [--offset N] [--limit 64]
@@ -352,6 +396,12 @@ PVE/OpenZFS operation. Watch performs the same observation serially with a
 bounded delay between completed samples. Their private config binds host
 identities to opaque output keys; no agent command actuates, opens a listener,
 or sends data over the network.
+
+The canary preflight command performs fixed read-only PVE lookups for one exact
+QEMU disk. It verifies explicit non-critical tags, non-boot data-disk role,
+storage binding, management health, and a static rollback envelope. Its output
+is identity-free and always sets activeControlEligible=false; it neither runs a
+load nor invokes an actuator.
 
 The shadow command reads newline-delimited observations from stdin and writes
 newline-delimited proposals to stdout. An explicit --journal appends and syncs

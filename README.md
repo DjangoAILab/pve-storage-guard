@@ -78,6 +78,20 @@ pve-storage-guard agent observe --config /private/path/agent.json
 pve-storage-guard agent watch --config /private/path/agent.json --period 10s
 ```
 
+Before selecting any controlled-load candidate, the source tree also provides
+an identity-free, read-only eligibility check for one exact QEMU data disk:
+
+```sh
+install -m 0600 configs/examples/reference-canary-preflight.json /private/path/canary.json
+pve-storage-guard canary preflight --config /private/path/canary.json
+```
+
+The live guest must carry both `non-critical` and `pve-storage-guard` tags, be
+unlocked, and expose the selected writable disk on the bound storage outside
+its explicit boot order. A passing result authorizes neither load nor control:
+it always reports `requestedMutations: 0` and
+`activeControlEligible: false`.
+
 These commands are present in the
 [`v0.1.0-rc.2` pre-release](https://github.com/DjangoAILab/pve-storage-guard/releases/tag/v0.1.0-rc.2).
 Verify the downloaded archive against `checksums.txt` and its GitHub build

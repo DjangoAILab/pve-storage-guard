@@ -174,6 +174,60 @@ type failingWriter struct{}
 
 func (failingWriter) Write([]byte) (int, error) { return 0, errors.New("closed") }
 
+type fakeCanaryAssessor struct {
+	assessment v1.PVECanaryPreflightAssessment
+}
+
+func (f fakeCanaryAssessor) Assess(context.Context) v1.PVECanaryPreflightAssessment {
+	return f.assessment
+}
+
+func TestCanaryPreflightCLIEmitsIdentityFreeNonActuatingAssessment(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), "canary.json")
+	payload := []byte(`{"apiVersion":"guard.storage-slo.io/v1alpha1","kind":"PVECanaryPreflightConfig","spec":{"domainKey":"reference-pool","node":"private-node","storage":"private-storage","zpool":"privatepool","workloadKind":"qemu","workloadId":"101","diskKey":"scsi1","requiredTags":["non-critical","pve-storage-guard"],"commandTimeoutSeconds":5,"envelope":{"minimumMiBPS":16,"maximumMiBPS":128,"rollbackMiBPS":32}}}`)
+	if err := os.WriteFile(configPath, payload, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	assessment := v1.PVECanaryPreflightAssessment{
+		SchemaVersion: v1.SchemaVersion, Kind: v1.PVECanaryPreflightAssessmentKind,
+		ShadowOnly: true, RequestedMutations: 0, ControlledLoadEligible: true, ActiveControlEligible: false,
+	}
+	var stdout, stderr bytes.Buffer
+	err := runCanaryPreflight([]string{"--config", configPath}, &stdout, &stderr, func(document config.PVECanaryPreflightConfig) (canaryPreflightAssessor, error) {
+		if document.Spec.WorkloadID != "101" || document.Spec.DiskKey != "scsi1" {
+			return nil, errors.New("unexpected private binding")
+		}
+		return fakeCanaryAssessor{assessment: assessment}, nil
+	})
+	if err != nil {
+		t.Fatalf("preflight: %v; stderr=%q", err, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), `"activeControlEligible":false`) || !strings.Contains(stdout.String(), `"requestedMutations":0`) {
+		t.Fatalf("unexpected output: %s", stdout.String())
+	}
+	for _, private := range []string{"private-node", "private-storage", "101", "scsi1"} {
+		if strings.Contains(stdout.String(), private) {
+			t.Fatalf("output leaked %q: %s", private, stdout.String())
+		}
+	}
+}
+
+func TestCanaryPreflightCLIRejectsUnsafeConfigBeforeFactory(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), "canary.json")
+	if err := os.WriteFile(configPath, []byte(`{}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	called := false
+	var stdout, stderr bytes.Buffer
+	err := runCanaryPreflight([]string{"--config", configPath}, &stdout, &stderr, func(config.PVECanaryPreflightConfig) (canaryPreflightAssessor, error) {
+		called = true
+		return nil, nil
+	})
+	if err == nil || called || stdout.Len() != 0 {
+		t.Fatalf("err=%v called=%v stdout=%q", err, called, stdout.String())
+	}
+}
+
 func TestShadowCommandEmitsNonActuatingProposal(t *testing.T) {
 	root := filepath.Join("..", "..")
 	now := time.Now().UTC()

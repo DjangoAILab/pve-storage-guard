@@ -10,6 +10,7 @@
 - [ADR-0008: Separate licensed workload-shape artifacts from replay evidence](0008-licensed-workload-shape-research.md)
 - [ADR-0009: Preserve explicit storage class in workload-shape evidence](0009-explicit-storage-class-in-workload-shape.md)
 - [ADR-0010: Calibrate alerts with evidence coverage, not elapsed time](0010-evidence-based-alert-calibration.md)
+- [ADR-0011: Separate canary eligibility from actuation](0011-separate-canary-eligibility-from-actuation.md)
 
 ADRs are immutable decision history. A superseding ADR changes a decision; the
 original record remains.

@@ -212,11 +212,18 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   or read-back mismatch. The gate is not wired to a real actuator; durable
   authority storage, authorized restoration, and production enablement remain
   v0.2 gates.
-- [ ] Complete a non-critical controlled load test.
+- [~] Complete a non-critical controlled load test. The read-only canary
+  preflight now validates live explicit tags, workload lock state, management
+  and storage health, exact disk existence/storage, writable data-disk role,
+  exclusion from boot order, and a bounded static rollback value without
+  exposing PVE identity. A 2026-08-03 read-only production inventory audit found
+  no explicitly classified guest, so candidate selection and all load remain
+  stopped until one exact non-critical data disk is deliberately enrolled.
 - [!] Install or change a service on a production PVE host only after explicit
   approval at the production-write checkpoint.
 - [!] Enable canary actuation only after explicit approval and a reviewed
-  rollback command/state snapshot.
+  rollback command/state snapshot. A passing read-only preflight still emits
+  `activeControlEligible=false`; the v0.2 actuator does not yet exist.
 
 ## 5. Open-source engineering
 
