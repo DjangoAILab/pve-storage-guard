@@ -87,8 +87,9 @@ undeployed.
 This is not a collector or host benchmark. It excludes fixture generation,
 probe execution, SSH, PVE REST, SQLite, network delivery, dashboard queries,
 and storage-device behavior. It only shows that the pure export stage is no
-longer the expected bottleneck for the planned 24-hour acceptance and 7–14-day
-calibration windows.
+longer the expected bottleneck for bounded deployment validation or a later
+representative 7–14-day alert-calibration window. Deployment acceptance itself
+has no fixed 24-hour waiting requirement.
 
 ## Reproduction
 

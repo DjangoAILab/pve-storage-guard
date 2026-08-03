@@ -479,10 +479,22 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   The operator explicitly shortened the deployment-acceptance window after
   those two checks. Deployment acceptance is therefore complete with a recorded
   evidence limitation; no 24-hour coverage or alert-calibration claim is made.
-  The offline archive path was safe but caused a long maintenance
-  pause, so a future release must evaluate SQLite online backup or a storage
-  snapshot followed by asynchronous compression without weakening integrity or
-  rollback checks.
+  The offline archive path was safe but caused a long maintenance pause. A
+  separate repository-only internal Draft now uses SQLite's online backup API,
+  copies stable ordinary non-database files into a root-only staging tree, and
+  keeps the exact active pair healthy until the archive, summary, hashes, and
+  recovery records are durable. It fails closed on source drift, unsafe file
+  types or permissions, insufficient capacity, timeout, integrity failure, or
+  unsupported runtime constraints. Helpers are networkless, capability- and
+  resource-bounded, including a best-effort low block-I/O weight. Five repeated
+  helper tests, concurrent-WAL coverage, an identity-free 512 MiB database plus
+  64 MiB attachment rehearsal, deployment crash/fault tests, full application
+  quality gates, and isolated linux/amd64 image smoke passed. The first clean
+  runner correctly rejected two high-entropy test placeholders; they were
+  replaced with explicit non-secret values without adding a scanner exemption,
+  and the successor run passed. This follow-up remains Draft, unmerged, and
+  undeployed. A separately bound candidate, effective block-I/O verification,
+  capacity preflight, and explicit production approval remain required.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite

@@ -118,9 +118,10 @@ window was explicitly shortened by the operator after a second read-only
 checkpoint passed. This accepts deployment health with a documented evidence
 limitation; it does not claim 24-hour coverage or calibrated alert thresholds.
 Alerts, notifications, journal import, and actuation remain disabled. The
-verified offline database
-archive also exposed a long maintenance pause, motivating an online-backup or
-snapshot-based improvement before the next application release.
+verified offline database archive also exposed a long maintenance pause. A
+repository-only follow-up now stages a SQLite online backup plus stable
+non-database files while the active pair remains healthy, but it has not been
+merged or deployed and therefore carries no production-effectiveness claim.
 
 ## Sanitization contract
 

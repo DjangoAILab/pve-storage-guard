@@ -379,9 +379,10 @@ the exact 28 recommended-rule set with both storage-pressure rules disabled,
 plus fresh PSI/diskstats/management provenance, detector-v1 labels, and typed
 ZFS one-second interval semantics. General recommended-rule arming does not
 include storage-pressure rules without a second exact opt-in, and an idempotent
-rollback path disables only those two rules. A 24-hour shadow window accepts the
-deployment and data path; alert calibration requires at least 7–14 days spanning
-representative quiet and busy periods.
+rollback path disables only those two rules. Deployment acceptance uses bounded
+read-only checks plus health, rollback, privacy, and notification invariants;
+it has no fixed 24-hour waiting requirement. Enabling alerts still requires a
+separate representative calibration window spanning quiet and busy periods.
 
 The first live use of those gates validated the separation. The explicitly
 approved restricted-probe checkpoint completed after an exact rollback and
@@ -419,9 +420,15 @@ and does not calibrate or authorize an alert.
 
 The transactional database archive was private and verified, but the offline
 compression/read-back sequence created an undesirably long maintenance pause.
-Future application releases should evaluate an SQLite online backup or storage
-snapshot boundary followed by asynchronous compression, retaining exact
-integrity verification and rollback semantics. Available event history did not
+A repository-only internal Draft now creates a consistent SQLite online backup
+and copies stable ordinary non-database files while the exact active pair stays
+healthy. It keeps archive validation, hashes, method/summary evidence, recovery
+journals, and cutover ordering fail-closed; helper containers are isolated and
+resource-bounded. Repeated helper tests, a 512 MiB database plus 64 MiB opaque
+file rehearsal, deployment fault tests, full quality gates, and isolated
+linux/amd64 image smoke passed. This mitigation remains unmerged and undeployed;
+effective block-I/O weighting, capacity headroom, a separately bound candidate,
+and explicit production approval remain gates. Available event history did not
 support an exact downtime calculation, so this project makes no downtime claim.
 
 The merged integration also adds a PVE-only storage-pressure dashboard that combines PSI,
