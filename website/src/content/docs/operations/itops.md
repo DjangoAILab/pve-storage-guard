@@ -176,13 +176,43 @@ The first identity-free production replay contained 203 complete cycles and
 detector samples. Detector-v1 recomputation reported zero mismatches in both.
 The second window would have produced four warning firing/recovery lifecycles,
 but no critical lifecycle and only one quiet cycle. The exact warning/critical
-rules remained disabled, so the evidence gate correctly rejected arming on
-quiet-regime and critical-lifecycle coverage.
+rules remained disabled, so the v1 evidence gate correctly rejected combined
+arming.
 
 No production pressure was generated to manufacture the missing evidence.
 Alerts, notifications, journal registration, and actuation remain disabled.
-Warning/critical eligibility may later be separated, but that policy change is
-not implemented or authorized by this evidence.
+
+An internal Draft at exact head `1cffa52` now proposes an identity-free v2
+assessment that grades warning and critical evidence separately. Shared gates
+still require structural coverage, exact detector recomputation, the exact two
+disabled rules, and fail-closed rule-set review. Each severity needs its own
+exact contract, exposure and complete firing/recovery lifecycle; every resource
+that actually fired must also have at least ten severity-appropriate baseline
+samples. Whole-domain quiet coverage becomes diagnostic rather than a shared
+gate. The combined result remains the logical AND of both severities and the
+only proposed action remains keeping both rules disabled.
+
+The Draft passed local focused, read-only SQLite, state-machine, architecture,
+lint, build, coverage, replay, and secret-scan gates. It is not merged or
+deployed. The exact evaluator was then streamed to the active backend as stdin,
+not installed, and opened production SQLite read-only/query-only. Across 240
+complete cycles and 960 detector samples it found zero mismatches, two
+warning-firing resources with adequate individual baselines, and four complete
+warning recoveries. Warning review evidence passed. Critical had no firing or
+recovery, so critical and combined eligibility remained false. Both rules stayed
+disabled and no notification or control action followed. Critical production
+pressure will not be manufactured; synthetic critical tests prove evaluator
+logic only, not production readiness.
+
+An authenticated read-only UI review then exposed a separate presentation
+defect in the currently deployed page. A generic 2,000-series latest query could
+truncate the named PVE/ZFS evidence, and generic workload throughput could be
+misclassified as an unregistered disk. An internal read/display-only Draft now
+uses a bounded exact-name query for the 13 panel metrics and restricts disk/ZFS
+rows and pressure aggregation to registered resources. Focused and full
+backend/frontend tests, lint, builds, and architecture checks passed. The patch
+is still unmerged and undeployed and changes no collector, schema, alert,
+notification, actuator, or control state.
 
 ## Online release-backup follow-up
 

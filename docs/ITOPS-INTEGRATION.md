@@ -439,6 +439,32 @@ those gaps. The identity-free evidence was later merged to the internal fact
 source after branch and post-merge quality/image CI passed; that documentation
 change did not deploy an image or mutate rules, notifications, data, or control.
 
+An internal Draft at exact head `1cffa52` now proposes a v2 calibration result
+that grades warning and critical evidence independently without adding an
+enablement path. Structural coverage, detector recomputation, the exact
+two-rule set, and confirmation that both rules are disabled remain shared
+fail-closed gates. Each severity additionally requires its own exact contract,
+exposure regime, complete firing/recovery lifecycle, and at least ten baseline
+samples for every resource that actually fired. Whole-domain quiet coverage is
+retained as a diagnostic because simultaneous quiet across every disk is weaker
+evidence than the baseline of the firing resource itself. The conservative
+combined result remains the logical AND of warning and critical, and the only
+proposed action remains keeping both rules disabled.
+
+This proposal has passed local focused, SQLite read-only, deployment-state,
+storage-control, architecture, lint, build, coverage, replay-benchmark, and
+staged-tree secret checks. It is not merged or deployed. The exact proposed
+evaluator was then streamed to the active backend as stdin without installation
+and opened production SQLite read-only/query-only. Its identity-free result
+contained 240/240 complete cycles, 960 detector samples, zero mismatches, two
+warning-firing resources with adequate individual baselines, and four complete
+warning recoveries. Warning review evidence passed. No critical firing or
+recovery existed, so critical and combined eligibility remained false. Both
+rules stayed disabled and no notification, deployment, or control action
+followed. Synthetic critical replay may test software logic but must not be
+counted as production evidence, and production pressure must not be generated
+to close that gate.
+
 The transactional database archive was private and verified, but the offline
 compression/read-back sequence created an undesirably long maintenance pause.
 A repository-only internal Draft now creates a consistent SQLite online backup
@@ -469,5 +495,16 @@ production shadow baseline, not fixture data. It is a deterministic crop: the
 target header and per-pool/per-disk tables were excluded so no target, host,
 account, pool, or disk identity is published. The four retained cells show only
 detector status, aggregate IO PSI, management-probe state, and alert-gate count.
+
+A later authenticated read-only review found that the currently deployed page
+could omit this evidence even while the database contained it: a generic
+2,000-series latest-metric query was truncating the named PVE/ZFS series, and a
+generic workload throughput metric could be rendered as an unregistered disk.
+An internal read/display-only Draft now adds a bounded exact-name query (at most
+32 names), asks for the 13 storage-panel metrics explicitly, and accepts only
+registered `disk` and `zfs_pool` resources for rows and pressure aggregation.
+Focused and full backend/frontend tests, lint, builds, and architecture checks
+passed. The fix remains unmerged and undeployed; it changes no collector,
+database schema, rule, notification, journal, actuator, or control state.
 
 ![Identity-free ITOps storage-pressure shadow baseline](assets/itops-storage-pressure-shadow-baseline.png)
