@@ -117,11 +117,13 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   package reached 93.5% statement coverage; its bounded parser completed
   1,377,511 fuzz executions without a failure; golangci-lint, staticcheck,
   govulncheck call-graph scan, current-tree Gitleaks, 56 replay tests, nine
-  publication-privacy tests, the 106-file/129-URL privacy scan, and the 16-page
+  publication-privacy tests, the 106-file/132-URL privacy scan, and the 16-page
   Astro build all passed. Public review:
   [Draft PR #57](https://github.com/DjangoAILab/pve-storage-guard/pull/57),
-  initial implementation commit `94e54af`; GitHub CI/security/Pages evidence
-  remains pending.
+  initial implementation commit `94e54af`. The review head passed
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30838801962),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30838802197),
+  and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30838802244).
   This item remains partial until stakeholder review accepts the ADR and a
   separately reviewed live backend passes non-critical controlled-load and
   rollback evidence.
