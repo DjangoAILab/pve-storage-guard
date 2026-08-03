@@ -30,3 +30,19 @@ reject claims that one static per-disk cap is a validated universal fallback.
 
 All node, pool, VM/disk, network, workload, session, and application identities
 are removed. Raw logs and guest data are not published.
+
+## Rollout safety evidence
+
+The first observer rollout used separate restricted-probe and application
+checkpoints. The read-only probe checkpoint completed after an exact rollback
+and retry, with every allowed operation validated. The application checkpoint
+then failed closed on a protected host-state invariant and restored the previous
+source and image selector before any container, database, credential, alert, or
+registry change.
+
+Review separated a candidate allowlist defect from one bounded pre-existing
+directory-mode drift. The former now has regression coverage; the latter still
+requires its own exact, non-recursive approval. No application deployment,
+alert, notification, journal import, or actuation followed. This is evidence
+that the rollout safety boundary worked, not evidence that active control is
+ready.

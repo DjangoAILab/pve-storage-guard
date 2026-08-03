@@ -155,7 +155,7 @@ Calls are bounded to 64 events, 10,000 metrics, and 1 MiB of private audit
 details per event. The mapper does not promote the event's p95 field into
 durable monitoring evidence.
 
-The draft also implements, but does not register, the idempotent-write handoff
+The merged code also implements, but does not register, the idempotent-write handoff
 capability `storage_guard.journal.import.v1`. Its exact-argv reader uses no
 shell, credentials, network client, logger, or database. The approved envelope
 binds the journal digest and identity-free summary, collector target,
@@ -269,7 +269,7 @@ and utilization. ZFS pool metrics remain separate gauges named
 `zfs.pool.{read,write}.{total_wait,disk_wait}.seconds` plus pool IOPS and
 throughput, labeled `statistic=interval_mean` and `intervalSeconds=1`. They are
 not relabeled as disk average wait or I/O p95. The PVE REST cluster-status probe
-supplies management success and duration. The draft does not expose hardware
+supplies management success and duration. The integration does not expose hardware
 identifiers, install the probe, arm alerts, or deploy any service.
 
 ITOps currently permits a minimum fast interval of 10 seconds. This is suitable
@@ -292,7 +292,7 @@ negative claim because the layers and statistics differ. ZFS latency is first
 being added as shadow calibration telemetry and does not feed detector v1 or a
 threshold rule. See the [PoC evidence limits](POC.md#read-only-live-baseline-not-replay-qualified).
 
-The draft integration also contains a pure replay-trace builder for reviewed,
+The merged integration also contains a pure replay-trace builder for reviewed,
 already-authorized metric samples. It emits only relative offsets, numeric
 evidence, and coarse storage/workload classes; internal target, resource, node,
 and absolute sample-time fields are selection inputs and never become public
@@ -337,14 +337,14 @@ build/lint. Internal CI run 154 validated capability commit `51cc834`: its Node
 22 quality gate passed in 4m31s and dependent linux/amd64 image build passed in
 4m47s. Run 155 validated the smaller existing-review-group refinement
 `e7e7997`: quality gates passed in 4m34s and the image build in 4m45s. Final
-[run 156](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/156)
+internal run 156
 validated the typed ZFS shadow telemetry commit `ccbbabd`: quality gates passed
 in 4m33s and the linux/amd64 image build in 5m10s. Production
 probe installation, capability registration/runtime invocation, trace export,
 notification delivery, and alert enablement remain explicit approval gates.
 
 Rollout-hardening commits `c2ed208` and `db5493b` were validated by final
-[run 158](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/158):
+internal run 158:
 Node quality gates passed in 4m33s and the linux/amd64 image build passed in
 10m59s after a bounded retry recovered from a transient registry-mirror DNS
 timeout. The preceding run 157 failed closed because a shifted synthetic-secret
@@ -354,7 +354,7 @@ the fixture location rather than broadening the ignore policy.
 Replay-export commits `60b8359` and `8104bb2` now emit v1alpha2, preserve valid
 wait evidence with missing management status `unknown`, and type diskstats wait
 as `block-device`. Final internal
-[run 160](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/160)
+internal run 160
 passed the Node quality gate in 4m38s and the linux/amd64 image build in 4m49s.
 A cross-repository synthetic check passed the compiled ITOps output through the
 public assessor: the complete case reported 100% structural, wait, and
@@ -366,7 +366,7 @@ production identity was used or printed.
 Follow-up replay-export commit `324422f` replaced repeated caller-array scans
 with request-scoped indexes and added the deterministic benchmark described
 above. Internal
-[run 161](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/161)
+internal run 161
 ran the one-day smoke inside the complete Node quality gate; it passed in 4m34s
 and the dependent linux/amd64 image build passed in 4m45s. The PR remained
 Draft and no runtime was registered or deployed.
@@ -382,7 +382,19 @@ rollback path disables only those two rules. A 24-hour shadow window accepts the
 deployment and data path; alert calibration requires at least 7–14 days spanning
 representative quiet and busy periods.
 
-The draft also adds a PVE-only storage-pressure dashboard that combines PSI,
+The first live use of those gates validated the separation. The explicitly
+approved restricted-probe checkpoint completed after an exact rollback and
+runtime-independent retry, with all nine read-only operations accepted. The
+separately approved application checkpoint failed closed during protected
+host-state validation and restored the previous source tree and image selector
+before any container, database, credential, registry, alert, or notification
+change. The review separated an incomplete candidate allowlist from a bounded
+pre-existing directory-mode drift; neither was silently repaired inside the
+failed window. The successor fix passed internal full quality and isolated image
+smoke in runs 201 and 204. It is not yet merged or deployed, and the host-mode
+repair still requires an exact non-recursive approval.
+
+The merged integration also adds a PVE-only storage-pressure dashboard that combines PSI,
 management-probe health, separately typed per-pool and per-disk evidence,
 queue depth, utilization, throughput, detector level, and alert-gate state.
 The UI labels detector output as evidence rather than a controller decision and

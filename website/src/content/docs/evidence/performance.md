@@ -61,11 +61,11 @@ after explicit garbage collection while the output remains live; it is not a
 peak-allocation number. These figures exclude sample generation, the probe,
 SSH, PVE REST, SQLite, network, dashboards, and real storage behavior.
 
-Internal Draft PR #37
-[CI run 161](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/161)
+Before internal PR #37 merged, internal CI run 161
 independently ran the one-day smoke: the complete Node quality gate passed in
 4m34s and the dependent linux/amd64 image build passed in 4m45s. Nothing was
-merged or deployed.
+deployed by that run; the integration later merged after explicit approval and
+remains undeployed.
 
 ```sh
 # In the reviewed internal ITOps Draft branch

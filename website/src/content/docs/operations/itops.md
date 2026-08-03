@@ -73,7 +73,7 @@ make identical retries no-ops; a canonical SHA-256 metric-projection digest
 rejects altered retries. One call is bounded to 64 events, 10,000 metrics, and
 1 MiB of private audit details per event.
 
-The draft also contains an unregistered, idempotent-write handoff capability
+The merged code also contains an unregistered, idempotent-write handoff capability
 and exact-argv reader. The immutable approval binds the digest and summary,
 target, domain/policy expectation, storage and disk resources, optional review
 group, and batch size. Persistence rechecks the current running proposal,
@@ -92,9 +92,9 @@ or persistence, and the internal importer has no approved runtime registration,
 route, scheduler, alert evaluation, incident creation, notification, or
 actuation side effect.
 
-## Current draft boundary
+## Current rollout boundary
 
-The internal integration draft includes the restricted read-only storage probe,
+The internal integration includes the restricted read-only storage probe,
 multi-signal detector, disabled alert seeds, dashboard, and a pure replay-trace
 builder. The builder accepts only already-authorized metric samples and emits
 relative offsets, numeric evidence, and coarse classes. Its diskstats semantics
@@ -124,20 +124,33 @@ tables and states that ZFS `total_wait` is not I/O p95. A live stdin-only probe
 check succeeded without installing or registering anything on the host.
 
 There is no export route, transport, importer runtime registration, actuator,
-probe installation, alert enablement, or production deployment. The public
+alert enablement, or application deployment. The public
 batch reader is local, digest-bound, and persistence-free. All 1,268 backend
 tests across 151 files and all 101 frontend tests pass locally; build, lint, and
 dependency boundaries are also clean. Internal CI run 154 validated capability
 commit `51cc834` with a 4m31s quality gate and 4m47s image build. Run 155
 validated the existing-review-group refinement `e7e7997` with a 4m34s quality
-gate and 4m45s image build. Final [run 156](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/156)
+gate and 4m45s image build. Final internal run 156
 validated typed ZFS shadow telemetry `ccbbabd` with a 4m33s quality gate and
-5m10s linux/amd64 image build while PR #37 stays Draft. Production rollout
-remains an explicit approval gate.
+5m10s linux/amd64 image build. PR #37 later merged after explicit approval, and
+post-merge run 164 passed both jobs. This merge did not deploy or register the
+integration.
 
 Replay-export semantic commits `60b8359` and `8104bb2` were validated by
-[run 160](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/160).
+internal run 160.
 The indexed exporter and one-day CI smoke in `324422f` were then validated by
-[run 161](https://gitea.wj2015.com/PEM/itops-agent-platform/actions/runs/161):
+internal run 161:
 the Node quality gate passed in 4m34s and the linux/amd64 image build in 4m45s.
-PR #37 remains Draft and undeployed.
+
+The restricted read-only probe checkpoint was later explicitly approved and
+completed after an exact rollback-and-retry rehearsal. The separately approved
+application checkpoint failed closed during protected host-state validation and
+restored the prior source tree and image selector before container, database,
+credential, registry, alert, or notification changes. A reviewed successor fix
+passed the complete quality and isolated linux/amd64 image-smoke gates in
+internal run 201
+and again at the rebased PR head in
+internal run 204.
+It remains unmerged and undeployed; the independently discovered directory-mode
+drift still requires a narrow, non-recursive production approval. Alerts,
+notifications, journal registration, and actuation remain disabled.
