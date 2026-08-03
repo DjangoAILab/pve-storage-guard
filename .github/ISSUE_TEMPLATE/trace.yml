@@ -1,0 +1,155 @@
+name: Trace qualification request
+description: Propose independent storage evidence without uploading source data
+title: "[Trace]: "
+labels: ["triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form accepts qualification metadata only. Do not attach, paste,
+        commit, or link to raw traces, logs, private URLs, credentials, host or
+        guest identities, network coordinates, storage serials, absolute
+        production timestamps, customer data, or internal file locations.
+
+        Keep source data under your control. Read the
+        [trace contribution guide](https://github.com/DjangoAILab/pve-storage-guard/blob/main/docs/TRACE-CONTRIBUTION.md)
+        before continuing.
+  - type: dropdown
+    id: lane
+    attributes:
+      label: Intended evidence lane
+      description: Storage research cannot by itself authorize active control.
+      options:
+        - Storage-only research
+        - Promotion candidate with synchronized management evidence
+        - Unsure; request classification
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Non-sensitive source description
+      description: Describe ownership or publication context without naming private systems or organizations.
+      placeholder: Public research dataset, or contributor-owned laboratory capture.
+    validations:
+      required: true
+  - type: dropdown
+    id: authority
+    attributes:
+      label: Permission basis
+      description: A maintainer will still review the exact source terms.
+      options:
+        - Contributor owns the data and can authorize the proposed use
+        - Explicit license permits the proposed use and redistribution
+        - Public source terms need maintainer review
+        - Permission is not yet established
+    validations:
+      required: true
+  - type: input
+    id: terms
+    attributes:
+      label: Public source or license page
+      description: Optional public documentation page only; never provide a data, signed, private, or internal URL.
+      placeholder: Leave blank when no safe public page exists.
+  - type: dropdown
+    id: provenance
+    attributes:
+      label: Source provenance
+      options:
+        - Observed measurements
+        - Synthetic workload
+        - Modeled data
+        - Mixed or unknown
+    validations:
+      required: true
+  - type: dropdown
+    id: storage_class
+    attributes:
+      label: Coarse storage class
+      options:
+        - Rotational HDD
+        - SATA SSD
+        - NVMe
+        - Network block storage
+        - Unknown or mixed
+    validations:
+      required: true
+  - type: dropdown
+    id: workload_class
+    attributes:
+      label: Coarse workload class
+      options:
+        - Bulk import
+        - Backup
+        - Migration
+        - Build
+        - Database
+        - Mixed
+        - Unknown
+    validations:
+      required: true
+  - type: dropdown
+    id: wait_layer
+    attributes:
+      label: Write-wait measurement layer
+      options:
+        - Storage domain
+        - Block device
+        - Virtual disk
+        - Application
+        - Unknown
+    validations:
+      required: true
+  - type: dropdown
+    id: wait_statistic
+    attributes:
+      label: Write-wait statistic
+      options:
+        - p95
+        - Average
+        - Total wait
+        - Other or unknown
+    validations:
+      required: true
+  - type: dropdown
+    id: management
+    attributes:
+      label: Synchronized management-plane evidence
+      description: Missing evidence must remain unknown, never assumed healthy.
+      options:
+        - Observed and synchronized for the declared window
+        - Partially observed or has known gaps
+        - Not collected
+        - Unknown
+    validations:
+      required: true
+  - type: textarea
+    id: sampling
+    attributes:
+      label: Sampling shape
+      description: Provide only coarse duration, interval, approximate gap percentage, and measurement method; omit dates and identities.
+      placeholder: 20-minute window; 1-second samples; under 2% declared gaps.
+    validations:
+      required: true
+  - type: textarea
+    id: transformations
+    attributes:
+      label: Planned transformation and sanitization
+      description: Explain aggregation, relative-time conversion, field dropping, and manual review without posting any rows.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Data safety confirmations
+      options:
+        - label: I did not attach, paste, commit, or link to raw data or sensitive coordinates.
+          required: true
+        - label: Any URL I entered is an ordinary public documentation page with no token, signature, private coordinate, or downloadable trace target.
+          required: true
+        - label: I have authority to use the source for this qualification request, or clearly selected that permission is not established.
+          required: true
+        - label: I understand that this Issue grants no download, retention, transformation, or redistribution permission.
+          required: true
+        - label: I understand that machine validation cannot prove license, provenance, independence, or sanitization claims.
+          required: true

@@ -26,6 +26,7 @@ export default defineConfig({
           { label: 'Offline PoC', slug: 'evidence/poc' },
           { label: 'Replay trace contract', slug: 'evidence/trace-contract' },
           { label: 'External trace research', slug: 'evidence/external-traces' },
+          { label: 'Contributing traces safely', slug: 'evidence/contributing-traces' },
           { label: 'Performance evidence', slug: 'evidence/performance' },
           { label: 'Incident case study', slug: 'evidence/case-study' },
         ] },

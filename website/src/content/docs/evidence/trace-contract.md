@@ -45,3 +45,6 @@ exported or qualify for the independent-trace gate.
 
 [Review the external trace research](/pve-storage-guard/evidence/external-traces/)
 before importing third-party data.
+
+[Use the metadata-only contribution process](/pve-storage-guard/evidence/contributing-traces/)
+before proposing a source or generated artifact.

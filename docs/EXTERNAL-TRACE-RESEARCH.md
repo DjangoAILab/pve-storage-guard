@@ -13,6 +13,10 @@ with management status explicitly set to `unknown`. Such a trace may validate
 storage-signal handling, but the assessor must reject it as production
 promotion evidence.
 
+Community proposals begin with the metadata-only
+[trace contribution process](TRACE-CONTRIBUTION.md). GitHub Issues and pull
+requests are not raw-data upload channels.
+
 ## Candidate review
 
 | Source | Observed | Latency | Management evidence | Current disposition |
