@@ -210,7 +210,7 @@ An authenticated read-only UI review then exposed a separate presentation
 defect in the currently deployed page. A generic 2,000-series latest query could
 truncate the named PVE/ZFS evidence, and generic workload throughput could be
 misclassified as an unregistered disk. An internal read/display-only Draft at
-rebased head `321ec7f` now uses a bounded exact-name query for the 13 panel
+rebased head `72cb073` now uses a bounded exact-name query for the 13 panel
 metrics and restricts disk/ZFS rows and pressure aggregation to registered
 resources. Focused and full
 backend/frontend tests, lint, builds, and architecture checks passed. The patch
@@ -218,6 +218,11 @@ was also exercised with the exact production SQL shape in read-only/query-only
 mode: 193 current series returned in 4.378 ms under the 2,000-row bound using
 the existing target/name index. It is still unmerged and undeployed and changes
 no collector, schema, alert, notification, actuator, or control state.
+
+The first locked-dependency CI run exposed an optional-resource type narrowing
+error that an older local dependency tree did not report. The current head uses
+an explicit string guard and passes exact-lock frontend lint/build plus focused
+tests; a fresh exact-head run remains required.
 
 ### Pending dashboard-query correction checkpoint
 

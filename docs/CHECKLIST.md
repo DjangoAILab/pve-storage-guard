@@ -611,7 +611,7 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   deployed page's generic 2,000-series latest query could omit the named
   PVE/ZFS evidence and that generic workload throughput could create a false
   unregistered-disk row. A separate internal read/display-only Draft at rebased
-  head `321ec7f` adds a maximum-32-name query for the 13 panel metrics and
+  head `72cb073` adds a maximum-32-name query for the 13 panel metrics and
   restricts rows plus pressure
   aggregation to registered `disk` / `zfs_pool` resources. Focused tests passed
   31/31 backend and 8/8 frontend; full regression passed 1,413/1,413 backend and
@@ -620,6 +620,10 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   series in 4.378 ms under the 2,000-row bound and used the existing target/name
   index. It remains unmerged and undeployed and changes no collector, schema,
   rule, notification, journal, actuator, or control state.
+  Locked-dependency CI caught an optional-resource type narrowing error that the
+  older local dependency tree missed; the current head adds an explicit string
+  guard and passes an exact-lock frontend lint/build plus focused tests. A fresh
+  exact-head CI run remains required.
   Its production checkpoint is explicitly unapproved: require rebased-PR and
   post-merge main quality/secret/linux-amd64 image gates, immutable commit and
   digest binding, healthy active-pair plus online-backup/rollback preflight,

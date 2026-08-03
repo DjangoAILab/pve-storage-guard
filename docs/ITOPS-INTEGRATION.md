@@ -502,7 +502,7 @@ A later authenticated read-only review found that the currently deployed page
 could omit this evidence even while the database contained it: a generic
 2,000-series latest-metric query was truncating the named PVE/ZFS series, and a
 generic workload throughput metric could be rendered as an unregistered disk.
-An internal read/display-only Draft at rebased head `321ec7f` now adds a bounded
+An internal read/display-only Draft at rebased head `72cb073` now adds a bounded
 exact-name query (at most 32 names), asks for the 13 storage-panel metrics
 explicitly, and accepts only registered `disk` and `zfs_pool` resources for rows
 and pressure aggregation.
@@ -512,6 +512,10 @@ passed. A production read-only/query-only probe of the exact SQL shape returned
 the existing target/name index. The fix remains unmerged and undeployed; it
 changes no collector, database schema, rule, notification, journal, actuator,
 or control state.
+
+The first locked-dependency CI run exposed an optional-resource type narrowing
+error that the older local dependency tree did not report. The current head
+fixes it with an explicit string guard; a fresh exact-head run remains required.
 
 ![Identity-free ITOps storage-pressure shadow baseline](assets/itops-storage-pressure-shadow-baseline.png)
 
