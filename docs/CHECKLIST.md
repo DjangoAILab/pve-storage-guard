@@ -219,6 +219,13 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   exposing PVE identity. A 2026-08-03 read-only production inventory audit found
   no explicitly classified guest, so candidate selection and all load remain
   stopped until one exact non-critical data disk is deliberately enrolled.
+  Public [PR #54](https://github.com/DjangoAILab/pve-storage-guard/pull/54)
+  merged the mutation-free preflight as `06e8168`; protected-main
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30830219723),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30830219451),
+  and [Pages](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30830218936)
+  passed. This closes only the enrollment-readiness sub-gate, not the controlled
+  load or actuation gate.
 - [!] Install or change a service on a production PVE host only after explicit
   approval at the production-write checkpoint.
 - [!] Enable canary actuation only after explicit approval and a reviewed
@@ -285,7 +292,13 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   captured and deterministically cropped to the detector title and four
   aggregate status cells. Manual visual review confirms the public PNG excludes
   the target header, host/account identity, and per-pool/per-disk tables; it
-  shows the alert gate still disabled.
+  shows the alert gate still disabled. Public
+  [PR #53](https://github.com/DjangoAILab/pve-storage-guard/pull/53) merged the
+  reviewed documentation asset, and
+  [PR #54](https://github.com/DjangoAILab/pve-storage-guard/pull/54) published it
+  on the project site. The live PNG returned HTTP 200 with SHA-256
+  `e67b83b35e066046c1175504c437fce4fa5fd0bc01cd351d28effea365d8b9a0`,
+  exactly matching the locally reviewed asset.
 - [x] Complete the initial pre-publication review: identifier/IP/private-key
   pattern scan clean, Gitleaks v8.30.1 reports no leaks, Markdown links resolve,
   screenshots contain anonymized content and standard JFIF/sRGB metadata only.
