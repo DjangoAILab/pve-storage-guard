@@ -61,8 +61,12 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   downloading or bundling third-party data. A metadata-only community intake
   now separates storage research from promotion candidates, prohibits public
   raw-data submission, and requires machine plus human permission/provenance/
-  privacy review before a publication PR. License clearance and an eligible
-  trace remain pending. Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md).
+  privacy review before a publication PR. Public
+  [Issue #48](https://github.com/DjangoAILab/pve-storage-guard/issues/48) now
+  solicits independent observed storage plus synchronized management evidence
+  under the same no-upload boundary. Creating an intake and solicitation is not
+  evidence receipt: license clearance and an eligible trace remain pending.
+  Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md).
 - [!] Promote an adaptive policy beyond shadow mode only after PoC and live
   evidence gates pass.
 
@@ -200,7 +204,10 @@ Last updated: 2026-08-03 (Asia/Shanghai)
 
 - [x] Persist required project documents and ADRs locally.
 - [x] Add Apache-2.0 license, DCO, contributing guide, security policy, code of
-  conduct, support/governance policy, Dependabot, and issue/PR templates.
+  conduct, support/governance policy, Dependabot, and issue/PR templates. The
+  repository now contains every label referenced by the bug, design, and trace
+  forms; Issue #48 verified exact `help wanted` plus `triage` assignment after
+  the missing `triage` and `design` labels were added on 2026-08-03.
 - [~] Add unit, shadow CLI, replay, trace-qualification, and performance smoke
   tests. Decision-journal tests cover deterministic event mapping, append after
   reopen, private permissions, unsafe-target rejection, exclusive-writer
