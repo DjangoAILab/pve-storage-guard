@@ -21,7 +21,7 @@ requests are not raw-data upload channels.
 
 | Source | Observed | Latency | Management evidence | Current disposition |
 | --- | --- | --- | --- | --- |
-| [UMass/SPC OLTP and search traces](https://traces.cs.umass.edu/docs/traces/storage/) | yes | no standard latency field | none | workload-shape research only |
+| [UMass/SPC OLTP and search traces](https://traces.cs.umass.edu/docs/traces/storage/) | yes | no standard latency field | none | one attributed search prefix accepted as workload-shape research evidence |
 | [Tencent, Alibaba, and CloudPhysics block traces catalogued by CacheMon](https://github.com/cacheMon/cache_dataset#block-cache-traces) | yes | catalog formats expose arrival, size, and direction but not response latency | none | workload-shape research only |
 | [MSR Cambridge catalog entry](https://github.com/cacheMon/cache_dataset#msr-cambridge-traces) | yes | per-I/O response time | none | license review required; no project redistribution |
 | [Google Thesios trace](https://github.com/cacheMon/cache_dataset#google-synthetic-io-traces) | synthetic | yes | none | synthetic testing only |
@@ -31,6 +31,43 @@ The SPC standard record has ASU, LBA, size, opcode, and timestamp fields; its
 optional fields are intentionally undefined. It therefore cannot supply a
 portable latency or management-health contract. See the
 [SPC trace format](https://skuld.cs.umass.edu/traces/storage/SPC-Traces.pdf).
+
+### Accepted UMass/SPC workload shape
+
+The UMass Trace Repository states that its data is CC BY 4.0 unless otherwise
+specified, and the storage page gives no different terms for `WebSearch1`.
+The repository therefore includes a 600-second, 10-second-bucket derived
+[workload-shape artifact](../poc/fixtures/umass-spc-websearch1-workload-shape.json),
+not the raw trace. The transformation drops ASU, LBA, optional columns, and the
+absolute origin; it retains only read/write IOPS and throughput. The source and
+artifact hashes, attribution, license links, and exact modifications are in
+[third-party data notices](../THIRD-PARTY-DATA.md).
+
+The independent validator reports 60/60 samples, 100% structural completeness,
+60 read-active buckets (600 bucket-seconds), 19 write-active buckets (190
+bucket-seconds), and
+`meets_research_gate=true`. It also reports
+`active_control_eligible=false`: the source provides neither latency nor a
+synchronized management probe, and it does not identify a storage class. This
+closes one independent workload-shape research sub-item only; it does not close
+the independent promotion trace or storage-class gates.
+
+Reproduce the identity-removing conversion from an independently downloaded,
+hash-matched source file with:
+
+```sh
+python3 poc/spc_to_workload_shape.py WebSearch1.spc.bz2 \
+  --name umass-spc-websearch1-prefix \
+  --independence-group umass-spc-websearch-2004 \
+  --workload-class search \
+  --sample-interval-seconds 10 \
+  --window-duration-seconds 600 \
+  --confirm-authorized-and-sanitized \
+  --output candidate.json
+
+python3 poc/workload_shape_contract.py candidate.json \
+  --reference-group reference-incident
+```
 
 ### MSR licensing hold
 
@@ -85,6 +122,10 @@ The confirmation flag is an operator assertion, not a license detector. The
 converter marks every management sample `unknown`, so this output cannot pass
 the machine independence gate without a separately reviewed join to genuine
 management-plane observations.
+
+SPC inputs without a standardized latency field must use the separate
+`WorkloadShapeTrace` converter above. They must not receive a placeholder
+`writeWaitStatistic` merely to fit the replay schema.
 
 ## Evidence still required
 

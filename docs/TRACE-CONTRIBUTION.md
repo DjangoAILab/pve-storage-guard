@@ -41,6 +41,11 @@ repository's CSV converter deliberately emits
 behavior, but cannot prove SSH, PVE API, or host-management availability and
 cannot pass the active-control promotion gate.
 
+If the source has no standardized latency field, use the separate
+`WorkloadShapeTrace` path. Do not create a placeholder latency statistic merely
+to satisfy the replay schema. A workload-shape artifact can qualify for the
+research lane while remaining categorically ineligible for active control.
+
 ### Promotion candidate
 
 Use this lane only when the source can support every claim below:

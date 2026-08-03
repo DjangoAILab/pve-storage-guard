@@ -7,6 +7,7 @@
 - [ADR-0005: Use content-addressed batches for sealed journal import](0005-content-addressed-sealed-journal-batches.md)
 - [ADR-0006: Separate storage-only research from promotion evidence](0006-separate-storage-research-from-promotion-evidence.md)
 - [ADR-0007: Use a local, read-only PVE agent with typed evidence](0007-local-read-only-pve-agent.md)
+- [ADR-0008: Separate licensed workload-shape artifacts from replay evidence](0008-licensed-workload-shape-research.md)
 
 ADRs are immutable decision history. A superseding ADR changes a decision; the
 original record remains.

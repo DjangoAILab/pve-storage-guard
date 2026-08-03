@@ -55,6 +55,22 @@ credentials, guest content, and internal domains are excluded.
 
 ## Validation lanes
 
+### Independent workload-shape research
+
+A separately licensed UMass/SPC search trace now exercises a second, observed
+workload shape without pretending to contain latency or management availability.
+The committed artifact covers the first 600 seconds in 60 ten-second buckets.
+An independent raw-prefix count found 194,293 operations: 194,255 reads and 38
+writes. The sanitized artifact contains only per-bucket read/write IOPS and
+throughput; ASU, LBA, optional fields, source timestamps, and the raw file are
+absent.
+
+The strict workload-shape assessor reports complete independent research
+evidence and `active_control_eligible=false`. This strengthens workload-shape
+coverage but cannot calibrate latency thresholds, prove a storage class, or
+close the promotion gate. See [external trace research](EXTERNAL-TRACE-RESEARCH.md)
+and [third-party data notices](../THIRD-PARTY-DATA.md).
+
 ### Observed shadow replay
 
 Policies consume the exact twelve observed wait values. Decisions do not modify
@@ -193,6 +209,9 @@ python3 -m unittest discover -s poc -p 'test_*.py' -v
 python3 poc/simulate.py --format markdown
 python3 poc/simulate.py --format json
 python3 poc/trace_contract.py candidate.json --reference-group reference-incident
+python3 poc/workload_shape_contract.py \
+  poc/fixtures/umass-spc-websearch1-workload-shape.json \
+  --reference-group reference-incident
 ```
 
 For licensed, caller-supplied per-I/O data, the local-only

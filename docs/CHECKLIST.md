@@ -53,7 +53,7 @@ Last updated: 2026-08-03 (Asia/Shanghai)
 - [x] Run one-at-a-time parameter-neighborhood sensitivity analysis. Evidence:
   `poc/results/report.md`; 16/18 neighbors pass, while faster additive increase
   and shorter healthy confirmation fail the safety gate.
-- [ ] Add independent storage-class and workload-shape traces; do not relabel
+- [~] Add independent storage-class and workload-shape traces; do not relabel
   the three counterfactual capacity models as observed storage classes.
   ADR-0003 now makes metric statistic, provenance, and independence group
   mandatory trace fields. A tested local converter can aggregate authorized
@@ -65,8 +65,16 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   [Issue #48](https://github.com/DjangoAILab/pve-storage-guard/issues/48) now
   solicits independent observed storage plus synchronized management evidence
   under the same no-upload boundary. Creating an intake and solicitation is not
-  evidence receipt: license clearance and an eligible trace remain pending.
-  Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md).
+  evidence receipt: a CC BY 4.0 UMass/SPC search prefix is now accepted as a
+  separate `WorkloadShapeTrace`. Its 600-second/60-sample artifact passes the
+  research gate with 100% structural completeness while remaining explicitly
+  ineligible for active control because latency, storage class, and management
+  evidence are unavailable. The source archive is not committed; source and
+  derived hashes, attribution, and transformations are recorded. An independent
+  storage-class trace and a promotion-compatible trace remain pending.
+  Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md),
+  [external trace research](EXTERNAL-TRACE-RESEARCH.md), and
+  [third-party data notices](../THIRD-PARTY-DATA.md).
 - [!] Promote an adaptive policy beyond shadow mode only after PoC and live
   evidence gates pass.
 

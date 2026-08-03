@@ -17,7 +17,15 @@ input columns, and marks unavailable management evidence `unknown`; those traces
 cannot pass the active-control promotion gate by themselves. See
 `docs/EXTERNAL-TRACE-RESEARCH.md`.
 
-`fixtures/` contains anonymized derived observations. `results/` contains
+`spc_to_workload_shape.py` is a separate converter for licensed SPC-format
+data that has no portable latency field. It drops ASU, LBA, and optional
+fields, then emits only interval IOPS and throughput under the strict
+`WorkloadShapeTrace` research contract. `workload_shape_contract.py` can accept
+such an artifact for workload research while always reporting
+`active_control_eligible=false`.
+
+`fixtures/` contains anonymized or explicitly licensed, attributed derived
+observations. `results/` contains
 reviewed snapshots. Observed shadow replay retains captured wait values exactly;
 counterfactual values are estimates from the named monotonic pool models.
 

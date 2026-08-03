@@ -16,6 +16,7 @@ from urllib.parse import urlsplit
 
 ALLOWED_URL_HOSTS = frozenset(
     {
+        "creativecommons.org",
         "djangoailab.github.io",
         "docs.kernel.org",
         "github.com",
@@ -24,6 +25,7 @@ ALLOWED_URL_HOSTS = frozenset(
         "openzfs.github.io",
         "pve.proxmox.com",
         "skuld.cs.umass.edu",
+        "skulddata.cs.umass.edu",
         "traces.cs.umass.edu",
         "www.contributor-covenant.org",
         "www.qemu.org",
@@ -74,6 +76,7 @@ def is_publication_surface(path: str) -> bool:
     if (
         parts[:3] == ("api", "v1", "schema")
         or parts[:2] == ("configs", "examples")
+        or parts[:2] == ("poc", "fixtures")
         or parts[:2] == ("poc", "schema")
     ) and suffix == ".json":
         return True
