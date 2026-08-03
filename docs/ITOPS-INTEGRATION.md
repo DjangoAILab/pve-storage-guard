@@ -439,9 +439,10 @@ those gaps. The identity-free evidence was later merged to the internal fact
 source after branch and post-merge quality/image CI passed; that documentation
 change did not deploy an image or mutate rules, notifications, data, or control.
 
-An internal Draft at exact head `1cffa52` now proposes a v2 calibration result
-that grades warning and critical evidence independently without adding an
-enablement path. Structural coverage, detector recomputation, the exact
+The internal read-only v2 evaluator at exact head `1cffa52` was merged as
+`cbd6e23` after its exact-head quality and linux/amd64 image run passed. It
+grades warning and critical evidence independently without adding an enablement
+path. Structural coverage, detector recomputation, the exact
 two-rule set, and confirmation that both rules are disabled remain shared
 fail-closed gates. Each severity additionally requires its own exact contract,
 exposure regime, complete firing/recovery lifecycle, and at least ten baseline
@@ -451,11 +452,12 @@ evidence than the baseline of the firing resource itself. The conservative
 combined result remains the logical AND of warning and critical, and the only
 proposed action remains keeping both rules disabled.
 
-This proposal has passed local focused, SQLite read-only, deployment-state,
+The evaluator passed local focused, SQLite read-only, deployment-state,
 storage-control, architecture, lint, build, coverage, replay-benchmark, and
-staged-tree secret checks. It is not merged or deployed. The exact proposed
-evaluator was then streamed to the active backend as stdin without installation
-and opened production SQLite read-only/query-only. Its identity-free result
+staged-tree secret checks. It is merged as diagnostic tooling but not deployed.
+ADR-0016 remains Proposed, and merge is not authorization to arm an alert. The
+exact evaluator was then streamed to the active backend as stdin without
+installation and opened production SQLite read-only/query-only. Its identity-free result
 contained 240/240 complete cycles, 960 detector samples, zero mismatches, two
 warning-firing resources with adequate individual baselines, and four complete
 warning recoveries. Warning review evidence passed. No critical firing or
@@ -500,11 +502,43 @@ A later authenticated read-only review found that the currently deployed page
 could omit this evidence even while the database contained it: a generic
 2,000-series latest-metric query was truncating the named PVE/ZFS series, and a
 generic workload throughput metric could be rendered as an unregistered disk.
-An internal read/display-only Draft now adds a bounded exact-name query (at most
-32 names), asks for the 13 storage-panel metrics explicitly, and accepts only
-registered `disk` and `zfs_pool` resources for rows and pressure aggregation.
+An internal read/display-only Draft at rebased head `72cb073` now adds a bounded
+exact-name query (at most 32 names), asks for the 13 storage-panel metrics
+explicitly, and accepts only registered `disk` and `zfs_pool` resources for rows
+and pressure aggregation.
 Focused and full backend/frontend tests, lint, builds, and architecture checks
-passed. The fix remains unmerged and undeployed; it changes no collector,
-database schema, rule, notification, journal, actuator, or control state.
+passed. A production read-only/query-only probe of the exact SQL shape returned
+193 current series in 4.378 ms under the 2,000-row bound and confirmed use of
+the existing target/name index. The fix remains unmerged and undeployed; it
+changes no collector, database schema, rule, notification, journal, actuator,
+or control state.
+
+The first locked-dependency CI run exposed an optional-resource type narrowing
+error that the older local dependency tree did not report. The current head
+fixes it with an explicit string guard; a fresh exact-head run remains required.
 
 ![Identity-free ITOps storage-pressure shadow baseline](assets/itops-storage-pressure-shadow-baseline.png)
+
+### Pending dashboard-query correction checkpoint
+
+The read/display correction must not reach production merely because its Draft
+or branch CI is green. Its explicit deployment checkpoint remains unapproved
+and requires all of the following evidence:
+
+1. The rebased PR head and the resulting internal `main` merge both pass the
+   full quality, secret, and linux/amd64 image gates; the candidate is bound by
+   immutable commit and image digest.
+2. Preflight records the healthy active backend/frontend pair, verifies the
+   rollback state and online backup, and confirms that the candidate contains
+   no database migration, rule mutation, notification, or actuator change.
+3. The approved release mechanism deploys only that immutable candidate. Both
+   storage-pressure rules are checked disabled before and after cutover.
+4. Authenticated UI/API verification proves that management-probe, PSI, disk,
+   and ZFS evidence is present; disk/ZFS rows equal the registered resource
+   kinds; no generic workload resource is rendered as an unregistered disk.
+5. Any health failure, missing named evidence, resource-classification error,
+   enabled storage rule, or release-identity mismatch triggers immediate exact
+   rollback to the recorded predecessor and closes the checkpoint as failed.
+
+Alert enablement, notification testing, journal registration, and storage
+control are outside this checkpoint and remain separately gated.

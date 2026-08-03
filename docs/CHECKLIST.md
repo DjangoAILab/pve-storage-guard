@@ -577,7 +577,7 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   open. The sanitized evidence follow-up merged internally after its branch
   quality/image run passed; the post-merge main quality and linux/amd64 image
   run also passed. It caused no deployment, rule, notification, database, or
-  control change. Internal Draft #61 at exact head `1cffa52` now proposes v2
+  control change. Internal PR #61 at exact head `1cffa52` added v2
   per-severity review eligibility while keeping the combined result as warning
   AND critical and always proposing that both rules stay disabled. Shared gates
   cover structural/detector/exact-disabled-rule-set evidence; each severity has
@@ -585,7 +585,9 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   gates. Local focused and read-only SQLite tests, deployment state machines,
   15 storage-control tests, architecture/dependency checks, backend/frontend
   lint/build/coverage, the one-day replay smoke, and the staged-tree Gitleaks
-  scan passed. The Draft remains unmerged and undeployed. The exact evaluator
+  scan passed. Its exact-head quality and linux/amd64 image run passed, and it
+  merged internally as `cbd6e23`. It remains undeployed; ADR-0016 is still
+  Proposed, and merge is not alert-enablement authorization. The exact evaluator
   was then streamed to the active backend as stdin without installation and
   opened production SQLite read-only/query-only. Its 240 complete cycles and
   960 detector samples had zero mismatches; both warning-firing resources met
@@ -608,13 +610,28 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   An authenticated read-only production review subsequently found that the
   deployed page's generic 2,000-series latest query could omit the named
   PVE/ZFS evidence and that generic workload throughput could create a false
-  unregistered-disk row. A separate internal read/display-only Draft adds a
-  maximum-32-name query for the 13 panel metrics and restricts rows plus pressure
+  unregistered-disk row. A separate internal read/display-only Draft at rebased
+  head `72cb073` adds a maximum-32-name query for the 13 panel metrics and
+  restricts rows plus pressure
   aggregation to registered `disk` / `zfs_pool` resources. Focused tests passed
   31/31 backend and 8/8 frontend; full regression passed 1,413/1,413 backend and
   104/104 frontend, with lint/build/architecture/dependency checks also passing.
-  It remains unmerged and undeployed and changes no collector, schema, rule,
-  notification, journal, actuator, or control state.
+  A production read-only/query-only probe of the exact SQL returned 193 current
+  series in 4.378 ms under the 2,000-row bound and used the existing target/name
+  index. It remains unmerged and undeployed and changes no collector, schema,
+  rule, notification, journal, actuator, or control state.
+  Locked-dependency CI caught an optional-resource type narrowing error that the
+  older local dependency tree missed; the current head adds an explicit string
+  guard and passes an exact-lock frontend lint/build plus focused tests. A fresh
+  exact-head CI run remains required.
+  Its production checkpoint is explicitly unapproved: require rebased-PR and
+  post-merge main quality/secret/linux-amd64 image gates, immutable commit and
+  digest binding, healthy active-pair plus online-backup/rollback preflight,
+  confirmation of no migration or rule/notification/actuator change, and
+  authenticated UI/API invariants for named evidence and registered resource
+  kinds. Any health, evidence, classification, rule-state, or release-identity
+  failure must immediately restore the recorded predecessor. Alert enablement,
+  notification testing, journal registration, and control remain out of scope.
   Approved transport/runtime registration and incident/runbook links remain. The
   verifier and importer expose no route, scheduler, alert evaluation, or
   production side effect.
