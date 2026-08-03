@@ -514,3 +514,27 @@ changes no collector, database schema, rule, notification, journal, actuator,
 or control state.
 
 ![Identity-free ITOps storage-pressure shadow baseline](assets/itops-storage-pressure-shadow-baseline.png)
+
+### Pending dashboard-query correction checkpoint
+
+The read/display correction must not reach production merely because its Draft
+or branch CI is green. Its explicit deployment checkpoint remains unapproved
+and requires all of the following evidence:
+
+1. The rebased PR head and the resulting internal `main` merge both pass the
+   full quality, secret, and linux/amd64 image gates; the candidate is bound by
+   immutable commit and image digest.
+2. Preflight records the healthy active backend/frontend pair, verifies the
+   rollback state and online backup, and confirms that the candidate contains
+   no database migration, rule mutation, notification, or actuator change.
+3. The approved release mechanism deploys only that immutable candidate. Both
+   storage-pressure rules are checked disabled before and after cutover.
+4. Authenticated UI/API verification proves that management-probe, PSI, disk,
+   and ZFS evidence is present; disk/ZFS rows equal the registered resource
+   kinds; no generic workload resource is rendered as an unregistered disk.
+5. Any health failure, missing named evidence, resource-classification error,
+   enabled storage rule, or release-identity mismatch triggers immediate exact
+   rollback to the recorded predecessor and closes the checkpoint as failed.
+
+Alert enablement, notification testing, journal registration, and storage
+control are outside this checkpoint and remain separately gated.

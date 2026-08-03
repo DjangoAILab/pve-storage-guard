@@ -620,6 +620,14 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   series in 4.378 ms under the 2,000-row bound and used the existing target/name
   index. It remains unmerged and undeployed and changes no collector, schema,
   rule, notification, journal, actuator, or control state.
+  Its production checkpoint is explicitly unapproved: require rebased-PR and
+  post-merge main quality/secret/linux-amd64 image gates, immutable commit and
+  digest binding, healthy active-pair plus online-backup/rollback preflight,
+  confirmation of no migration or rule/notification/actuator change, and
+  authenticated UI/API invariants for named evidence and registered resource
+  kinds. Any health, evidence, classification, rule-state, or release-identity
+  failure must immediately restore the recorded predecessor. Alert enablement,
+  notification testing, journal registration, and control remain out of scope.
   Approved transport/runtime registration and incident/runbook links remain. The
   verifier and importer expose no route, scheduler, alert evaluation, or
   production side effect.

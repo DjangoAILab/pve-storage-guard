@@ -219,6 +219,19 @@ mode: 193 current series returned in 4.378 ms under the 2,000-row bound using
 the existing target/name index. It is still unmerged and undeployed and changes
 no collector, schema, alert, notification, actuator, or control state.
 
+### Pending dashboard-query correction checkpoint
+
+Production deployment remains explicitly unapproved. Before release, the
+rebased PR and post-merge `main` must pass quality, secret, and linux/amd64 image
+gates; the candidate must be bound by immutable commit and digest; and preflight
+must prove a healthy active pair, an online backup, an exact rollback target,
+and no migration or rule/notification/actuator change. After an approved
+cutover, authenticated UI/API checks must show the named management, PSI, disk,
+and ZFS evidence and must prove that rows come only from registered resource
+kinds. Any health, evidence, classification, rule-state, or release-identity
+failure immediately restores the recorded predecessor. Alert enablement,
+notification testing, journal registration, and control remain separate gates.
+
 ## Online release-backup follow-up
 
 The verified offline archive exposed a long maintenance pause. An internal
