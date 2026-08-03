@@ -74,7 +74,11 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   storage-class trace and a promotion-compatible trace remain pending.
   Evidence: [trace contribution guide](TRACE-CONTRIBUTION.md),
   [external trace research](EXTERNAL-TRACE-RESEARCH.md), and
-  [third-party data notices](../THIRD-PARTY-DATA.md).
+  [third-party data notices](../THIRD-PARTY-DATA.md). Public
+  [PR #52](https://github.com/DjangoAILab/pve-storage-guard/pull/52) passed
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30811726494),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30811726481),
+  and the [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30811726441).
 - [!] Promote an adaptive policy beyond shadow mode only after PoC and live
   evidence gates pass.
 
