@@ -328,10 +328,11 @@ from diskstats-derived device averages. It explicitly states that ZFS
 `total_wait` is not I/O p95 and does not participate in detector v1. This
 prevents visually similar millisecond values from silently sharing thresholds.
 
-As of 2026-08-02, the integration remains an internal draft PR and has not been
-merged or deployed. Verification covers all 1,268 backend tests across 151
-files, including the approval-to-persistence SQLite handoff, exact-argv reader,
-and deterministic reconciliation tests. TypeScript build/lint and the
+Before production checkpoint execution, the integration remained an internal
+draft PR and had not been merged or deployed. Verification covered all 1,268
+backend tests across 151 files, including the approval-to-persistence SQLite
+handoff, exact-argv reader, and deterministic reconciliation tests. TypeScript
+build/lint and the
 dependency-boundary check also pass locally, as do all 101 frontend tests plus
 build/lint. Internal CI run 154 validated capability commit `51cc834`: its Node
 22 quality gate passed in 4m31s and dependent linux/amd64 image build passed in
@@ -391,8 +392,33 @@ before any container, database, credential, registry, alert, or notification
 change. The review separated an incomplete candidate allowlist from a bounded
 pre-existing directory-mode drift; neither was silently repaired inside the
 failed window. The successor fix passed internal full quality and isolated image
-smoke in runs 201 and 204. It is not yet merged or deployed, and the host-mode
-repair still requires an exact non-recursive approval.
+smoke in runs 201 and 204. The exact non-recursive host-mode repair was later
+approved and changed only the affected root directory; descendant metadata was
+unchanged and the protected-state validator passed.
+
+The successor was then bound to an immutable source archive, release tool, and
+image indexes and received a separate Checkpoint C approval. A fresh preflight
+detected one additional predecessor restart and stopped before writes; redacted
+correlation matched the already-tested SSH lifecycle signature. The source
+transaction subsequently preserved protected runtime inodes and retained the
+predecessor rollback anchor. The initial image invocation failed registry-auth
+preflight before database backup, container stop, or cutover. After interactive
+operator authentication, the exact-digest retry completed; the authentication
+was removed afterward. The live verifier reported fresh/up collectors, the
+exact 28 recommended rules, all existing general rules enabled, all GPU and
+storage-pressure rules disabled, supported storage-pressure capability, typed
+ZFS and detector evidence, healthy zero-restart candidate containers, absent
+deployment journals, and an intact stopped predecessor rollback pair. No
+notification expectation was configured, and no alert, journal-registration,
+notification, or actuation path was enabled. A 24-hour read-only deployment
+acceptance window is pending.
+
+The transactional database archive was private and verified, but the offline
+compression/read-back sequence created an undesirably long maintenance pause.
+Future application releases should evaluate an SQLite online backup or storage
+snapshot boundary followed by asynchronous compression, retaining exact
+integrity verification and rollback semantics. Available event history did not
+support an exact downtime calculation, so this project makes no downtime claim.
 
 The merged integration also adds a PVE-only storage-pressure dashboard that combines PSI,
 management-probe health, separately typed per-pool and per-disk evidence,

@@ -82,9 +82,9 @@ three sensitivity scenarios. This is a hypothesis for shadow validation, not a
 production effect claim. The observed fixed-cap check also means fixed 20 may
 only be used as a model comparator, not advertised as a validated fallback.
 
-## What the first observer rollout proved
+## What the observer rollout proved
 
-The initial production rollout was deliberately split into independent probe
+The production rollout was deliberately split into independent probe
 and application checkpoints. The restricted read-only probe update completed,
 including an exact rollback-and-retry rehearsal and validation of every allowed
 operation. The application checkpoint then stopped at a protected host-state
@@ -99,11 +99,25 @@ descendants were already root-owned and private. These are different failure
 classes: the candidate defect requires reviewed code and regression tests; the
 host drift requires its own exact, non-recursive production approval.
 
-This does not prove the observer or controller is production-ready. It does
-prove that staged checkpoints, exact backups, fail-closed validation, and
-transactional source recovery prevented a monitoring rollout from becoming a
-second incident. The application, alerts, notifications, journal import, and
-actuation remain disabled.
+After a separately reviewed code fix and an exact non-recursive host-mode
+repair, an immutable successor received a new application-checkpoint approval.
+A fresh preflight caught one more predecessor restart and stopped before writes;
+redacted diagnosis matched the known SSH lifecycle signature. Source replacement
+then preserved protected runtime state. The first image attempt failed registry
+authentication preflight before backup, stop, or cutover; an interactive login
+allowed the exact-digest retry to complete, and the credential was removed
+afterward. The live verifier found fresh collectors, the exact recommended-rule
+set with storage-pressure rules still disabled, healthy zero-restart candidate
+containers, no deployment journals, and a retained predecessor rollback pair.
+
+This does not prove the controller is production-ready or that alert thresholds
+are calibrated. It does prove that staged checkpoints, exact backups,
+fail-closed validation, transactional recovery, and immutable retry boundaries
+prevented two rollout defects from becoming a second incident. The 24-hour
+read-only observer acceptance window is still pending; alerts, notifications,
+journal import, and actuation remain disabled. The verified offline database
+archive also exposed a long maintenance pause, motivating an online-backup or
+snapshot-based improvement before the next application release.
 
 ## Sanitization contract
 
