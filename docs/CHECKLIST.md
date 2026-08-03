@@ -118,7 +118,10 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   1,377,511 fuzz executions without a failure; golangci-lint, staticcheck,
   govulncheck call-graph scan, current-tree Gitleaks, 56 replay tests, nine
   publication-privacy tests, the 105-file/127-URL privacy scan, and the 16-page
-  Astro build all passed. GitHub CI/security/Pages evidence remains pending.
+  Astro build all passed. Public review:
+  [Draft PR #57](https://github.com/DjangoAILab/pve-storage-guard/pull/57),
+  initial implementation commit `94e54af`; GitHub CI/security/Pages evidence
+  remains pending.
   This item remains partial until stakeholder review accepts the ADR and a
   separately reviewed live backend passes non-critical controlled-load and
   rollback evidence.
