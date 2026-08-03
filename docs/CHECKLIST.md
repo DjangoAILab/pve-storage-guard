@@ -297,6 +297,14 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   GitHub Release tag `v0.1.0-rc.2` intentionally retains the leading `v`, while
   the container image tag does not. Evidence:
   [public GHCR package](https://github.com/DjangoAILab/pve-storage-guard/pkgs/container/pve-storage-guard).
+  A 2026-08-03 delivery re-audit fetched the live Pages site over HTTPS and
+  matched the required SEO title and description; the latest five main Pages
+  workflows were successful. The published OCI index still resolved to the
+  reviewed digest and both architectures, each with SPDX and SLSA in-toto
+  layers. Cosign v3.0.6 verified the exact release-workflow OIDC identity,
+  certificate chain, and transparency-log claim. A downloaded linux/amd64
+  archive and SPDX SBOM matched `checksums.txt`, and their GitHub provenance
+  attestations verified. No package-token scope was added for this audit.
 
 ## 6. Local practice and ITOps
 
