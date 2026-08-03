@@ -441,8 +441,16 @@ Last updated: 2026-08-03 (Asia/Shanghai)
   gate and linux/amd64 image publication, runtime smoke, immutable read-back,
   revision/source-label, SBOM, and provenance verification without promoting a
   mutable main tag. Registry coordinates and digests remain outside this public
-  record. The successor candidate remains undeployed; application deployment,
-  alerts, notifications, journal registration, and actuation remain disabled.
+  record. A private candidate-specific Checkpoint C pack now binds that exact
+  revision to its source archive, release-tree tool, and both immutable image
+  indexes. Its offline verifier rejects digest/size drift, symlink or non-regular
+  inputs, unsafe or duplicate archive members, and redacts failure details.
+  Twelve binding/negative tests, Bash syntax, ShellCheck, the full deployment
+  static and fault-injection suites, whitespace checks, and a pinned tracked-tree
+  secret scan passed locally. The pack contains no registry coordinates and has
+  not been staged on production. The successor candidate remains undeployed;
+  application deployment, alerts, notifications, journal registration, and
+  actuation remain disabled.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
