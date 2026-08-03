@@ -248,6 +248,13 @@ Last updated: 2026-08-03 (Asia/Shanghai)
 - [x] Complete the initial pre-publication review: identifier/IP/private-key
   pattern scan clean, Gitleaks v8.30.1 reports no leaks, Markdown links resolve,
   screenshots contain anonymized content and standard JFIF/sRGB metadata only.
+- [~] Enforce the publication sanitization contract in required CI. The
+  dependency-free gate scans only tracked author-maintained publication
+  surfaces, uses an exact public-host allowlist, rejects URL user information,
+  local/private hosts and RFC1918 coordinates, and emits only categorical
+  findings with short hashes. Nine focused tests, a real-tree scan of 88 files
+  and 94 URLs, and a redacted Gitleaks scan of 98 commits pass locally; public
+  PR and protected-main evidence are pending.
 - [x] Create and push the public GitHub repository only after a clean sensitive
   information scan and review of publishable artifacts. Evidence:
   [DjangoAILab/pve-storage-guard](https://github.com/DjangoAILab/pve-storage-guard).

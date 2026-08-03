@@ -89,6 +89,10 @@ jobs:
         with:
           go-version: 1.26.5
           cache: true
+      - name: Test publication privacy gate
+        run: python3 -m unittest scripts.test_check_publication_privacy -v
+      - name: Scan publication surfaces
+        run: python3 scripts/check_publication_privacy.py
       - name: Scan secrets
         run: go run github.com/zricethezav/gitleaks/v8@v8.30.1 git --no-banner --redact --exit-code 1
 
