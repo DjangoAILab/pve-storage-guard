@@ -85,6 +85,11 @@ class SystemdLifecycleRehearsalTests(unittest.TestCase):
     def test_root_group_exclusivity_is_boolean(self) -> None:
         self.assertIsInstance(rehearsal._root_group_is_exclusive(), bool)
 
+    def test_binary_parent_restoration_is_part_of_success_evidence(self) -> None:
+        source = Path(rehearsal.__file__).read_text(encoding="utf-8")
+        self.assertIn('"binaryParentRestored": True', source)
+        self.assertIn("_restore_binary_parent(binary_parent_identity)", source)
+
 
 if __name__ == "__main__":
     unittest.main()

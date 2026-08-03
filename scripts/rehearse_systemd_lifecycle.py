@@ -172,6 +172,53 @@ def _trusted_root_directory(path: Path) -> bool:
     )
 
 
+def _normalizable_binary_parent(path: Path):
+    try:
+        metadata = os.lstat(path)
+        sudo_uid = int(os.environ["SUDO_UID"])
+        sudo_gid = int(os.environ["SUDO_GID"])
+    except (OSError, KeyError, ValueError):
+        raise RehearsalError("binary parent cannot be normalized") from None
+    mode = stat.S_IMODE(metadata.st_mode)
+    if (
+        stat.S_ISLNK(metadata.st_mode)
+        or not stat.S_ISDIR(metadata.st_mode)
+        or metadata.st_uid not in {0, sudo_uid}
+        or metadata.st_gid not in {0, sudo_gid}
+        or mode & 0o700 != 0o700
+    ):
+        raise RehearsalError("binary parent cannot be normalized")
+    return (metadata.st_dev, metadata.st_ino, mode, metadata.st_uid, metadata.st_gid)
+
+
+def _normalize_binary_parent(identity):
+    current = os.lstat(BINARY_TARGET.parent)
+    if (current.st_dev, current.st_ino) != identity[:2]:
+        raise RehearsalError("binary parent changed before normalization")
+    os.chown(BINARY_TARGET.parent, 0, 0)
+    os.chmod(BINARY_TARGET.parent, 0o755)
+    _fsync_directory(BINARY_TARGET.parent)
+    if not _trusted_root_directory(BINARY_TARGET.parent):
+        raise RehearsalError("binary parent normalization failed")
+
+
+def _restore_binary_parent(identity):
+    try:
+        current = os.lstat(BINARY_TARGET.parent)
+    except OSError:
+        return
+    if stat.S_ISLNK(current.st_mode) or not stat.S_ISDIR(current.st_mode):
+        return
+    if (current.st_dev, current.st_ino) != identity[:2]:
+        return
+    try:
+        os.chown(BINARY_TARGET.parent, identity[3], identity[4])
+        os.chmod(BINARY_TARGET.parent, identity[2])
+        _fsync_directory(BINARY_TARGET.parent)
+    except OSError:
+        return
+
+
 def _validate_source_directory(path: Path) -> dict[str, bytes]:
     try:
         metadata = os.lstat(path)
@@ -213,7 +260,6 @@ def _preflight(baseline: Path, candidate: Path, unit: Path, fixtures: Path):
         raise RehearsalError("rehearsal target already exists")
     parent_directories = {
         UNIT_TARGET.parent,
-        BINARY_TARGET.parent,
         CONFIG_DIRECTORY.parent,
         PVE_SHIM.parent,
         ZPOOL_SHIM.parent,
@@ -225,6 +271,7 @@ def _preflight(baseline: Path, candidate: Path, unit: Path, fixtures: Path):
         # Every candidate is a fixed public system path defined above; no
         # caller-provided or host-identity value is included in this error.
         raise RehearsalError("rehearsal parent directory is unsafe: " + ",".join(unsafe_parents))
+    binary_parent = _normalizable_binary_parent(BINARY_TARGET.parent)
     if not _identity_absent():
         raise RehearsalError("rehearsal service identity already exists")
     fixed_path = "/usr/sbin:/usr/bin:/sbin:/bin"
@@ -251,6 +298,7 @@ def _preflight(baseline: Path, candidate: Path, unit: Path, fixtures: Path):
         "fixtures": fixture_payloads,
         "baseline_version": baseline_version,
         "candidate_version": candidate_version,
+        "binary_parent": binary_parent,
     }
 
 
@@ -535,7 +583,7 @@ def _remove_bounded_directory(path: Path, allowed_names: set[str]):
         pass
 
 
-def _cleanup():
+def _cleanup(binary_parent_identity):
     try:
         _command(("systemctl", "stop", UNIT_NAME), check=False, timeout=20)
     except RehearsalError:
@@ -571,14 +619,28 @@ def _cleanup():
         _command(("groupdel", SERVICE_GROUP), check=False)
     except RehearsalError:
         pass
+    _restore_binary_parent(binary_parent_identity)
 
 
-def _verify_cleanup():
+def _verify_cleanup(binary_parent_identity):
     if any(_lexists(path) for path in MUTATION_TARGETS) or not _identity_absent():
         raise RehearsalError("rehearsal cleanup was incomplete")
     load_state = _command(("systemctl", "show", UNIT_NAME, "--property", "LoadState", "--value"), check=False)
     if load_state.returncode == 0 and load_state.stdout.strip() not in {"", "not-found"}:
         raise RehearsalError("systemd retained the rehearsal unit")
+    try:
+        restored = os.lstat(BINARY_TARGET.parent)
+    except OSError:
+        raise RehearsalError("binary parent metadata was not restored") from None
+    restored_identity = (
+        restored.st_dev,
+        restored.st_ino,
+        stat.S_IMODE(restored.st_mode),
+        restored.st_uid,
+        restored.st_gid,
+    )
+    if restored_identity != binary_parent_identity:
+        raise RehearsalError("binary parent metadata was not restored")
 
 
 def rehearse(baseline: Path, candidate: Path, unit: Path, fixtures: Path) -> dict:
@@ -587,6 +649,7 @@ def rehearse(baseline: Path, candidate: Path, unit: Path, fixtures: Path) -> dic
     completed = False
     result = None
     try:
+        _normalize_binary_parent(payloads["binary_parent"])
         service_uid, service_gid = _install_runtime(payloads)
         kernel_device = _choose_kernel_device()
         baseline_config = _config_payload("rehearsal-baseline", kernel_device)
@@ -674,12 +737,13 @@ def rehearse(baseline: Path, candidate: Path, unit: Path, fixtures: Path) -> dic
             "rollbackBinaryExact": True,
             "rollbackConfigExact": True,
             "unitEnabled": False,
+            "binaryParentRestored": True,
             "requestedProductionMutations": 0,
         }
         completed = True
     finally:
-        _cleanup()
-        _verify_cleanup()
+        _cleanup(payloads["binary_parent"])
+        _verify_cleanup(payloads["binary_parent"])
     if not completed or result is None:
         raise RehearsalError("lifecycle rehearsal did not complete")
     result["cleanupComplete"] = True

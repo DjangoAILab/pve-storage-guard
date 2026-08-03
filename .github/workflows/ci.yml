@@ -116,6 +116,7 @@ jobs:
           assert evidence['rollbackBinaryExact'] is True
           assert evidence['rollbackConfigExact'] is True
           assert evidence['unitEnabled'] is False
+          assert evidence['binaryParentRestored'] is True
           assert evidence['cleanupComplete'] is True
           assert evidence['requestedProductionMutations'] == 0
           assert len({

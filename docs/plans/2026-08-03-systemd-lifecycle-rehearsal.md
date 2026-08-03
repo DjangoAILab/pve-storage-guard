@@ -39,6 +39,13 @@ following are true:
   (a root-group write bit is accepted only if the root group has no non-root
   primary or supplemental member).
 
+GitHub's ephemeral runner may initially assign `/usr/local/bin` to the runner
+identity. That one fixed parent is accepted only when it is owned by root or
+the exact `SUDO_UID`/`SUDO_GID`, its inode is recorded, and the binary target is
+absent. The rehearsal changes it to root-owned `0755` before installing the
+observer, then restores the original owner/group/mode on the same inode during
+cleanup. A restoration mismatch fails the job.
+
 It refuses real PVE hosts rather than attempting to distinguish
 "production" from "non-production" PVE. It creates only exact allowlisted
 paths, records which parent directories it created, and removes only those
@@ -74,6 +81,7 @@ only categorical results, counts, artifact digests, and lifecycle PIDs.
 - The candidate differs from the baseline by binary and config digest.
 - Rollback restores the exact baseline binary and config digests.
 - The unit is never enabled and every created target is absent after cleanup.
+- The pre-existing `/usr/local/bin` inode and metadata are restored exactly.
 - Existing race, static-analysis, privacy, secret, container, and release gates
   remain green.
 
