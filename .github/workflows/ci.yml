@@ -27,6 +27,8 @@ jobs:
         run: go test -race -coverprofile=coverage.out ./...
       - name: Verify hardened observer unit
         run: sh scripts/verify-systemd-unit.sh
+      - name: Verify actuator remains unreachable
+        run: sh scripts/verify-actuator-unreachable.sh
       - name: Validate observer evidence gates
         run: |
           go build -trimpath -o /tmp/pve-storage-guard ./cmd/pve-storage-guard

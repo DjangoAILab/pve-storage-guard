@@ -85,21 +85,28 @@ ownership or approval. The verified generation is carried as a fencing token
 in the structured actuator request. A conflicting, expired, or unavailable
 lease/approval is rejected before any effective-state read or apply.
 Effective-state drift, an actuator error, or a read-back mismatch freezes that
-resource without automatic retry. The gate is currently exercised only with
-injected fakes.
+resource without automatic retry. The gate is currently exercised with
+injected fakes and package-level tests of the dormant local backend; no runtime
+can construct that backend.
 
-The first PVE-specific actuator core is also fake-backed and deliberately not
-wired to a PVE command, API client, CLI, listener, service, container
-entrypoint, credential, or production configuration. One instance binds one
-opaque resource key to one owner-configured QEMU disk. It accepts only an exact
-integer-byte `bps_wr` update for a disk that already has a positive bounded
-`bps_wr`; all other bandwidth/IOPS options and unlimited bootstrap states fail
-closed. Each apply reads the live config and PVE SHA-1 version digest (used as a
-concurrency token, not an authenticity primitive), revalidates tags,
-lock, boot role, storage, disk role, and envelope, submits a digest-fenced full
-disk value with only `bps_wr` changed, then verifies the volume and every
-unmanaged option on read-back. It returns the actual effective value so the
-generic gate can freeze a mismatch. See ADR 0012.
+The first PVE-specific actuator core binds one opaque resource key to one
+owner-configured QEMU disk. It accepts only an exact integer-byte `bps_wr`
+update for a disk that already has a positive bounded `bps_wr`; all other
+bandwidth/IOPS options and unlimited bootstrap states fail closed. Each apply
+reads the live config and PVE SHA-1 version digest (used as a concurrency token,
+not an authenticity primitive), revalidates tags, lock, boot role, storage,
+disk role, and envelope, submits a digest-fenced full disk value with only
+`bps_wr` changed, then verifies the volume and every unmanaged option on
+read-back. It returns the actual effective value so the generic gate can freeze
+a mismatch.
+
+An OS-backed local implementation now serializes only fixed-argv
+`/usr/bin/pvesh` get and set operations. It repeats binding, digest, limiter,
+and envelope checks, uses a fixed environment, bounds process output and
+deadlines, redacts process failures, and never retries a set. Its constructor is
+unexported and nothing in the CLI, agent, service, image, or configuration can
+reach it. This is reviewable backend code, not an enabled actuator or
+least-privilege proof. See ADRs 0012 and 0013.
 
 ### Event and Telemetry
 

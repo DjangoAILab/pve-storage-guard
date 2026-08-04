@@ -188,13 +188,13 @@ The 2026-08-03 production inventory audit found no explicitly classified guest,
 so no production disk was selected. This negative result is a safety gate, not
 a reason to infer criticality from a guest name.
 
-## Offline QEMU write-limit actuator core
+## Dormant QEMU write-limit actuator boundary
 
-The repository contains a fake-backed actuator core for design and unit-test
-review only. It is not reachable from `pve-storage-guard`, the observer unit,
-the container, or a network endpoint, and the repository contains no live PVE
-write backend. Merging the core therefore does not authorize or create a host
-write path.
+The repository contains an actuator core and an OS-backed local backend for
+design and test review only. The backend constructor is unexported, so neither
+component is reachable from `pve-storage-guard`, the observer unit, the
+container, or a network endpoint. Merging this code therefore does not
+authorize or create a host write path.
 
 The core maps the private preflight `resourceKey` to exactly one QEMU disk. It
 will manage only an existing positive `bps_wr` rate inside the envelope, and
@@ -206,6 +206,13 @@ with Proxmox decimal MB/s fields. Every backend read and update receives the
 owner-configured command deadline. The explicit rollback target must also be
 exactly representable as integer bytes per second.
 
+The dormant backend independently rechecks the exact node, workload, disk,
+storage, limiter, digest, and envelope. It emits only fixed-argv
+`/usr/bin/pvesh` get/set operations with a fixed environment, bounded output,
+and no shell. It never retries a failed or timed-out set and never returns
+process output in an error. Package tests use a recorder and disposable test
+subprocesses; they do not invoke host `pvesh`.
+
 Private canary configs created before this core must add a new opaque
 `resourceKey`; strict decoding intentionally rejects an absent key. No such
 config has been deployed by this project.
@@ -214,12 +221,13 @@ The rollback value is a reviewed target, not an automatic action. A future
 rollback must pass the same authoritative lease/approval gate and perform a
 fresh digest-fenced apply. If an update is ambiguous, read-back fails, or any
 other field drifts, the generic Safety Gate freezes the resource instead of
-retrying. See [ADR-0012](adr/0012-bound-the-pve-actuator-to-one-existing-qemu-write-limit.md).
+retrying. See [ADR-0012](adr/0012-bound-the-pve-actuator-to-one-existing-qemu-write-limit.md)
+and [ADR-0013](adr/0013-keep-the-local-pvesh-backend-dormant.md).
 
-Before a live backend can be proposed, evidence must include a deliberately
-classified non-critical disk, least-privilege PVE permissions, read-back and
-rollback rehearsal under controlled load, restart/reconciliation behavior, and
-a separate production-write approval.
+Before the constructor or any actuator path can be exported or wired, evidence
+must include a deliberately classified non-critical disk, least-privilege PVE
+permissions, read-back and rollback rehearsal under controlled load,
+restart/reconciliation behavior, and a separate production-write approval.
 
 ## Proposed systemd boundary
 

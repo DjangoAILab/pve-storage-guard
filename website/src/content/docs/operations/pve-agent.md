@@ -8,15 +8,16 @@ The v0.1 agent is a same-host observer for an explicitly bound Proxmox VE
 credential input, network exporter, or actuator. Production installation
 remains a separate safety checkpoint.
 
-The source tree also contains a fake-backed QEMU write-limit actuator core for
-offline review. It is not integrated with this agent or any runtime. The core
-binds one opaque resource to one owner-configured disk, requires an existing
-bounded `bps_wr`, rejects conflicting bandwidth/IOPS options, fences the update
-with the PVE config digest, bounds every backend call with the configured
-deadline, requires an exactly representable rollback target, and verifies full
-unmanaged state on read-back. A live backend, controlled-load rehearsal,
-rollback proof, and production write still require separate reviews and
-approval.
+The source tree also contains a QEMU write-limit actuator core and a dormant
+local backend for offline review. They are not integrated with this agent or
+any runtime. The core binds one opaque resource to one owner-configured disk,
+requires an existing bounded `bps_wr`, rejects conflicting bandwidth/IOPS
+options, fences the update with the PVE config digest, bounds every backend call
+with the configured deadline, requires an exactly representable rollback
+target, and verifies full unmanaged state on read-back. The backend constructor
+is unexported and emits only fixed `pvesh` argv. Exporting or wiring it,
+controlled-load rehearsal, live permission proof, rollback proof, and any
+production write still require separate reviews and approval.
 
 ## Evidence semantics
 
