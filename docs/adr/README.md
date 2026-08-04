@@ -12,6 +12,7 @@
 - [ADR-0010: Calibrate alerts with evidence coverage, not elapsed time](0010-evidence-based-alert-calibration.md)
 - [ADR-0011: Separate canary eligibility from actuation](0011-separate-canary-eligibility-from-actuation.md)
 - [ADR-0012: Bound the PVE actuator to one existing QEMU write limit](0012-bound-the-pve-actuator-to-one-existing-qemu-write-limit.md)
+- [ADR-0013: Keep the local pvesh backend dormant behind a fixed command boundary](0013-keep-the-local-pvesh-backend-dormant.md)
 
 ADRs are immutable decision history. A superseding ADR changes a decision; the
 original record remains.

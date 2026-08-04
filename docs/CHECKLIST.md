@@ -104,15 +104,20 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   tests under `internal/policy` and `internal/allocator`.
 - [x] Implement read-only adapter and constrained actuator contracts without
   production mutation under `internal/adapter/pve` and `internal/actuator/pve`.
-- [~] Implement the first PVE QEMU write-limit actuator core without a live
-  backend or runtime wiring. The fake-backed implementation binds one opaque
-  resource to one existing bounded `bps_wr`, rejects other rate fields and
-  unsafe live disk state, uses the PVE config digest as a concurrency fence,
-  preserves unmanaged disk fields, returns actual read-back, and keeps rollback
-  explicit. It has no shell runner, PVE API client, CLI, listener, unit,
-  credential, container entrypoint, or production config. Evidence:
-  `internal/actuator/pve` and proposed
-  [ADR-0012](adr/0012-bound-the-pve-actuator-to-one-existing-qemu-write-limit.md).
+- [~] Implement the first PVE QEMU write-limit actuator core and a dormant
+  OS-backed backend without runtime wiring. The core binds one opaque resource
+  to one existing bounded `bps_wr`, rejects other rate fields and unsafe live
+  disk state, uses the PVE config digest as a concurrency fence, preserves
+  unmanaged disk fields, returns actual read-back, and keeps rollback explicit.
+  The backend emits only fixed-argv local `pvesh` get/set operations, repeats
+  binding, digest, limiter, and envelope checks, bounds its environment,
+  deadlines, and output, redacts process errors, and never retries an ambiguous
+  set. Its constructor is unexported, so there is no shell, generic PVE client,
+  CLI, listener, unit, credential, container entrypoint, production config, or
+  runtime path that can reach it. Evidence: `internal/actuator/pve`, proposed
+  [ADR-0012](adr/0012-bound-the-pve-actuator-to-one-existing-qemu-write-limit.md),
+  and proposed
+  [ADR-0013](adr/0013-keep-the-local-pvesh-backend-dormant.md).
   Local evidence on 2026-08-04: full race tests and vet passed; the actuator
   package reached 93.5% statement coverage; its bounded parser completed
   1,377,511 fuzz executions without a failure; golangci-lint, staticcheck,
@@ -134,9 +139,17 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   and [Pages](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30845163063)
   all passed. Merging this offline core did not accept ADR-0012 or authorize a
   live backend.
-  This item remains partial until stakeholder review accepts the ADR and a
-  separately reviewed live backend passes non-critical controlled-load and
-  rollback evidence.
+  On 2026-08-04, the next non-production increment added the unreachable local
+  backend plus exact-argv, enrollment-drift, envelope, no-retry, redaction,
+  output-bound, fixed-environment, cancellation, timeout, process-reaping, and
+  full `get → set → get` integration tests. A new CI reachability gate proves
+  the shipped command dependency graph excludes the actuator package and its
+  binary excludes dormant backend symbols. Package tests and race tests passed;
+  no host `pvesh`, PVE configuration, runtime registration, or production state
+  was touched.
+  This item remains partial until stakeholder review accepts ADRs 0012 and
+  0013, a separately reviewed constructor/runtime path is approved, and live
+  non-root PVE, non-critical controlled-load, and rollback evidence pass.
 - [x] Implement the concrete public PVE ZFS inventory/metrics adapter and
   read-only `agent inventory` / `agent observe` modes behind those contracts.
   Evidence: `internal/adapter/pve`, `cmd/pve-storage-guard`,
@@ -263,8 +276,8 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   approval at the production-write checkpoint.
 - [!] Enable canary actuation only after explicit approval and a reviewed
   rollback command/state snapshot. A passing read-only preflight still emits
-  `activeControlEligible=false`; the fake-backed v0.2 actuator core is not
-  reachable from any runtime and is not a production actuator.
+  `activeControlEligible=false`; the v0.2 actuator core and dormant backend are
+  not reachable from any runtime and are not a production actuator.
 
 ## 5. Open-source engineering
 

@@ -70,24 +70,28 @@ type diskOption struct {
 var _ safety.Actuator = (*Actuator)(nil)
 
 // NewActuator validates an exact private enrollment and injects the only
-// privileged operations it may use. The repository provides no live backend.
+// privileged operations it may use. No repository runtime wires an actuator.
 func NewActuator(document config.PVECanaryPreflightConfig, backend Backend) (*Actuator, error) {
 	if err := document.Validate(); err != nil || backend == nil {
 		return nil, errors.New("PVE actuator binding is invalid")
 	}
 	return &Actuator{
-		binding: binding{
-			domainKey: document.Spec.DomainKey, resourceKey: document.Spec.ResourceKey,
-			node: document.Spec.Node, storage: document.Spec.Storage,
-			workloadID: document.Spec.WorkloadID, diskKey: document.Spec.DiskKey,
-			requiredTags:   append([]string(nil), document.Spec.RequiredTags...),
-			minimumMiBPS:   document.Spec.Envelope.MinimumMiBPS,
-			maximumMiBPS:   document.Spec.Envelope.MaximumMiBPS,
-			rollbackMiBPS:  document.Spec.Envelope.RollbackMiBPS,
-			commandTimeout: time.Duration(document.Spec.CommandTimeoutSeconds) * time.Second,
-		},
+		binding: bindingFromDocument(document),
 		backend: backend,
 	}, nil
+}
+
+func bindingFromDocument(document config.PVECanaryPreflightConfig) binding {
+	return binding{
+		domainKey: document.Spec.DomainKey, resourceKey: document.Spec.ResourceKey,
+		node: document.Spec.Node, storage: document.Spec.Storage,
+		workloadID: document.Spec.WorkloadID, diskKey: document.Spec.DiskKey,
+		requiredTags:   append([]string(nil), document.Spec.RequiredTags...),
+		minimumMiBPS:   document.Spec.Envelope.MinimumMiBPS,
+		maximumMiBPS:   document.Spec.Envelope.MaximumMiBPS,
+		rollbackMiBPS:  document.Spec.Envelope.RollbackMiBPS,
+		commandTimeout: time.Duration(document.Spec.CommandTimeoutSeconds) * time.Second,
+	}
 }
 
 // ReadEffective returns the exact existing bps_wr value after revalidating the
