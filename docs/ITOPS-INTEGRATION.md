@@ -255,6 +255,21 @@ and update policy only through versioned review.
 
 ## Current implementation status
 
+The approved production-runtime rehearsal for the internal ITOps online-backup
+path completed with only generated data. The wrapper accepted no host or live
+volume selector, kept the synthetic WAL writer active during SQLite online
+backup, ran every helper without networking or Docker log persistence, and
+verified idle I/O plus CPU, memory, PID, read-only-rootfs, and exact capability
+boundaries. Its first run exposed a Docker API capability-name representation
+difference and failed closed with zero residue; the regression-tested retry
+passed in 17 seconds with 512 rows, `quick_check=ok`, zero SQLite sidecars, a
+readable archive, and an advancing writer. Independent before/after checks kept
+the active service healthy, the application data volume at one writer, both
+storage-pressure rules disabled, deployment journals absent, and Docker auth
+residue at zero. No live data, alert, notification, journal import, or storage
+control state changed. This closes the synthetic backup-runtime gate only; it
+does not authorize the still-undeployed successor or alert arming.
+
 The internal ITOps draft PR adds one restricted, read-only operation:
 `pve.storage-pressure`. It reads Linux PSI and diskstats pseudo-files and, when
 OpenZFS is available, runs the fixed argv `zpool iostat -lpH 1 2`. The first

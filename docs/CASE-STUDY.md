@@ -126,9 +126,17 @@ release labels, current-release-only cleanup, and a stale-helper abort.
 Container rehearsal corrected missing interactive stdin and a non-portable
 cgroup-v2 I/O-weight assumption before merge. A further host-side wrapper
 accepts no external volume or host data path and proved successful and forced-
-failure cleanup against only exact run/role-labeled synthetic fixtures. The
-wrapper is merged but the production-host synthetic run has not occurred, so
-neither change carries a production-effectiveness claim.
+failure cleanup against only exact run/role-labeled synthetic fixtures. During
+the approved production-runtime synthetic run, an additional Docker API
+compatibility difference (`CAP_DAC_OVERRIDE` versus `DAC_OVERRIDE`) failed
+closed before snapshot creation and cleaned every exact-label fixture. A
+regression-tested normalization retained exact rejection of unreviewed
+capabilities. The merged retry then verified an online WAL snapshot, readable
+archive, active writer progress, strict resource isolation, and zero residue in
+17 seconds without mounting live data or changing alerts or control. This is
+production-runtime safety evidence for the backup mechanism, not a measured
+storage-control effectiveness claim; the successor application candidate
+remains undeployed.
 
 ## Sanitization contract
 
