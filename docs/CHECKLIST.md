@@ -750,7 +750,24 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   private registry coordinates and digests remain restricted deployment
   evidence. This repository result does not authorize production deployment,
   alert enablement, notification delivery, journal registration, or actuation.
-  Approved transport/runtime registration and incident/runbook links remain. The
+  Internal PR #70 then added a bounded review path for any future
+  storage-pressure alert. The backend emits a versioned operations context only
+  for the exact warning/critical rule IDs and metric, with a same-origin target
+  evidence path and this project's fixed public ITOps runbook URL. The frontend
+  independently recomputes and validates the alert source, rule ID, metric,
+  context version, fixed URL, and percent-encoded path; forged, mismatched,
+  oversized, or unencodable metadata renders no link. Focused tests passed
+  12/12 backend and 3/3 frontend; full regression passed 1,416/1,416 backend
+  and 107/107 frontend, with lint, build, architecture, dependency, diff, and
+  secret checks also passing. Exact-head run #261 passed the quality and
+  linux/amd64 image/runtime gates. The change merged as `3bf8f31`, and
+  post-merge main run #262 passed both jobs. It adds no route, schema,
+  scheduler, collection, rule enablement, delivery trigger, journal
+  registration, or actuator. The fixed public runbook URL is present in future
+  notification content, but no notification was sent. These later repository
+  images do not replace immutable production candidate `4f0f052`, and no
+  deployment or production state changed.
+  Approved transport/runtime registration remains. The
   verifier and importer expose no route, scheduler, alert evaluation, or
   production side effect.
 - [x] Exercise cold restart and rollback in a non-critical environment. Public

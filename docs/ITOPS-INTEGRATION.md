@@ -551,6 +551,27 @@ target header and per-pool/per-disk tables were excluded so no target, host,
 account, pool, or disk identity is published. The four retained cells show only
 detector status, aggregate IO PSI, management-probe state, and alert-gate count.
 
+Internal PR #70 later closed the repository-side incident/runbook navigation
+gap without adding a runtime trigger. For only the two exact storage-pressure
+rule IDs and metric, the backend can persist a versioned operations context
+containing a same-origin target evidence path and this project's fixed public
+runbook URL. The frontend does not trust those strings directly: it validates
+the alert source, rule ID, metric, context version, fixed URL, target-ID bound,
+and recomputed percent-encoded path before rendering either link. Arbitrary or
+malformed metadata fails closed. The fixed public runbook URL is also included
+in the content of a future notification; no private application origin or
+target identity is exported.
+
+Focused tests passed 12/12 backend and 3/3 frontend; full regression passed
+1,416/1,416 backend and 107/107 frontend. Lint, build, architecture,
+dependency, diff, and secret checks passed. Exact-head internal run #261 passed
+the quality and linux/amd64 image/runtime gates. The change merged as
+`3bf8f31`; post-merge main run #262 passed both jobs. It introduced no schema,
+route, scheduler, collection, alert enablement, notification trigger, journal
+registration, or actuation path. It was not deployed, no notification was
+sent, and its later repository images do not replace immutable production
+candidate `4f0f052`.
+
 A later authenticated read-only review found that the currently deployed page
 could omit this evidence even while the database contained it: a generic
 2,000-series latest-metric query was truncating the named PVE/ZFS series, and a
