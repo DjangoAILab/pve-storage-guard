@@ -785,3 +785,20 @@ Last updated: 2026-08-04 (Asia/Shanghai)
 - GitHub organization policy visibility is limited by the current token scope;
   repository-local branch/ruleset and workflow protections must be verified
   independently before release.
+
+## Goal completion audit
+
+This audit is intentionally stricter than release readiness. A green build or a
+successful observer deployment does not close a production-control gate.
+
+| Goal area | Evidence status | Remaining gate |
+| --- | --- | --- |
+| Public project, CI, GHCR, Pages, docs, and privacy controls | Complete for the observer release | Continue normal dependency and publication review. |
+| Offline replay and policy comparison | Complete for the retained incident and research traces | Obtain one independent, promotion-compatible trace with synchronized p95 wait and management evidence. |
+| PVE observer and ITOps collection | Accepted production observer is healthy; 900-cycle read-only calibration completed without mutation | Deploy successor `4f0f052` only through a separately approved application checkpoint and verify the corrected current-resource-only dashboard. |
+| Alert calibration | Warning evidence passed for the observed window; both rules remain disabled | Observe a natural critical firing/recovery lifecycle, then separately approve notification testing and any rule enablement. |
+| PVE runtime hardening | Portable non-root/systemd rehearsal and root-only production compatibility passed | Validate the actual PVE non-root ACL, `/dev/zfs`, systemd, restart, and sustained-supervision boundary. |
+| Actuation and canary | Bounded core and dormant local backend are unreachable from the shipped runtime | Review ADRs 0012/0013, explicitly enroll one non-critical non-boot data disk, approve runtime wiring, controlled load, rollback, and one-disk canary. |
+
+Until every remaining gate above has direct evidence, the overall project Goal
+remains active and adaptive control remains shadow-only.

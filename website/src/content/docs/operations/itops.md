@@ -285,10 +285,21 @@ limits were effective, and forced-stop cleanup left no labeled helper or
 volume. The backend image build also fails unless the required `ionice` binary
 is executable.
 
-Private registry coordinates and digests remain restricted evidence. The merge
-and local rehearsal do not approve a production-host helper rehearsal or
-deployment; production capacity, exact active-pair and rollback verification,
-authenticated acceptance, explicit approval, and immediate rollback criteria
-remain mandatory. Alerts, notifications, journals, and storage actuation remain
-disabled and separately gated. Available event history does not support an
-exact downtime claim.
+Private registry coordinates and digests remain restricted evidence. A later
+production-host rehearsal used only generated, exactly labeled volumes and a
+root-private disposable registry configuration that was removed before the
+workload ran. The first attempt failed closed on an equivalent Docker
+capability-name representation and left zero residue. After a narrow,
+regression-tested normalization fix, the retry completed in 17 seconds with an
+advancing writer, 512 matching rows, `quick_check=ok`, no SQLite sidecars, a
+readable archive, verified resource limits, and zero labeled residue.
+Independent before/after checks confirmed that it did not mount the live
+volume or change the active service, alert rules, notifications, journals,
+storage control, or default Docker-auth boundary.
+
+This closes only the production-runtime rehearsal gate. Candidate `4f0f052`
+remains undeployed: production capacity, exact active-pair and rollback
+verification, authenticated acceptance, explicit application approval, and
+immediate rollback criteria remain mandatory. Alerts, notifications, journals,
+and storage actuation remain disabled and separately gated. Available event
+history does not support an exact downtime claim.
