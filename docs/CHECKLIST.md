@@ -678,10 +678,19 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   their own baseline and all four warning firings recovered. Warning review
   evidence passed, while critical and combined eligibility remained false
   because no critical firing/recovery existed. Both rules stayed disabled and
-  no notification or control action followed. Critical evidence must arise
-  naturally rather than through generated production pressure. Representative
-  evidence, real notification testing, and explicit enablement therefore
-  remain.
+  no notification or control action followed. A subsequent identity-free
+  900-cycle replay found 900/900 complete cycles, 3,600 detector samples, 17
+  quiet cycles, 883 busy cycles, 352 severe cycles, 3,458/142/0 samples at
+  levels 0/1/2, 140 transitions, and zero detector-v1 mismatches. Both warning
+  resources had adequate baselines and all 32 warning firings recovered, so the
+  quiet diagnostic and warning lifecycle are now closed for that window.
+  Critical still had no firing or recovery, combined eligibility remained
+  false, and an independent post-check confirmed a healthy active pair, one
+  writer, disabled rules, restored terminal echo, and no installed evaluator
+  file. No database, deployment, rule, notification, journal, or control state
+  changed. Critical evidence must arise naturally rather than through generated
+  production pressure. Critical lifecycle evidence, real notification testing,
+  and explicit enablement therefore remain.
 - [~] Add dashboard, decision journal, and incident-review links. Internal
   Merged PR #37 includes a tested PVE-only storage-pressure dashboard for
   PSI, management health, separately typed ZFS-pool and per-disk pressure
