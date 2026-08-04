@@ -482,6 +482,18 @@ followed. Synthetic critical replay may test software logic but must not be
 counted as production evidence, and production pressure must not be generated
 to close that gate.
 
+A later identity-free read-only replay expanded the window to 900/900 complete
+cycles and 3,600 detector samples. It found 17 quiet, 883 busy, and 352 severe
+cycles; level occupancy was 3,458/142/0 for levels 0/1/2, with 140 transitions
+and zero detector-v1 mismatches. Both warning-firing resources retained their
+required baseline and all 32 warning firings recovered. This closes the quiet
+diagnostic and warning lifecycle for the observed window, but not the critical
+gate: no level-2 sample, critical firing, or critical recovery existed, so
+combined eligibility remained false. The rules remained disabled. An
+independent post-check confirmed a healthy active pair, one live-volume writer,
+restored terminal echo, and no server-side evaluator file; no database,
+deployment, rule, notification, journal, or control state changed.
+
 The transactional database archive was private and verified, but the offline
 compression/read-back sequence created an undesirably long maintenance pause.
 The internal online-backup implementation now creates a consistent SQLite

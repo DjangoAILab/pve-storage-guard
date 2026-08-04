@@ -206,6 +206,16 @@ disabled and no notification or control action followed. Critical production
 pressure will not be manufactured; synthetic critical tests prove evaluator
 logic only, not production readiness.
 
+A later read-only replay expanded the evidence to 900/900 complete cycles and
+3,600 detector samples. It observed 17 quiet, 883 busy, and 352 severe cycles;
+level occupancy was 3,458/142/0, with 140 transitions and zero detector-v1
+mismatches. Both warning-firing resources had adequate baselines and all 32
+warning firings recovered. Quiet and warning evidence therefore passed for that
+window. Critical still had no level-2 sample, firing, or recovery, so combined
+eligibility remained false and both rules stayed disabled. An independent
+post-check confirmed no database, deployment, rule, notification, journal, or
+control mutation.
+
 An authenticated read-only UI review then exposed a separate presentation
 defect in the currently deployed page. A generic 2,000-series latest query could
 truncate the named PVE/ZFS evidence, and generic workload throughput could be
