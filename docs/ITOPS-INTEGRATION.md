@@ -469,24 +469,46 @@ to close that gate.
 
 The transactional database archive was private and verified, but the offline
 compression/read-back sequence created an undesirably long maintenance pause.
-A repository-only internal Draft now creates a consistent SQLite online backup
-and copies stable ordinary non-database files while the exact active pair stays
-healthy. It keeps archive validation, hashes, method/summary evidence, recovery
-journals, and cutover ordering fail-closed. It rechecks free space after staging
-against actual logical bytes plus headroom; helper containers are isolated,
-resource-bounded, release-labeled, time-bounded, and cleaned only on an exact
-current-release match. A stale helper aborts the next deployment for explicit
-review. Repeated helper tests, a 512 MiB database plus 64 MiB opaque
-file rehearsal, deployment fault tests, full quality gates, and isolated
-linux/amd64 image smoke passed. The hardened Draft head then passed its full
-internal quality gate and isolated linux/amd64 image smoke after an exact
-bounded-retry regression classified npm `EIDLETIMEOUT` as transient without
-broadening deterministic retries. A read-only production-host probe also verified
-the exact timeout CLI contract, but did not create a helper or prove cgroup-v2
-I/O weighting. This mitigation remains unmerged and undeployed; an exact
-candidate, synthetic host rehearsal, effective block-I/O weighting, and explicit
-production approval remain gates. Available event history did not
-support an exact downtime calculation, so this project makes no downtime claim.
+The internal online-backup implementation now creates a consistent SQLite
+backup and copies stable ordinary non-database files while the exact active pair
+stays healthy. It keeps archive validation, hashes, method/summary evidence,
+recovery journals, and cutover ordering fail-closed. It rechecks free space
+after staging against actual logical bytes plus headroom; helper containers are
+isolated, resource-bounded, release-labeled, time-bounded, and cleaned only on
+an exact current-release match. A stale helper aborts the next deployment for
+explicit review.
+
+Container-level rehearsal corrected two defects before merge: streamed Node
+helpers now require explicit interactive stdin, and portable Linux idle
+`ionice` replaces a cgroup-v2 `io.weight` assumption that was not delegated on
+the test host. The backend image build proves the scheduler binary exists. The
+final local container run kept a synthetic WAL writer active, verified matching
+rows, `quick_check=ok`, sidecar exclusion, opaque-file preservation, archive
+readability, effective CPU/memory/PID/idle-I/O limits, forced-stop cleanup, and
+zero labeled residue. Exact-head run #244 and post-merge run #245 passed, and
+the implementation merged internally as `4f0f052`. This remains the immutable
+production candidate; later documentation/tooling images do not replace it.
+
+An additional host-side wrapper then removed operator-composed volume selection
+from the production rehearsal. It accepts no live volume or host data path,
+creates exactly three run/role-labeled synthetic volumes, disables network and
+Docker log persistence, validates the immutable image/revision/helper and
+effective runtime limits, and removes only exact name plus run/role-label
+matches. A local success run verified a 134,492,160-byte snapshot database,
+34,603,008 bytes of separately generated opaque content, a readable
+34,949,113-byte archive, 512 matching rows, `quick_check=ok`, zero sidecars, an
+active writer, and zero residue. A forced snapshot stop independently left zero
+residue. The wrapper merged internally as `ad27888` after exact-head run #248
+passed; post-merge run #249 also passed the full quality and linux/amd64 image
+gates. Images from the wrapper-only run do not replace candidate `4f0f052`.
+
+The production-host synthetic rehearsal is approved but has not run. It remains
+gated on an operator-provided registry credential held only in a root-private
+disposable Docker configuration, exact candidate pull, immediate credential-
+file removal, and an identity-free result. It cannot deploy the application,
+mount the live volume, arm alerts, send notifications, register journals, or
+actuate storage. Available event history does not support an exact downtime
+calculation, so this project makes no downtime claim.
 
 The merged integration also adds a PVE-only storage-pressure dashboard that combines PSI,
 management-probe health, separately typed per-pool and per-disk evidence,

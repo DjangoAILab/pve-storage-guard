@@ -593,10 +593,24 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   writer active, verified snapshot consistency and archive readability, proved
   the CPU/memory/PID/idle-I/O limits, and left no labeled helper or volume.
   Exact-head run `#244` and post-merge run `#245` passed, and the implementation
-  merged as `4f0f052`. It remains undeployed. Root registry authentication, a
-  no-live-volume production-host synthetic rehearsal, authoritative capacity
-  recheck, exact rollback evidence, and explicit production approval remain
-  required.
+  merged as `4f0f052`. A separate host-side rehearsal wrapper now accepts no
+  external volume or host data path, creates exactly three run/role-labeled
+  synthetic volumes, disables networking and Docker log persistence, validates
+  the immutable image/revision/helper plus effective resource limits, and
+  refuses cleanup unless exact name and both labels match. Its local success
+  run verified a 134,492,160-byte snapshot database, 34,603,008 bytes of
+  separately generated opaque content, a readable 34,949,113-byte archive, 512
+  matching rows, `quick_check=ok`, zero sidecars, a live writer, and zero
+  residue. A forced snapshot stop also left zero residue. The wrapper merged
+  internally as `ad27888` after exact-head run `#248` passed; post-merge run
+  `#249` also passed the full quality and linux/amd64 image gates. Images from
+  the wrapper-only run do not replace candidate `4f0f052`, which remains
+  undeployed. The production-host synthetic rehearsal is approved but
+  still requires an operator-provided registry credential held only in a
+  root-private disposable Docker configuration and identity-free execution
+  evidence. The configuration must be removed immediately after the exact
+  candidate pull. Authoritative capacity recheck, exact rollback evidence, and
+  a separate deployment checkpoint remain required.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
