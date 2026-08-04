@@ -605,12 +605,26 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   internally as `ad27888` after exact-head run `#248` passed; post-merge run
   `#249` also passed the full quality and linux/amd64 image gates. Images from
   the wrapper-only run do not replace candidate `4f0f052`, which remains
-  undeployed. The production-host synthetic rehearsal is approved but
-  still requires an operator-provided registry credential held only in a
-  root-private disposable Docker configuration and identity-free execution
-  evidence. The configuration must be removed immediately after the exact
-  candidate pull. Authoritative capacity recheck, exact rollback evidence, and
-  a separate deployment checkpoint remain required.
+  undeployed. The approved production-runtime synthetic rehearsal then used a
+  local operator credential only through a root-private disposable Docker
+  configuration; the exact candidate pull succeeded and the configuration was
+  removed before execution. Its first run failed closed before snapshot
+  creation because the host Docker API returned capability names with a
+  `CAP_` prefix. Exact-label cleanup left zero containers and volumes, while
+  the active pair, single-writer invariant, disabled storage-pressure rules,
+  deployment journals, and default Docker-auth boundary remained safe. The
+  internal fix normalizes only that equivalent API spelling, retains exact
+  rejection of extra capabilities, and passed exact-head plus post-merge
+  quality/image gates. The merged-wrapper retry completed in 17 seconds with a
+  134,492,160-byte consistent database, 34,603,008 opaque bytes, a readable
+  34,948,960-byte archive, 512 matching rows, `quick_check=ok`, zero sidecars,
+  a writer that advanced across the snapshot, and verified-zero residue. It
+  reported `liveVolumeUsed=false`, `alertsChanged=false`, and
+  `controlChanged=false`; independent post-run checks again proved the active
+  service and safety boundaries unchanged. Root-private rehearsal files were
+  hash-checked and removed. Candidate `4f0f052` remains undeployed, and actual
+  application deployment still requires a separate checkpoint with exact
+  rollback evidence.
 - [~] Add multi-signal warning/critical alerts and anti-noise behavior. The
   merged detector requires write-wait plus PSI, queue, or management-plane
   corroboration and seeds disabled warning/critical rules. A persisted SQLite
