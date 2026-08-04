@@ -529,12 +529,16 @@ residue. The wrapper merged internally as `ad27888` after exact-head run #248
 passed; post-merge run #249 also passed the full quality and linux/amd64 image
 gates. Images from the wrapper-only run do not replace candidate `4f0f052`.
 
-The production-host synthetic rehearsal is approved but has not run. It remains
-gated on an operator-provided registry credential held only in a root-private
-disposable Docker configuration, exact candidate pull, immediate credential-
-file removal, and an identity-free result. It cannot deploy the application,
-mount the live volume, arm alerts, send notifications, register journals, or
-actuate storage. Available event history does not support an exact downtime
+The production-host synthetic rehearsal later completed through that exact
+boundary, as recorded in [Current implementation status](#current-implementation-status).
+The first attempt failed closed on an equivalent Docker capability-name
+representation and left zero labeled residue. After the narrow normalization
+fix passed exact-head and post-merge quality/image gates, the retry completed
+with generated data only and independently verified zero live-volume, alert,
+notification, journal, control, and Docker-auth changes. This closes only the
+production-runtime rehearsal gate. Candidate `4f0f052` remains undeployed and
+still requires an explicit application checkpoint with exact rollback
+evidence. Available event history does not support an exact downtime
 calculation, so this project makes no downtime claim.
 
 The merged integration also adds a PVE-only storage-pressure dashboard that combines PSI,
