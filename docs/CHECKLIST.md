@@ -146,7 +146,12 @@ Last updated: 2026-08-04 (Asia/Shanghai)
   the shipped command dependency graph excludes the actuator package and its
   binary excludes dormant backend symbols. Package tests and race tests passed;
   no host `pvesh`, PVE configuration, runtime registration, or production state
-  was touched.
+  was touched. Public review: [PR #65](https://github.com/DjangoAILab/pve-storage-guard/pull/65),
+  implementation commit `4f23089`; its initial
+  [CI](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30891280963),
+  [CodeQL](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30891278831),
+  and [Pages build](https://github.com/DjangoAILab/pve-storage-guard/actions/runs/30891278424)
+  passed.
   This item remains partial until stakeholder review accepts ADRs 0012 and
   0013, a separately reviewed constructor/runtime path is approved, and live
   non-root PVE, non-critical controlled-load, and rollback evidence pass.
